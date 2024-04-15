@@ -18,8 +18,10 @@ public class OAuthAuthorizeService : BaseInvocable, IOAuth2AuthorizeService
         {
             { "client_id", ApplicationConstants.ClientId },
             { "response_type", "code" },
-            { "scope", "code" },
+            { "scope", ApplicationConstants.Scope },
             { "state", values["state"] },
+            { "authorization_url", "https://webflow.com/oauth/authorize"},
+            { "actual_redirect_uri", InvocationContext.UriInfo.AuthorizationCodeRedirectUri.ToString() },
         };
 
         return bridgeOauthUrl.WithQuery(parameters);

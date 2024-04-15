@@ -5,9 +5,9 @@ using Blackbird.Applications.Sdk.Common.Invocation;
 namespace Apps.Webflow.Actions;
 
 [ActionList]
-public class Actions : WebflowInvocable
+public class CollectionActions : WebflowInvocable
 {
-    public Actions(InvocationContext invocationContext) : base(invocationContext)
+    public CollectionActions(InvocationContext invocationContext) : base(invocationContext)
     {
     }
 }
