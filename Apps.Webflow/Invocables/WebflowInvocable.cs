@@ -1,17 +1,17 @@
-using Apps.App.Api;
+using Apps.Webflow.Api;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Invocation;
 
-namespace Apps.App.Invocables;
+namespace Apps.Webflow.Invocables;
 
-public class AppInvocable : BaseInvocable
+public class WebflowInvocable : BaseInvocable
 {
     protected AuthenticationCredentialsProvider[] Creds =>
         InvocationContext.AuthenticationCredentialsProviders.ToArray();
 
-    protected AppClient Client { get; }
-    public AppInvocable(InvocationContext invocationContext) : base(invocationContext)
+    protected WebflowClient Client { get; }
+    public WebflowInvocable(InvocationContext invocationContext) : base(invocationContext)
     {
         Client = new();
     }
