@@ -8,5 +8,9 @@ public class CollectionItemEntity
     
     public string CmsLocaleId { get; set; }
     
+    public string Name => FieldData?["name"]?.ToString() ?? Id;
+
+    public DateTime? LastUpdated { get; set; }
+
     public JObject FieldData { get; set; }
 }

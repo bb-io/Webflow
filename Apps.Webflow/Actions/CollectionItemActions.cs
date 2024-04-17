@@ -32,7 +32,7 @@ public class CollectionItemActions : WebflowInvocable
     {
         var collection = await GetCollection(input.CollectionId);
 
-        var item = await GetCollectionItem(input.CollectionId, input.CollectionItemId);
+        var item = await GetCollectionItem(input.CollectionId, input.CollectionItemId, input.CmsLocaleId);
         var html = CollectionItemHtmlConverter.ToHtml(item, collection.Fields);
 
         return new()
@@ -40,7 +40,7 @@ public class CollectionItemActions : WebflowInvocable
             File = await _fileManagementClient.UploadAsync(html, MediaTypeNames.Text.Html, $"{item.Id}.html")
         };
     }
-    
+
     [Action("Update collection item content from HTML",
         Description = "Update content of a specific collection item from HTML file")]
     public async Task UpdateCollectionItemContent(
@@ -48,28 +48,42 @@ public class CollectionItemActions : WebflowInvocable
         [ActionParameter] FileModel file)
     {
         var fileStream = await _fileManagementClient.DownloadAsync(file.File);
-        
-        var item = await GetCollectionItem(input.CollectionId, input.CollectionItemId);
-        var fieldData = CollectionItemHtmlConverter.ToJson(fileStream, item.FieldData);
+        var item = await GetCollectionItem(input.CollectionId, input.CollectionItemId, input.CmsLocaleId);
+        var collection = await GetCollection(input.CollectionId);
+        var fieldData = CollectionItemHtmlConverter.ToJson(fileStream, item.FieldData, collection.Fields);
 
-        var endpoint = $"collection/{input.CollectionId}/items/{input.CollectionItemId}";
+        var endpoint = $"collections/{input.CollectionId}/items/{input.CollectionItemId}";
         var request = new WebflowRequest(endpoint, Method.Patch, Creds)
             .WithJsonBody(new
             {
                 fieldData
             }, JsonConfig.Settings);
 
-        await Client.ExecuteWithErrorHandling<CollectionItemEntity>(request);
+        await Client.ExecuteWithErrorHandling(request);
     }
 
-    private Task<CollectionItemEntity> GetCollectionItem(string collectionId, string collectionItemId)
+    [Action("Publish collection item",
+        Description = "Publish a specific collection item")]
+    public async Task PublishItem([ActionParameter] CollectionItemRequest input)
     {
-        var endpoint = $"collection/{collectionId}/items/{collectionItemId}";
+        var endpoint = $"collections/{input.CollectionId}/items/publish";
+        var request = new WebflowRequest(endpoint, Method.Post, Creds)
+            .WithJsonBody(new
+            {
+                itemIds = new[] { input.CollectionItemId }
+            }, JsonConfig.Settings);
+
+        await Client.ExecuteWithErrorHandling(request);
+    }
+
+    private Task<CollectionItemEntity> GetCollectionItem(string collectionId, string collectionItemId, string locale)
+    {
+        var endpoint = $"collections/{collectionId}/items/{collectionItemId}?cmsLocaleId={locale}";
         var request = new WebflowRequest(endpoint, Method.Get, Creds);
 
         return Client.ExecuteWithErrorHandling<CollectionItemEntity>(request);
     }
-    
+
     private Task<CollectionEntity> GetCollection(string collectionId)
     {
         var request = new WebflowRequest($"collections/{collectionId}", Method.Get, Creds);

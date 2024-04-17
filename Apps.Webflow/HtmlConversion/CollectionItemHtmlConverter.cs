@@ -9,6 +9,7 @@ namespace Apps.Webflow.HtmlConversion;
 public static class CollectionItemHtmlConverter
 {
     private static readonly string[] TranslatableTypes = ["RichText", "PlainText", "Link"];
+    private static readonly string[] NonUpdatableTypes = ["Reference"];
 
     public static Stream ToHtml(CollectionItemEntity item, IEnumerable<FieldEntity> collectionFields)
     {
@@ -39,7 +40,7 @@ public static class CollectionItemHtmlConverter
         return result;
     }
 
-    public static JObject ToJson(Stream fileStream, JObject fieldData)
+    public static JObject ToJson(Stream fileStream, JObject fieldData, IEnumerable<FieldEntity> collectionFields)
     {
         var doc = new HtmlDocument();
         doc.Load(fileStream);
@@ -54,6 +55,13 @@ public static class CollectionItemHtmlConverter
                 var slug = x.Attributes[ConversionConstants.FieldSlug].Value;
                 fieldData[slug] = HttpUtility.HtmlDecode(x.InnerHtml);
             });
+
+        fieldData
+            .Children()
+            .OfType<JProperty>()
+            .Where(prop => NonUpdatableTypes.Contains(collectionFields.FirstOrDefault(x => x.Slug == prop.Name)?.Type))
+            .ToList()
+            .ForEach(x => x.Remove());
 
         return fieldData;
     }
