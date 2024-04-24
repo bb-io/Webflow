@@ -5,6 +5,7 @@ using Apps.Webflow.Models.Request.CollectionItem;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.Sdk.Utils.Extensions.String;
 using RestSharp;
 
 namespace Apps.Webflow.DataSourceHandlers;
@@ -24,13 +25,17 @@ public class CollectionItemDataSourceHandler : WebflowInvocable, IAsyncDataSourc
         if (string.IsNullOrWhiteSpace(Request.CollectionId))
             throw new("You need to specify Collection ID first");
 
-        var request = new WebflowRequest($"collections/{Request.CollectionId}/items", Method.Get, Creds);
+        var endpoint = $"collections/{Request.CollectionId}/items";
+
+        endpoint = string.IsNullOrEmpty(Request.CmsLocaleId)
+            ? endpoint
+            : endpoint.SetQueryParameter("cmsLocaleIds", Request.CmsLocaleId);
+        var request = new WebflowRequest(endpoint, Method.Get, Creds);
         var response = await Client.Paginate<CollectionItemEntity>(request);
 
         return response
             .Where(x => context.SearchString is null ||
                         x.Name.Contains(context.SearchString, StringComparison.OrdinalIgnoreCase))
-            .Where(x => Request.CmsLocaleId is null || x.CmsLocaleId == Request.CmsLocaleId)
             .OrderByDescending(x => x.LastUpdated)
             .Take(50)
             .ToDictionary(x => x.Id, x => x.Name);
