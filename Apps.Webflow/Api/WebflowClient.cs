@@ -20,7 +20,7 @@ public class WebflowClient : BlackBirdRestClient
     protected override Exception ConfigureErrorException(RestResponse response)
     {
         var error = JsonConvert.DeserializeObject<WebflowError>(response.Content!)!;
-        return new($"{error.Code}: {error.Message}");
+        return new(error.Message);
     }
 
     public async Task<List<T>> Paginate<T>(RestRequest request)

@@ -10,5 +10,5 @@ public class SiteEntity
     
     public DateTime? LastPublished { get; set; }
     
-    public LocalesResponse Locales { get; set; }
+    public LocalesResponse? Locales { get; set; }
 }

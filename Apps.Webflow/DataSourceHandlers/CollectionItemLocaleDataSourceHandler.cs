@@ -28,6 +28,9 @@ public class CollectionItemLocaleDataSourceHandler : WebflowInvocable, IAsyncDat
         var request = new WebflowRequest($"sites/{SiteId}", Method.Get, Creds);
         var site = await Client.ExecuteWithErrorHandling<SiteEntity>(request);
 
+        if (site.Locales is null)
+            return new();
+        
         return site.Locales.Secondary
             .Append(site.Locales.Primary)
             .Where(x => context.SearchString is null ||

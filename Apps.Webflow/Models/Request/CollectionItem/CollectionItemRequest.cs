@@ -17,7 +17,7 @@ public class CollectionItemRequest
     
     [Display("Locale")]
     [DataSource(typeof(CollectionItemLocaleDataSourceHandler))]
-    public string CmsLocaleId { get; set; }
+    public string? CmsLocaleId { get; set; }
     
     [Display("Collection item ID")]
     [DataSource(typeof(CollectionItemDataSourceHandler))]

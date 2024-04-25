@@ -11,6 +11,7 @@ using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Applications.Sdk.Utils.Extensions.Http;
+using Blackbird.Applications.Sdk.Utils.Extensions.String;
 using RestSharp;
 
 namespace Apps.Webflow.Actions;
@@ -56,7 +57,8 @@ public class CollectionItemActions : WebflowInvocable
         var request = new WebflowRequest(endpoint, Method.Patch, Creds)
             .WithJsonBody(new
             {
-                fieldData
+                fieldData,
+                cmsLocaleId = input.CmsLocaleId,
             }, JsonConfig.Settings);
 
         await Client.ExecuteWithErrorHandling(request);
@@ -76,9 +78,14 @@ public class CollectionItemActions : WebflowInvocable
         await Client.ExecuteWithErrorHandling(request);
     }
 
-    private Task<CollectionItemEntity> GetCollectionItem(string collectionId, string collectionItemId, string locale)
+    private Task<CollectionItemEntity> GetCollectionItem(string collectionId, string collectionItemId,
+        string? locale = default)
     {
-        var endpoint = $"collections/{collectionId}/items/{collectionItemId}?cmsLocaleId={locale}";
+        var endpoint = $"collections/{collectionId}/items/{collectionItemId}";
+
+        if (locale != null)
+            endpoint = endpoint.SetQueryParameter("cmsLocaleId", locale);
+
         var request = new WebflowRequest(endpoint, Method.Get, Creds);
 
         return Client.ExecuteWithErrorHandling<CollectionItemEntity>(request);
