@@ -6,14 +6,16 @@
         <Nullable>enable</Nullable>
         <Product>Webflow</Product>
         <Description>Create custom, responsive websites with the power of code — visually. Design and build your site with a flexible CMS and top-tier hosting.</Description>
-        <Version>1.0.0</Version>
+        <Version>1.0.1</Version>
         <AssemblyName>Apps.Webflow</AssemblyName>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="Blackbird.Applications.Sdk.Common" Version="2.6.0"/>
         <PackageReference Include="Blackbird.Applications.Sdk.Utils" Version="1.0.19"/>
-        <PackageReference Include="HtmlAgilityPack" Version="1.11.60" />
+        <PackageReference Include="HtmlAgilityPack" Version="1.11.60"/>
     </ItemGroup>
-
+    <ItemGroup>
+        <EmbeddedResource CopyToOutputDirectory="Always" Include="image\icon.png"/>
+    </ItemGroup>
 </Project>
