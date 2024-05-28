@@ -17,6 +17,7 @@ public class OAuthAuthorizeService : BaseInvocable, IOAuth2AuthorizeService
         var parameters = new Dictionary<string, string>
         {
             { "client_id", ApplicationConstants.ClientId },
+            { "redirect_uri", $"{InvocationContext.UriInfo.BridgeServiceUrl.ToString().TrimEnd('/')}/AuthorizationCode" },
             { "response_type", "code" },
             { "scope", ApplicationConstants.Scope },
             { "state", values["state"] },
