@@ -44,12 +44,12 @@ public class CollectionActions : WebflowInvocable
         var request = new WebflowRequest($"collections/{collectionRequest.CollectionId}", Method.Delete, Creds);
         return Client.ExecuteWithErrorHandling(request);
     }
-    
+
     private Task<List<CollectionItemEntity>> GetCollectionItems(string collectionId)
     {
         var endpoint = $"collections/{collectionId}/items";
         var request = new WebflowRequest(endpoint, Method.Get, Creds);
-        
+
         return Client.Paginate<CollectionItemEntity>(request);
     }
 }
