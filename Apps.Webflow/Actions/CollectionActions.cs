@@ -20,10 +20,13 @@ public class CollectionActions : WebflowInvocable
     }
 
     [Action("Get collection", Description = "Get details of a specific collection")]
-    public Task<CollectionEntity> GetCollection([ActionParameter] CollectionRequest collectionRequest)
+    public async Task<FullCollectionEntity> GetCollection([ActionParameter] CollectionRequest collectionRequest)
     {
         var request = new WebflowRequest($"collections/{collectionRequest.CollectionId}", Method.Get, Creds);
-        return Client.ExecuteWithErrorHandling<CollectionEntity>(request);
+        var response = await Client.ExecuteWithErrorHandling<FullCollectionEntity>(request);
+
+        response.CollectionItems = await GetCollectionItems(collectionRequest.CollectionId);
+        return response;
     }
 
     [Action("Create collection", Description = "Create a new collection")]
@@ -40,5 +43,13 @@ public class CollectionActions : WebflowInvocable
     {
         var request = new WebflowRequest($"collections/{collectionRequest.CollectionId}", Method.Delete, Creds);
         return Client.ExecuteWithErrorHandling(request);
+    }
+
+    private Task<List<CollectionItemEntity>> GetCollectionItems(string collectionId)
+    {
+        var endpoint = $"collections/{collectionId}/items";
+        var request = new WebflowRequest(endpoint, Method.Get, Creds);
+
+        return Client.Paginate<CollectionItemEntity>(request);
     }
 }

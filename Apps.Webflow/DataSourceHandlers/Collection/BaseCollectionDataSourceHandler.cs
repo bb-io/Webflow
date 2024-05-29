@@ -23,7 +23,7 @@ public class BaseCollectionDataSourceHandler: WebflowInvocable, IAsyncDataSource
             throw new("You need to specify Site ID first");
 
         var request = new WebflowRequest($"sites/{SiteId}/collections", Method.Get, Creds);
-        var response = await Client.ExecuteWithErrorHandling<ListCollctionsResponse>(request);
+        var response = await Client.ExecuteWithErrorHandling<ListCollectionsResponse>(request);
 
         return response.Collections
             .Where(x => context.SearchString is null ||

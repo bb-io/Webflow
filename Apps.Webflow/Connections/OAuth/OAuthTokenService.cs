@@ -18,6 +18,7 @@ public class OAuthTokenService : WebflowInvocable, IOAuth2TokenService
         {
             { "client_id", ApplicationConstants.ClientId },
             { "client_secret", ApplicationConstants.ClientSecret },
+            { "redirect_uri", $"{InvocationContext.UriInfo.BridgeServiceUrl.ToString().TrimEnd('/')}/AuthorizationCode" },
             { "code", code },
             { "state", state },
             { "grant_type", "authorization_code" },
