@@ -24,11 +24,11 @@ public class WebhookList
 
     [Webhook("On page created", typeof(PageCreatedWebhookHandler),
         Description = "Triggers when specific page was created")]
-    public Task<WebhookResponse<PageResponse>> OnPageCreated(WebhookRequest webhookRequest)
+    public Task<WebhookResponse<PageCreatedResponse>> OnPageCreated(WebhookRequest webhookRequest)
     {
-        var data = webhookRequest.GetPayload<PageResponse>();
+        var data = webhookRequest.GetPayload<PageCreatedResponse>();
 
-        return Task.FromResult<WebhookResponse<PageResponse>>(new()
+        return Task.FromResult<WebhookResponse<PageCreatedResponse>>(new()
         {
             HttpResponseMessage = null,
             Result = data
@@ -37,11 +37,11 @@ public class WebhookList
 
     [Webhook("On page deleted", typeof(PageDeletedWebhookHandler),
         Description = "Triggers when specific page was deleted")]
-    public Task<WebhookResponse<PageResponse>> OnPageDeleted(WebhookRequest webhookRequest)
+    public Task<WebhookResponse<PageDeletedResponse>> OnPageDeleted(WebhookRequest webhookRequest)
     {
-        var data = webhookRequest.GetPayload<PageResponse>();
+        var data = webhookRequest.GetPayload<PageDeletedResponse>();
 
-        return Task.FromResult<WebhookResponse<PageResponse>>(new()
+        return Task.FromResult<WebhookResponse<PageDeletedResponse>>(new()
         {
             HttpResponseMessage = null,
             Result = data
@@ -50,11 +50,11 @@ public class WebhookList
 
     [Webhook("On page metadata updated", typeof(PageMetadataUpdatedWebhookHandler),
         Description = "Triggers when specific page metadata was updated")]
-    public Task<WebhookResponse<PageResponse>> OnPageMetadataUpdated(WebhookRequest webhookRequest)
+    public Task<WebhookResponse<PageUpdatedResponse>> OnPageMetadataUpdated(WebhookRequest webhookRequest)
     {
-        var data = webhookRequest.GetPayload<PageResponse>();
+        var data = webhookRequest.GetPayload<PageUpdatedResponse>();
 
-        return Task.FromResult<WebhookResponse<PageResponse>>(new()
+        return Task.FromResult<WebhookResponse<PageUpdatedResponse>>(new()
         {
             HttpResponseMessage = null,
             Result = data

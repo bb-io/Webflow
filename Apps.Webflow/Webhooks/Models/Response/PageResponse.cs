@@ -12,7 +12,4 @@ public class PageResponse
     
     [Display("Page title")]
     public string PageTitle { get; set; }
-    
-    [Display("Deleted on")]
-    public DateTime DeletedOn { get; set; }
 }
