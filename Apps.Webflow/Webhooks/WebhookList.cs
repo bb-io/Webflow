@@ -2,6 +2,7 @@ using Apps.Webflow.Extensions;
 using Apps.Webflow.Webhooks.Handlers;
 using Apps.Webflow.Webhooks.Models.Response;
 using Blackbird.Applications.Sdk.Common.Webhooks;
+using Newtonsoft.Json.Linq;
 
 namespace Apps.Webflow.Webhooks;
 
@@ -64,7 +65,9 @@ public class WebhookList
         Description = "Triggers when specific collection item was created")]
     public Task<WebhookResponse<CollectionItemResponse>> OnCollectionItemCreated(WebhookRequest webhookRequest)
     {
-        var data = webhookRequest.GetPayload<CollectionItemResponse>();
+        var data = webhookRequest.GetPayload<CollectionCreatedWebhookResponse>();
+
+        data.Id ??= (data.FieldData.Descendants().First(x => x is JProperty { Name: "_id" }) as JProperty)!.Value.ToString();
 
         return Task.FromResult<WebhookResponse<CollectionItemResponse>>(new()
         {
