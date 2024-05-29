@@ -67,7 +67,8 @@ public class WebhookList
     {
         var data = webhookRequest.GetPayload<CollectionCreatedWebhookResponse>();
 
-        data.Id ??= (data.FieldData.Descendants().First(x => x is JProperty { Name: "_id" }) as JProperty)!.Value.ToString();
+        data.Id ??= (data.FieldData.Descendants().First(x => x is JProperty { Name: "_id" }) as JProperty)!.Value
+            .ToString();
 
         return Task.FromResult<WebhookResponse<CollectionItemResponse>>(new()
         {
