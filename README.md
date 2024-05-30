@@ -39,6 +39,10 @@ Webflow is a cloud-based web design and development platform that enables users 
 -   **On page metadata updated** is triggered when specific page metadata is updated
 -   **On site published** is triggered when a specific site is published
 
+## Example
+
+![image](https://github.com/bb-io/Webflow/assets/137277669/77a4c14e-c505-4fb5-a813-3d46eb66ad8c)
+
 ## Missing features
 
 Webflow is a huge app with a lot of features. If any of these features are particularly interesting to you, let us know!
