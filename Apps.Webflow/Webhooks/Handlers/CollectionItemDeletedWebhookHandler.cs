@@ -8,7 +8,7 @@ public class CollectionItemDeletedWebhookHandler : WebflowWebhookHandler
 {
     protected override string EventType => "collection_item_deleted";
 
-    public CollectionItemDeletedWebhookHandler(InvocationContext invocationContext, [WebhookParameter] SiteRequest siteRequest) : base(invocationContext,
+    public CollectionItemDeletedWebhookHandler(InvocationContext invocationContext, [WebhookParameter(true)] SiteRequest siteRequest) : base(invocationContext,
         siteRequest.SiteId)
     {
     }

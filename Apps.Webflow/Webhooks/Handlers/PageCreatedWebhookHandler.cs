@@ -8,7 +8,7 @@ public class PageCreatedWebhookHandler : WebflowWebhookHandler
 {
     protected override string EventType => "page_created";
 
-    public PageCreatedWebhookHandler(InvocationContext invocationContext, [WebhookParameter] SiteRequest siteRequest) : base(invocationContext,
+    public PageCreatedWebhookHandler(InvocationContext invocationContext, [WebhookParameter(true)] SiteRequest siteRequest) : base(invocationContext,
         siteRequest.SiteId)
     {
     }

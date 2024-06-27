@@ -8,7 +8,7 @@ public class PageDeletedWebhookHandler : WebflowWebhookHandler
 {
     protected override string EventType => "page_deleted";
 
-    public PageDeletedWebhookHandler(InvocationContext invocationContext, [WebhookParameter] SiteRequest siteRequest) : base(invocationContext,
+    public PageDeletedWebhookHandler(InvocationContext invocationContext, [WebhookParameter(true)] SiteRequest siteRequest) : base(invocationContext,
         siteRequest.SiteId)
     {
     }
