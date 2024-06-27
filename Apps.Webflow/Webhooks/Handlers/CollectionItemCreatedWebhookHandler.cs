@@ -8,7 +8,7 @@ public class CollectionItemCreatedWebhookHandler : WebflowWebhookHandler
 {
     protected override string EventType => "collection_item_created";
 
-    public CollectionItemCreatedWebhookHandler(InvocationContext invocationContext, [WebhookParameter] SiteRequest siteRequest) : base(invocationContext,
+    public CollectionItemCreatedWebhookHandler(InvocationContext invocationContext, [WebhookParameter(true)] SiteRequest siteRequest) : base(invocationContext,
         siteRequest.SiteId)
     {
     }

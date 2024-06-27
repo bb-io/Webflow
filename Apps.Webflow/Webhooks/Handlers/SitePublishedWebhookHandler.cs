@@ -8,7 +8,7 @@ public class SitePublishedWebhookHandler : WebflowWebhookHandler
 {
     protected override string EventType => "site_publish";
 
-    public SitePublishedWebhookHandler(InvocationContext invocationContext, [WebhookParameter] SiteRequest siteRequest) : base(invocationContext,
+    public SitePublishedWebhookHandler(InvocationContext invocationContext, [WebhookParameter(true)] SiteRequest siteRequest) : base(invocationContext,
         siteRequest.SiteId)
     {
     }
