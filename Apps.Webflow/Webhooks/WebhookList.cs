@@ -1,14 +1,25 @@
+using System.Net;
+using Apps.Webflow.Api;
 using Apps.Webflow.Extensions;
+using Apps.Webflow.Invocables;
+using Apps.Webflow.Models.Entities;
+using Apps.Webflow.Models.Request;
 using Apps.Webflow.Webhooks.Handlers;
 using Apps.Webflow.Webhooks.Models.Response;
+using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common.Webhooks;
 using Newtonsoft.Json.Linq;
+using RestSharp;
 
 namespace Apps.Webflow.Webhooks;
 
 [WebhookList]
-public class WebhookList
+public class WebhookList : WebflowInvocable
 {
+    public WebhookList(InvocationContext invocationContext) : base(invocationContext)
+    {
+    }
+
     [Webhook("On site published", typeof(SitePublishedWebhookHandler),
         Description = "Triggers when specific site was published")]
     public Task<WebhookResponse<SitePublishedResponse>> OnSitePublished(WebhookRequest webhookRequest)
@@ -24,15 +35,26 @@ public class WebhookList
 
     [Webhook("On page created", typeof(PageCreatedWebhookHandler),
         Description = "Triggers when specific page was created")]
-    public Task<WebhookResponse<PageCreatedResponse>> OnPageCreated(WebhookRequest webhookRequest)
+    public async Task<WebhookResponse<PageCreatedResponse>> OnPageCreated(WebhookRequest webhookRequest,
+        [WebhookParameter] SiteLocaleRequest input)
     {
         var data = webhookRequest.GetPayload<PageCreatedResponse>();
 
-        return Task.FromResult<WebhookResponse<PageCreatedResponse>>(new()
+        var endpoint = $"pages/{data.PageId}";
+        var item = await Client.ExecuteWithErrorHandling<PageEntity>(new WebflowRequest(endpoint, Method.Get, Creds));
+
+        if (input.LocaleId != null && item.LocaleId != input.LocaleId)
+            return new()
+            {
+                HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
+                ReceivedWebhookRequestType = WebhookRequestType.Preflight
+            };
+
+        return new()
         {
             HttpResponseMessage = null,
             Result = data
-        });
+        };
     }
 
     [Webhook("On page deleted", typeof(PageDeletedWebhookHandler),
@@ -50,25 +72,44 @@ public class WebhookList
 
     [Webhook("On page metadata updated", typeof(PageMetadataUpdatedWebhookHandler),
         Description = "Triggers when specific page metadata was updated")]
-    public Task<WebhookResponse<PageUpdatedResponse>> OnPageMetadataUpdated(WebhookRequest webhookRequest)
+    public async Task<WebhookResponse<PageUpdatedResponse>> OnPageMetadataUpdated(WebhookRequest webhookRequest,
+        [WebhookParameter] SiteLocaleRequest input)
     {
         var data = webhookRequest.GetPayload<PageUpdatedResponse>();
 
-        return Task.FromResult<WebhookResponse<PageUpdatedResponse>>(new()
+        var endpoint = $"pages/{data.PageId}";
+        var item = await Client.ExecuteWithErrorHandling<PageEntity>(new WebflowRequest(endpoint, Method.Get, Creds));
+
+        if (input.LocaleId != null && item.LocaleId != input.LocaleId)
+            return new()
+            {
+                HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
+                ReceivedWebhookRequestType = WebhookRequestType.Preflight
+            };
+
+        return new()
         {
             HttpResponseMessage = null,
             Result = data
-        });
+        };
     }
 
     [Webhook("On collection item created", typeof(CollectionItemCreatedWebhookHandler),
         Description = "Triggers when specific collection item was created")]
-    public Task<WebhookResponse<CollectionItemResponse>> OnCollectionItemCreated(WebhookRequest webhookRequest)
+    public Task<WebhookResponse<CollectionItemResponse>> OnCollectionItemCreated(WebhookRequest webhookRequest,
+        [WebhookParameter] SiteCmsLocaleRequest input)
     {
         var data = webhookRequest.GetPayload<CollectionCreatedWebhookResponse>();
 
         data.Id ??= (data.FieldData.Descendants().First(x => x is JProperty { Name: "_id" }) as JProperty)!.Value
             .ToString();
+
+        if (input.LocaleId != null && data.FieldData["_locale"]!.ToString() != input.LocaleId)
+            return Task.FromResult(new WebhookResponse<CollectionItemResponse>
+            {
+                HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
+                ReceivedWebhookRequestType = WebhookRequestType.Preflight
+            });
 
         return Task.FromResult<WebhookResponse<CollectionItemResponse>>(new()
         {
@@ -79,9 +120,18 @@ public class WebhookList
 
     [Webhook("On collection item changed", typeof(CollectionItemChangedWebhookHandler),
         Description = "Triggers when specific collection item was changed")]
-    public Task<WebhookResponse<CollectionItemResponse>> OnCollectionItemChanged(WebhookRequest webhookRequest)
+    public Task<WebhookResponse<CollectionItemResponse>> OnCollectionItemChanged(WebhookRequest webhookRequest,
+        [WebhookParameter] SiteCmsLocaleRequest input)
+
     {
-        var data = webhookRequest.GetPayload<CollectionItemResponse>();
+        var data = webhookRequest.GetPayload<CollectionCreatedWebhookResponse>();
+
+        if (input.LocaleId != null && data.FieldData["_locale"]!.ToString() != input.LocaleId)
+            return Task.FromResult(new WebhookResponse<CollectionItemResponse>
+            {
+                HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
+                ReceivedWebhookRequestType = WebhookRequestType.Preflight
+            });
 
         return Task.FromResult<WebhookResponse<CollectionItemResponse>>(new()
         {
@@ -105,14 +155,27 @@ public class WebhookList
 
     [Webhook("On collection item unpublished", typeof(CollectionItemUnpublishedWebhookHandler),
         Description = "Triggers when specific collection item was unpublished")]
-    public Task<WebhookResponse<CollectionItemResponse>> OnCollectionItemUnpublished(WebhookRequest webhookRequest)
+    public async Task<WebhookResponse<CollectionItemResponse>> OnCollectionItemUnpublished(
+        WebhookRequest webhookRequest,
+        [WebhookParameter] SiteCmsLocaleRequest input)
     {
         var data = webhookRequest.GetPayload<CollectionItemResponse>();
 
-        return Task.FromResult<WebhookResponse<CollectionItemResponse>>(new()
+        var endpoint = $"collections/{data.CollectionId}/items/{data.Id}";
+        var item = await Client.ExecuteWithErrorHandling<CollectionItemEntity>(new WebflowRequest(endpoint, Method.Get,
+            Creds));
+
+        if (input.LocaleId != null && item.CmsLocaleId != input.LocaleId)
+            return new()
+            {
+                HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
+                ReceivedWebhookRequestType = WebhookRequestType.Preflight
+            };
+
+        return new()
         {
             HttpResponseMessage = null,
             Result = data
-        });
+        };
     }
 }

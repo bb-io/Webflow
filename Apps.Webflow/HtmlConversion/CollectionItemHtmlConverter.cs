@@ -8,6 +8,7 @@ namespace Apps.Webflow.HtmlConversion;
 
 public static class CollectionItemHtmlConverter
 {
+    private static readonly string[] UntraslatableSlugs = ["slug"];
     private static readonly string[] TranslatableTypes = ["RichText", "PlainText", "Link"];
     private static readonly string[] NonUpdatableTypes = ["Reference"];
 
@@ -16,7 +17,7 @@ public static class CollectionItemHtmlConverter
         var (doc, body) = PrepareEmptyHtmlDocument();
 
         var translatableFields = collectionFields
-            .Where(x => TranslatableTypes.Contains(x.Type))
+            .Where(x => TranslatableTypes.Contains(x.Type) && !UntraslatableSlugs.Contains(x.Slug))
             .Select(x => x.Slug)
             .ToArray();
 

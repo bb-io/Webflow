@@ -1,20 +1,20 @@
 using Apps.Webflow.Api;
 using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Entities;
-using Apps.Webflow.Models.Request.CollectionItem;
+using Apps.Webflow.Models.Request;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using RestSharp;
 
-namespace Apps.Webflow.DataSourceHandlers;
+namespace Apps.Webflow.DataSourceHandlers.Locale;
 
-public class CollectionItemLocaleDataSourceHandler : WebflowInvocable, IAsyncDataSourceHandler
+public class SiteLocaleDataSourceHandler : WebflowInvocable, IAsyncDataSourceHandler
 {
     private string SiteId { get; }
 
-    public CollectionItemLocaleDataSourceHandler(InvocationContext invocationContext,
-        [ActionParameter] CollectionItemRequest request) : base(invocationContext)
+    public SiteLocaleDataSourceHandler(InvocationContext invocationContext, [ActionParameter] SiteLocaleRequest request)
+        : base(invocationContext)
     {
         SiteId = request.SiteId;
     }
@@ -30,11 +30,11 @@ public class CollectionItemLocaleDataSourceHandler : WebflowInvocable, IAsyncDat
 
         if (site.Locales is null)
             return new();
-        
+
         return site.Locales.Secondary
             .Append(site.Locales.Primary)
             .Where(x => context.SearchString is null ||
                         x.DisplayName.Contains(context.SearchString, StringComparison.OrdinalIgnoreCase))
-            .ToDictionary(x => x.CmsLocaleId, x => x.DisplayName);
+            .ToDictionary(x => x.Id, x => x.DisplayName);
     }
 }

@@ -8,7 +8,7 @@ public class PageMetadataUpdatedWebhookHandler : WebflowWebhookHandler
 {
     protected override string EventType => "page_metadata_updated";
 
-    public PageMetadataUpdatedWebhookHandler(InvocationContext invocationContext, [WebhookParameter(true)] SiteRequest siteRequest) : base(invocationContext,
+    public PageMetadataUpdatedWebhookHandler(InvocationContext invocationContext, [WebhookParameter(true)] SiteLocaleRequest siteRequest) : base(invocationContext,
         siteRequest.SiteId)
     {
     }
