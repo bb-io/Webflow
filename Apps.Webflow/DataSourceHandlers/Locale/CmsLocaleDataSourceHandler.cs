@@ -1,22 +1,19 @@
 using Apps.Webflow.Api;
 using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Entities;
-using Apps.Webflow.Models.Request.CollectionItem;
-using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using RestSharp;
 
-namespace Apps.Webflow.DataSourceHandlers;
+namespace Apps.Webflow.DataSourceHandlers.Locale;
 
-public class CollectionItemLocaleDataSourceHandler : WebflowInvocable, IAsyncDataSourceHandler
+public class CmsLocaleDataSourceHandler :  WebflowInvocable, IAsyncDataSourceHandler
 {
     private string SiteId { get; }
 
-    public CollectionItemLocaleDataSourceHandler(InvocationContext invocationContext,
-        [ActionParameter] CollectionItemRequest request) : base(invocationContext)
+    public CmsLocaleDataSourceHandler(InvocationContext invocationContext, string siteId) : base(invocationContext)
     {
-        SiteId = request.SiteId;
+        SiteId = siteId;
     }
 
     public async Task<Dictionary<string, string>> GetDataAsync(DataSourceContext context,
