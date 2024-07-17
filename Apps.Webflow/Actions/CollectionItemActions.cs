@@ -66,13 +66,13 @@ public class CollectionItemActions : WebflowInvocable
 
     [Action("Publish collection item",
         Description = "Publish a specific collection item")]
-    public async Task PublishItem([ActionParameter] CollectionItemRequest input)
+    public async Task PublishItem([ActionParameter] PublishItemRequest input)
     {
         var endpoint = $"collections/{input.CollectionId}/items/publish";
         var request = new WebflowRequest(endpoint, Method.Post, Creds)
             .WithJsonBody(new
             {
-                itemIds = new[] { input.CollectionItemId }
+                itemIds = new[] { input.CollectionItemId },
             }, JsonConfig.Settings);
 
         await Client.ExecuteWithErrorHandling(request);
