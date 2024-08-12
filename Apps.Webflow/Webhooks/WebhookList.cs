@@ -7,6 +7,7 @@ using Apps.Webflow.Webhooks.Models.Response;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common.Webhooks;
 using Newtonsoft.Json.Linq;
+using RestSharp;
 
 namespace Apps.Webflow.Webhooks;
 
