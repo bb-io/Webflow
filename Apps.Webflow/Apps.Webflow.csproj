@@ -6,7 +6,7 @@
         <Nullable>enable</Nullable>
         <Product>Webflow</Product>
         <Description>Create custom, responsive websites with the power of code — visually. Design and build your site with a flexible CMS and top-tier hosting.</Description>
-        <Version>1.2.2</Version>
+        <Version>1.2.3</Version>
         <AssemblyName>Apps.Webflow</AssemblyName>
     </PropertyGroup>
 

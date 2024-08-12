@@ -8,7 +8,7 @@ using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Extensions.String;
 using RestSharp;
 
-namespace Apps.Webflow.DataSourceHandlers;
+namespace Apps.Webflow.DataSourceHandlers.CollectionItem;
 
 public class CollectionItemDataSourceHandler : WebflowInvocable, IAsyncDataSourceHandler
 {
