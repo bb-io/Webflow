@@ -25,7 +25,7 @@ Webflow is a cloud-based web design and development platform that enables users 
 
 ### Collection items
 -   **Get collection item content as HTML** returns content of a specific collection item in HTML format.
--   **Publish collection item** publishes a specific collection item.
+-   **Publish collection item** publishes a specific collection item. This actions can only publish an item of the default locale, because of the Webflow API limitation.
 -   **Update collection item content from HTML** updates content of a specific collection item from HTML file.
 
 ## Events
