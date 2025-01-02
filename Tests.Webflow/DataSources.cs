@@ -36,7 +36,7 @@ namespace Tests.Webflow
         {
             var siteId = "6773fdfb5a841e3420ebc404";
 
-            var input = new GetPageAsHtmlRequest { SiteId= siteId };
+            var input = new GetPageAsHtmlRequest { SiteId = siteId };
 
             //Arange
             var handler = new PageDataSourceHandler(InvocationContext, input);
@@ -52,7 +52,7 @@ namespace Tests.Webflow
             foreach (var item in data)
             {
                 Console.WriteLine($"Page ID: {item.Value}, Display Name: {item.DisplayName}");
-             
+
             }
         }
     }

@@ -29,7 +29,7 @@ namespace Apps.Webflow.HtmlConversion
                     var textHtml = node.Text?.Html??node.Text?.Text ?? string.Empty;
 
                     var divNode = doc.CreateElement("div");
-                    divNode.SetAttributeValue($"data-{ConversionConstants.NodeId}", node.Id);
+                    divNode.SetAttributeValue(ConversionConstants.NodeId, node.Id);
                     divNode.InnerHtml = textHtml;
                     body.AppendChild(divNode);
                 }
@@ -42,8 +42,8 @@ namespace Apps.Webflow.HtmlConversion
                             var textHtml = prop.Text?.Html ?? prop.Text?.Text ?? string.Empty;
 
                             var divNode = doc.CreateElement("div");
-                            divNode.SetAttributeValue($"data-{ConversionConstants.NodeId}", node.Id);
-                            divNode.SetAttributeValue($"data-{ConversionConstants.PropertyId}", prop.PropertyId);
+                            divNode.SetAttributeValue(ConversionConstants.NodeId, node.Id);
+                            divNode.SetAttributeValue(ConversionConstants.PropertyId, prop.PropertyId);
                             divNode.InnerHtml = textHtml;
 
                             body.AppendChild(divNode);
