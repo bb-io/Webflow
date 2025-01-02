@@ -1,0 +1,6 @@
+{
+    "ConnectionDefinition": {
+        "access_token": "YOUR_TOKEN"
+    },
+    "TestFolder": "TestFiles"
+}
