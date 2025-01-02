@@ -81,7 +81,7 @@ namespace Apps.Webflow.Actions
             return fileReference;
         }
 
-        [Action("Update page content as HTML")]
+        [Action("Update page content as HTML", Description = "Update page content using HTML file")]
         public async Task<UpdatePageContentResponse> UpdatePageContentAsHtml([ActionParameter] UpdatePageContentRequest input)
         {
             var fileStream = await _fileManagementClient.DownloadAsync(input.File);
