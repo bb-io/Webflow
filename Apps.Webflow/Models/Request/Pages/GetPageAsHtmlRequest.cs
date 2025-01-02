@@ -15,6 +15,7 @@ namespace Apps.Webflow.Models.Request.Pages
         public string PageId { get; set; }
 
         [Display("Locale ID")]
+        [DataSource(typeof(SiteLocaleDataSourceHandler))]
         public string? LocaleId { get; set; }
     }
 }

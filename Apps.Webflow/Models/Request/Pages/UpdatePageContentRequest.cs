@@ -13,13 +13,17 @@ namespace Apps.Webflow.Models.Request.Pages
 {
     public class UpdatePageContentRequest
     {
+        [Display("Site ID")]
+        [DataSource(typeof(SiteDataSourceHandler))]
+        public string SiteId { get; set; }
+
         [Display("Page ID")]
         [DataSource(typeof(PageDataSourceHandler))]
         public string PageId { get; set; }
 
         [Display("Locale ID")]
-        //datasource
-        public string? LocaleId { get; set; }
+        [DataSource(typeof(SiteLocaleDataSourceHandler))]
+        public string LocaleId { get; set; }
 
         [Display("HTML file")]
         public FileReference File { get; set; }
