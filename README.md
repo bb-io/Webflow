@@ -45,6 +45,7 @@ Webflow is a cloud-based web design and development platform that enables users 
 -   **On page deleted** is triggered when a specific page is deleted
 -   **On page metadata updated** is triggered when specific page metadata is updated
 -   **On site published** is triggered when a specific site is published
+-   **On page update** triggered when page update was made
 
 ## Example
 

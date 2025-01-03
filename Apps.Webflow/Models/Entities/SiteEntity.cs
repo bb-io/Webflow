@@ -9,6 +9,8 @@ public class SiteEntity
     public string DisplayName { get; set; }
     
     public DateTime? LastPublished { get; set; }
-    
+
+    public DateTime? LastUpdated { get; set; }
+
     public LocalesResponse? Locales { get; set; }
 }

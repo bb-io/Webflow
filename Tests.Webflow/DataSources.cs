@@ -36,7 +36,7 @@ namespace Tests.Webflow
         [TestMethod]
         public async Task PageDataSourceHandler_ReturnsPages()
         {
-            var siteId = "6773fdfb5a841e3420ebc404";
+            var siteId = "YOUR_SITE_ID";
 
             var input = new GetPageAsHtmlRequest { SiteId = siteId };
 
@@ -63,7 +63,7 @@ namespace Tests.Webflow
         public async Task SiteLocaleDataSourceHandler_SearchString_FiltersLocales()
         {
             //Arange
-            var siteId = "6773fdfb5a841e3420ebc404";
+            var siteId = "YOUR_SITE_ID";
             var request = new UpdatePageContentRequest { SiteId = siteId };
             // Act
             var handler = new SiteLocaleDataSourceHandler(InvocationContext, request);
