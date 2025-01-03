@@ -85,9 +85,13 @@ namespace Apps.Webflow.Actions
         public async Task<UpdatePageContentResponse> UpdatePageContentAsHtml([ActionParameter] UpdatePageContentRequest input)
         {
             var fileStream = await _fileManagementClient.DownloadAsync(input.File);
-            fileStream.Position = 0;
+
+            var memoryStream = new MemoryStream();
+            await fileStream.CopyToAsync(memoryStream);
+            memoryStream.Position = 0;
+
             var doc = new HtmlAgilityPack.HtmlDocument();
-            doc.Load(fileStream);
+            doc.Load(memoryStream);
 
             var elements = doc.DocumentNode
          .Descendants()
