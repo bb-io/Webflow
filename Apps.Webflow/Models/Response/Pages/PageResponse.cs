@@ -11,7 +11,7 @@ namespace Apps.Webflow.Models.Response.Pages
         public string Id { get; set; }
 
         [Display("Page title")]
-        public string PageTitle { get; set; }
+        public string Title { get; set; }
 
         [Display("Slug")]
         public string Slug { get; set; }

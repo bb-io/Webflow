@@ -8,6 +8,7 @@ using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Entities;
 using Apps.Webflow.Models.Request.Pages;
 using Apps.Webflow.Models.Response.Pages;
+using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using RestSharp;
@@ -18,7 +19,7 @@ namespace Apps.Webflow.DataSourceHandlers
     {
         private readonly UpdatePageContentRequest _input;
 
-        public SiteLocaleDataSourceHandler(InvocationContext invocationContext, UpdatePageContentRequest input) : base(invocationContext)
+        public SiteLocaleDataSourceHandler(InvocationContext invocationContext, [ActionParameter] UpdatePageContentRequest input) : base(invocationContext)
         {
             _input = input; 
         }
