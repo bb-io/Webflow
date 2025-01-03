@@ -50,7 +50,7 @@ namespace Tests.Webflow
         public async Task UploadPageFromHtml_SuccessOperation()
         {
             // Arrange
-            var fileReference = await FileManager.UploadTestFileAsync("test_es.html");
+            var fileReference = await FileManager.UploadTestFileAsync("test_en.html");
 
             var input = new UpdatePageContentRequest
             {
