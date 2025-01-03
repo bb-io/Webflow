@@ -31,7 +31,7 @@ namespace Apps.Webflow.DataSourceHandlers
                 .Select(page => new DataSourceItem
                 {
                     Value = page.Id,
-                    DisplayName = $"{page.PageTitle}(Locale: {page.LocaleId})"
+                    DisplayName = $"{page.Title}"
                 })
                 .ToList();
 
