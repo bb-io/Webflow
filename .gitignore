@@ -365,3 +365,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/Apps.Webflow/Actions/DebugAction.cs
+/Tests.Webflow/appsettings.json

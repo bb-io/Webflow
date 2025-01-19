@@ -28,6 +28,13 @@ Webflow is a cloud-based web design and development platform that enables users 
 -   **Publish collection item** publishes a specific collection item. This actions can only publish an item of the default locale, because of the Webflow API limitation.
 -   **Update collection item content from HTML** updates content of a specific collection item from HTML file.
 
+### Pages
+
+- **Search pages** Search pages using filters
+- **Get page content as HTML** Get the page content in HTML file
+- **Update page content as HTML** Update page content using HTML file
+
+	
 ## Events
 
 -   **On collection item changed** is triggered when a specific collection item is changed
@@ -38,6 +45,7 @@ Webflow is a cloud-based web design and development platform that enables users 
 -   **On page deleted** is triggered when a specific page is deleted
 -   **On page metadata updated** is triggered when specific page metadata is updated
 -   **On site published** is triggered when a specific site is published
+-   **On page update** triggered when page update was made
 
 ## Example
 
