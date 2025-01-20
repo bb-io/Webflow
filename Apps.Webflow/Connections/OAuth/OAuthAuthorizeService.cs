@@ -16,7 +16,7 @@ public class OAuthAuthorizeService : BaseInvocable, IOAuth2AuthorizeService
     {
         var bridgeOauthUrl = $"{InvocationContext.UriInfo.BridgeServiceUrl.ToString().TrimEnd('/')}/oauth";
         
-        var tempClientId = InvocationContext.AuthenticationCredentialsProviders.First(x => x.KeyName == CredsNames.ClientId).Value;
+        var tempClientId = values[CredsNames.ClientId];
         var parameters = new Dictionary<string, string>
         {
             { "client_id", tempClientId},//ApplicationConstants.ClientId },

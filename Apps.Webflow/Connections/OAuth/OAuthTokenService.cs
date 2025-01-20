@@ -15,8 +15,8 @@ public class OAuthTokenService : WebflowInvocable, IOAuth2TokenService
     public Task<Dictionary<string, string>> RequestToken(string state, string code, Dictionary<string, string> values,
         CancellationToken cancellationToken)
     {
-        var tempClientId = InvocationContext.AuthenticationCredentialsProviders.First(x => x.KeyName == CredsNames.ClientId).Value;
-        var tempClientSecret = InvocationContext.AuthenticationCredentialsProviders.First(x => x.KeyName == CredsNames.ClientSecret).Value;
+        var tempClientId = values[CredsNames.ClientId];
+        var tempClientSecret = values[CredsNames.ClientSecret];
 
         var parameters = new Dictionary<string, string>
         {
