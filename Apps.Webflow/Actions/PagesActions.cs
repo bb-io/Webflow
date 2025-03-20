@@ -64,7 +64,7 @@ namespace Apps.Webflow.Actions
 
             var pageDom = await Client.ExecuteWithErrorHandling<PageDomEntity>(request);
 
-            var htmlStream = PageHtmlConverter.ToHtml(pageDom);
+            var htmlStream = PageHtmlConverter.ToHtml(pageDom, input.SiteId, input.PageId);
 
 
             var fileName = $"page_{input.PageId}.html";
@@ -81,6 +81,7 @@ namespace Apps.Webflow.Actions
             return fileReference;
         }
 
+
         [Action("Update page content as HTML", Description = "Update page content using HTML file")]
         public async Task<UpdatePageContentResponse> UpdatePageContentAsHtml([ActionParameter] UpdatePageContentRequest input)
         {
@@ -93,11 +94,25 @@ namespace Apps.Webflow.Actions
             var doc = new HtmlAgilityPack.HtmlDocument();
             doc.Load(memoryStream);
 
+            if (string.IsNullOrEmpty(input.PageId) || string.IsNullOrEmpty(input.SiteId))
+            {
+                var metaPageIdNode = doc.DocumentNode.SelectSingleNode("//meta[@name='blackbird-page-id']");
+                var metaSiteIdNode = doc.DocumentNode.SelectSingleNode("//meta[@name='blackbird-site-id']");
+                if (metaPageIdNode != null && string.IsNullOrEmpty(input.PageId))
+                {
+                    input.PageId = metaPageIdNode.GetAttributeValue("content", string.Empty);
+                }
+                if (metaSiteIdNode != null && string.IsNullOrEmpty(input.SiteId))
+                {
+                    input.SiteId = metaSiteIdNode.GetAttributeValue("content", string.Empty);
+                }
+            }
+
             var elements = doc.DocumentNode
-         .Descendants()
-         .Where(x => x.NodeType == HtmlAgilityPack.HtmlNodeType.Element
-                     && x.Attributes[ConversionConstants.NodeId] != null)
-         .ToList();
+                .Descendants()
+                .Where(x => x.NodeType == HtmlAgilityPack.HtmlNodeType.Element &&
+                            x.Attributes[ConversionConstants.NodeId] != null)
+                .ToList();
 
             var updateNodes = new List<UpdatePageNode>();
 
@@ -138,5 +153,6 @@ namespace Apps.Webflow.Actions
             };
 
         }
+
     }
 }
