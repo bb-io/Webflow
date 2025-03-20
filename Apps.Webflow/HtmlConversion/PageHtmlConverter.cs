@@ -12,9 +12,24 @@ namespace Apps.Webflow.HtmlConversion
         private static readonly string[] TranslatablePropertyTypes = { "Plain Text", "Rich Text" };
 
 
-        public static Stream ToHtml(PageDomEntity pageDom)
+        public static Stream ToHtml(PageDomEntity pageDom, string siteId, string pageId)
         {
             var (doc, body) = PrepareEmptyHtmlDocument();
+
+            var head = doc.DocumentNode.SelectSingleNode("//head");
+            if (head != null)
+            {
+                var metaSiteId = doc.CreateElement("meta");
+                metaSiteId.SetAttributeValue("name", "blackbird-site-id");
+                metaSiteId.SetAttributeValue("content", siteId);
+                head.AppendChild(metaSiteId);
+
+                var metaPageId = doc.CreateElement("meta");
+                metaPageId.SetAttributeValue("name", "blackbird-page-id");
+                metaPageId.SetAttributeValue("content", pageId);
+                head.AppendChild(metaPageId);
+            }
+
 
             foreach (var node in pageDom.Nodes)
             {
