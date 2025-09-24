@@ -10,20 +10,20 @@ Webflow is a cloud-based web design and development platform that enables users 
 
 ## Before connecting
 
-1.  You need a Webflow account. If you don't have one, you can create it [here](https://webflow.com/signup).
-2.  At least one site created in your Webflow account.
-3.  Go into 'Apps & Integrations', and create a new app. 
+1.  Ensure you have an active Webflow account. If not, create one here: [here](https://webflow.com/signup).
+2.  Confirm that at least one site exists in your Webflow account.
+3.  Open **Apps & Integrations** in Webflow and create a new application.
 
 ![create app](image/README/Create-app.png)
 
-4. Input app information (Name and description can be custom). Then go to 'Building blocks' and here you have to turn on 'Designer extension' and 'Data client (REST API)' 
-Then you have to configure OAuth redirect URL by adding this value 'https://bridge.blackbird.io/api/AuthorizationCode'. 
+4.  Provide the application details (name, description and URL can be customized). In **Building blocks**, enable **Designer extension** and **Data client (REST API)**. 
+Configure the OAuth redirect URL with: 'https://bridge.blackbird.io/api/AuthorizationCode'. Then select the required scopes.
 
 ![info input](image/README/Input-info.png)
 
 ![config input](image/README/Configuration-app.png)
 
-5.  Push the button 'Create app'. After creating the app, you will get a **Client ID** and **Client Secret**. You will need these to connect Webflow to Blackbird.
+5.  Click **Create app**. After creation, Webflow will generate a **Client ID** and **Client Secret**. Retain these credentials—they are required to connect Webflow to Blackbird.
 
 ## Connecting
 
