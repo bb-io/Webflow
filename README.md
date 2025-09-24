@@ -8,6 +8,23 @@ Blackbird is the new automation backbone for the language technology industry. B
 
 Webflow is a cloud-based web design and development platform that enables users to create, customize, and manage responsive websites visually. It provides a wide range of features and tools for designers, developers, and businesses to build and maintain professional websites without needing to write code. Webflow allows users to publish websites directly, collaborate in real-time, and utilize a robust CMS to manage content. This makes it a versatile solution for individuals, entrepreneurs, and enterprises looking to establish and grow their online presence.
 
+## Before connecting
+
+1.  You need a Webflow account. If you don't have one, you can create it [here](https://webflow.com/signup).
+2.  At least one site created in your Webflow account.
+3.  Go into 'Apps & Integrations', and create a new app. 
+
+![create app](image/README/Create-app.png)
+
+4. Input app information (Name and description can be custom). Then go to 'Building blocks' and here you have to turn on 'Designer extension' and 'Data client (REST API)' 
+Then you have to configure OAuth redirect URL by adding this value 'https://bridge.blackbird.io/api/AuthorizationCode'. 
+
+![info input](image/README/Input-info.png)
+
+![config input](image/README/Configuration-app.png)
+
+5.  Push the button 'Create app'. After creating the app, you will get a **Client ID** and **Client Secret**. You will need these to connect Webflow to Blackbird.
+
 ## Connecting
 
 1.  Navigate to Apps, and identify the **Webflow** app. You can use search to find it.
