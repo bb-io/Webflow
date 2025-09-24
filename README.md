@@ -29,7 +29,7 @@ Configure the OAuth redirect URL with: 'https://bridge.blackbird.io/api/Authoriz
 
 1.  Navigate to Apps, and identify the **Webflow** app. You can use search to find it.
 2.  Click _Add Connection_.
-3.  Name your connection for future reference e.g. 'My organization'.
+3.  Name your connection for future reference e.g. 'My organization'. Input the **Client ID** and **Client Secret** obtained from Webflow.
 4.  Click _Authorize connection_.
 5.  Follow the instructions that Webflow gives you.
 6.  When you return to Blackbird, confirm that the connection has appeared and the status is _Connected_.
