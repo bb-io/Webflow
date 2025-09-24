@@ -8,11 +8,28 @@ Blackbird is the new automation backbone for the language technology industry. B
 
 Webflow is a cloud-based web design and development platform that enables users to create, customize, and manage responsive websites visually. It provides a wide range of features and tools for designers, developers, and businesses to build and maintain professional websites without needing to write code. Webflow allows users to publish websites directly, collaborate in real-time, and utilize a robust CMS to manage content. This makes it a versatile solution for individuals, entrepreneurs, and enterprises looking to establish and grow their online presence.
 
+## Before connecting
+
+1.  Ensure you have an active Webflow account. If not, create one here: [here](https://webflow.com/signup).
+2.  Confirm that at least one site exists in your Webflow account.
+3.  Open **Apps & Integrations** in Webflow and create a new application.
+
+![create app](image/README/Create-app.png)
+
+4.  Provide the application details (name, description and URL can be customized). In **Building blocks**, enable **Designer extension** and **Data client (REST API)**. 
+Configure the OAuth redirect URL with: 'https://bridge.blackbird.io/api/AuthorizationCode'. Then select the required scopes.
+
+![info input](image/README/Input-info.png)
+
+![config input](image/README/Configuration-app.png)
+
+5.  Click **Create app**. After creation, Webflow will generate a **Client ID** and **Client Secret**. Retain these credentials—they are required to connect Webflow to Blackbird.
+
 ## Connecting
 
 1.  Navigate to Apps, and identify the **Webflow** app. You can use search to find it.
 2.  Click _Add Connection_.
-3.  Name your connection for future reference e.g. 'My organization'.
+3.  Name your connection for future reference e.g. 'My organization'. Input the **Client ID** and **Client Secret** obtained from Webflow.
 4.  Click _Authorize connection_.
 5.  Follow the instructions that Webflow gives you.
 6.  When you return to Blackbird, confirm that the connection has appeared and the status is _Connected_.
