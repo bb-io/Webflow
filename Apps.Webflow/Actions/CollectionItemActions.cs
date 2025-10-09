@@ -16,17 +16,10 @@ using RestSharp;
 
 namespace Apps.Webflow.Actions;
 
-[ActionList]
-public class CollectionItemActions : WebflowInvocable
+[ActionList("Collection items")]
+public class CollectionItemActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
+    : WebflowInvocable(invocationContext)
 {
-    private readonly IFileManagementClient _fileManagementClient;
-
-    public CollectionItemActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient) :
-        base(invocationContext)
-    {
-        _fileManagementClient = fileManagementClient;
-    }
-
     [Action("Get collection item content as HTML",
         Description = "Get content of a specific collection item in HTML format")]
     public async Task<FileModel> GetCollectionItemContent([ActionParameter] CollectionItemRequest input)
@@ -38,7 +31,7 @@ public class CollectionItemActions : WebflowInvocable
 
         return new()
         {
-            File = await _fileManagementClient.UploadAsync(html, MediaTypeNames.Text.Html, $"{item.Id}.html")
+            File = await fileManagementClient.UploadAsync(html, MediaTypeNames.Text.Html, $"{item.Id}.html")
         };
     }
 
@@ -48,7 +41,7 @@ public class CollectionItemActions : WebflowInvocable
         [ActionParameter] CollectionItemRequest input,
         [ActionParameter] FileModel file)
     {
-        var fileStream = await _fileManagementClient.DownloadAsync(file.File);
+        var fileStream = await fileManagementClient.DownloadAsync(file.File);
         var item = await GetCollectionItem(input.CollectionId, input.CollectionItemId, input.CmsLocaleId);
         var collection = await GetCollection(input.CollectionId);
         var fieldData = CollectionItemHtmlConverter.ToJson(fileStream, item.FieldData, collection.Fields);
