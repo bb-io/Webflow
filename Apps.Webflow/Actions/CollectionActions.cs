@@ -12,13 +12,9 @@ using RestSharp;
 
 namespace Apps.Webflow.Actions;
 
-[ActionList]
-public class CollectionActions : WebflowInvocable
+[ActionList("Collections")]
+public class CollectionActions(InvocationContext invocationContext) : WebflowInvocable(invocationContext)
 {
-    public CollectionActions(InvocationContext invocationContext) : base(invocationContext)
-    {
-    }
-
     [Action("Get collection", Description = "Get details of a specific collection")]
     public async Task<FullCollectionEntity> GetCollection([ActionParameter] CollectionRequest collectionRequest)
     {
