@@ -13,18 +13,25 @@ namespace Tests.Webflow
 
             var request = new SearchPagesRequest
             {
-                SiteId = "YOUR_SITE_ID",
-                Offset = "0",
-                Limit = "5",
+                SiteId = "6773fdfb5a841e3420ebc404",
+                //TitleContains = "Test",
+                //SlugContains = "project-4",
+                //CreatedBefore = DateTime.UtcNow.AddDays(-1200),
+                //CreatedAfter = DateTime.UtcNow.AddDays(-1200),
+                //LastUpdatedAfter = DateTime.UtcNow.AddDays(-200),
+                //LastUpdatedBefore = DateTime.UtcNow.AddDays(-200),
+                //Archived = true,
+                Draft = true
             };
 
             var actions = new PagesActions(InvocationContext, FileManager);
 
             // Act
             var result = await actions.SearchPages(request);
-
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(result);
+            Console.WriteLine(json);
             // Assert
-            Assert.IsNotNull(result, "Result should not be null.");
+            Assert.IsNotNull(result);
         }
 
 
