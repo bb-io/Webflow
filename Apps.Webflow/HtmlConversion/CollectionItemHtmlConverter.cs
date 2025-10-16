@@ -12,9 +12,38 @@ public static class CollectionItemHtmlConverter
     private static readonly string[] TranslatableTypes = ["RichText", "PlainText", "Link"];
     private static readonly string[] NonUpdatableTypes = ["Reference"];
 
-    public static Stream ToHtml(CollectionItemEntity item, IEnumerable<FieldEntity> collectionFields)
+    public static Stream ToHtml(CollectionItemEntity item, IEnumerable<FieldEntity> collectionFields, string siteId,
+        string collectionId,string itemId, string? cmsLocaleId = null)
     {
         var (doc, body) = PrepareEmptyHtmlDocument();
+
+        var head = doc.DocumentNode.SelectSingleNode("//head");
+        if (head != null)
+        {
+            var mSite = doc.CreateElement("meta");
+            mSite.SetAttributeValue("name", "blackbird-site-id");
+            mSite.SetAttributeValue("content", siteId);
+            head.AppendChild(mSite);
+
+            var mCol = doc.CreateElement("meta");
+            mCol.SetAttributeValue("name", "blackbird-collection-id");
+            mCol.SetAttributeValue("content", collectionId);
+            head.AppendChild(mCol);
+
+            var mItem = doc.CreateElement("meta");
+            mItem.SetAttributeValue("name", "blackbird-collection-item-id");
+            mItem.SetAttributeValue("content", itemId);
+            head.AppendChild(mItem);
+
+            if (!string.IsNullOrEmpty(cmsLocaleId))
+            {
+                var mLoc = doc.CreateElement("meta");
+                mLoc.SetAttributeValue("name", "blackbird-locale-id");
+                mLoc.SetAttributeValue("content", cmsLocaleId);
+                head.AppendChild(mLoc);
+            }
+        }
+
 
         var translatableFields = collectionFields
             .Where(x => TranslatableTypes.Contains(x.Type) && !UntraslatableSlugs.Contains(x.Slug))

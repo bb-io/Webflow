@@ -1,6 +1,8 @@
 ﻿
 
 using Apps.Webflow.DataSourceHandlers;
+using Apps.Webflow.DataSourceHandlers.Collection;
+using Apps.Webflow.DataSourceHandlers.CollectionItem;
 using Apps.Webflow.DataSourceHandlers.Locale;
 using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Pages;
@@ -36,7 +38,7 @@ namespace Tests.Webflow
         [TestMethod]
         public async Task PageDataSourceHandler_ReturnsPages()
         {
-            var siteId = "YOUR_SITE_ID";
+            var siteId = "6773fdfb5a841e3420ebc404";
 
             var input = new GetPageAsHtmlRequest { SiteId = siteId };
 
@@ -63,7 +65,7 @@ namespace Tests.Webflow
         public async Task SiteLocaleDataSourceHandler_SearchString_FiltersLocales()
         {
             //Arange
-            var siteId = "YOUR_SITE_ID";
+            var siteId = "661d37f0bdd59efaf8124722";
             var request = new UpdatePageContentRequest { SiteId = siteId };
             // Act
             var handler = new SiteLocaleDataSourceHandler(InvocationContext, request);
@@ -77,6 +79,51 @@ namespace Tests.Webflow
             foreach (var locale in data)
             {
                 Console.WriteLine($"Display name: {locale.DisplayName}, Locale ID: {locale.Value}");
+            }
+        }
+
+        [TestMethod]
+        public async Task CollectionItemCollectionDataSourceHandler_IsSuccess()
+        {
+            //Arange
+            var siteId = "6773fdfb5a841e3420ebc404";
+            var request = new Apps.Webflow.Models.Request.CollectionItem.CollectionItemRequest { SiteId = siteId };
+            // Act
+            var handler = new CollectionItemCollectionDataSourceHandler(InvocationContext, request);
+
+            // Assert
+            var data = await handler.GetDataAsync(
+                new DataSourceContext { SearchString = "" },
+                CancellationToken.None
+            );
+
+            foreach (var locale in data)
+            {
+                Console.WriteLine($"Display name: {locale.Key}, Locale ID: {locale.Value}");
+            }
+        }
+        //6682a16446a95c6b7b7ef118 CollectionItemDataSourceHandler
+
+        [TestMethod]
+        public async Task CollectionItemDataSourceHandler_IsSuccess()
+        {
+            //Arange
+            var siteId = "661d37f0bdd59efaf8124722";
+            var request = new Apps.Webflow.Models.Request.CollectionItem.CollectionItemRequest { SiteId = siteId,
+                CollectionId = "68f0bd047d4742cba6c0b30c"
+            }; 
+            // Act
+            var handler = new CollectionItemDataSourceHandler(InvocationContext, request);
+
+            // Assert
+            var data = await handler.GetDataAsync(
+                new DataSourceContext { SearchString = "" },
+                CancellationToken.None
+            );
+
+            foreach (var locale in data)
+            {
+                Console.WriteLine($"Display name: {locale.Key}, Locale ID: {locale.Value}");
             }
         }
     }

@@ -34,8 +34,8 @@ namespace Tests.Webflow
             // Arrange
             var input = new GetPageAsHtmlRequest
             {
-                SiteId= "661d37f0bdd59efaf8124722",
-                PageId = "6682a16446a95c6b7b7ef208"
+                SiteId= "6773fdfb5a841e3420ebc404",
+                PageId = "6773fdfc5a841e3420ebc46b"
             };
 
             var actions = new PagesActions(InvocationContext, FileManager);
