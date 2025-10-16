@@ -1,4 +1,5 @@
 ﻿using Blackbird.Applications.Sdk.Common;
+using Newtonsoft.Json;
 
 namespace Apps.Webflow.Models.Response.Pages
 {
@@ -23,9 +24,16 @@ namespace Apps.Webflow.Models.Response.Pages
         public DateTime LastUpdated { get; set; }
 
         [Display("Locale ID")]
+        [JsonProperty("localeId")]
         public string LocaleId { get; set; }
 
         [Display("Published path")]
         public string PublishedPath { get; set; }
+
+        [Display("Archived")]
+        public bool? Archived { get; set; }
+
+        [Display("Is draft")]
+        public bool? Draft { get; set; }
     }
 }

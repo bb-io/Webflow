@@ -15,15 +15,15 @@ namespace Apps.Webflow.Models.Request.Pages
     {
         [Display("Site ID")]
         [DataSource(typeof(SiteDataSourceHandler))]
-        public string SiteId { get; set; }
+        public string? SiteId { get; set; }
 
         [Display("Page ID")]
         [DataSource(typeof(PageDataSourceHandler))]
-        public string PageId { get; set; }
+        public string? PageId { get; set; }
 
         [Display("Locale ID")]
         [DataSource(typeof(SiteLocaleDataSourceHandler))]
-        public string LocaleId { get; set; }
+        public string? LocaleId { get; set; }
 
         [Display("HTML file")]
         public FileReference File { get; set; }
@@ -32,7 +32,7 @@ namespace Apps.Webflow.Models.Request.Pages
     public class UpdatePageDomRequest
     {
         [JsonProperty("localeId")]
-        public string LocaleId { get; set; }
+        public string? LocaleId { get; set; }
 
         [JsonProperty("nodes")]
         public IEnumerable<UpdatePageNode> Nodes { get; set; }

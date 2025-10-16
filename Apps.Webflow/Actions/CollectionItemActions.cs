@@ -13,6 +13,8 @@ using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using Blackbird.Applications.Sdk.Utils.Extensions.String;
 using RestSharp;
+using Apps.Webflow.Models.Request.Collection;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 
 namespace Apps.Webflow.Actions;
 
@@ -24,10 +26,17 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         Description = "Get content of a specific collection item in HTML format")]
     public async Task<FileModel> GetCollectionItemContent([ActionParameter] CollectionItemRequest input)
     {
+        if (string.IsNullOrWhiteSpace(input.SiteId))
+            throw new PluginMisconfigurationException("Site ID is required.");
+        if (string.IsNullOrWhiteSpace(input.CollectionId))
+            throw new PluginMisconfigurationException("Collection ID is required.");
+        if (string.IsNullOrWhiteSpace(input.CollectionItemId))
+            throw new PluginMisconfigurationException("Collection item ID is required.");
+
         var collection = await GetCollection(input.CollectionId);
 
         var item = await GetCollectionItem(input.CollectionId, input.CollectionItemId, input.CmsLocaleId);
-        var html = CollectionItemHtmlConverter.ToHtml(item, collection.Fields);
+        var html = CollectionItemHtmlConverter.ToHtml(item, collection.Fields, input.SiteId, input.CollectionId, input.CollectionItemId, item.CmsLocaleId);
 
         return new()
         {
@@ -38,13 +47,43 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
     [Action("Update collection item content from HTML",
         Description = "Update content of a specific collection item from HTML file")]
     public async Task UpdateCollectionItemContent(
-        [ActionParameter] CollectionItemRequest input,
+        [ActionParameter] UpdateCollectionItemRequest input,
         [ActionParameter] FileModel file)
     {
-        var fileStream = await fileManagementClient.DownloadAsync(file.File);
+        await using var source = await fileManagementClient.DownloadAsync(file.File);
+        using var ms = new MemoryStream();
+        await source.CopyToAsync(ms);
+        ms.Position = 0;
+
+        if (string.IsNullOrEmpty(input.SiteId) ||
+            string.IsNullOrEmpty(input.CollectionId) ||
+            string.IsNullOrEmpty(input.CollectionItemId) ||
+            string.IsNullOrEmpty(input.CmsLocaleId))
+        {
+            var doc = new HtmlAgilityPack.HtmlDocument();
+            doc.Load(ms);
+
+            string? M(string name) =>
+                doc.DocumentNode.SelectSingleNode($"//meta[@name='{name}']")
+                   ?.GetAttributeValue("content", null);
+
+            input.SiteId ??= M("blackbird-site-id");
+            input.CollectionId ??= M("blackbird-collection-id");
+            input.CollectionItemId ??= M("blackbird-collection-item-id");
+            input.CmsLocaleId ??= M("blackbird-cmslocale-id");
+
+            ms.Position = 0;
+        }
+
+        if (string.IsNullOrWhiteSpace(input.CollectionId))
+            throw new PluginMisconfigurationException("Collection ID is missing. Provide it or include it in the HTML file");
+        if (string.IsNullOrWhiteSpace(input.CollectionItemId))
+            throw new PluginMisconfigurationException("Collection item ID is missing. Provide it or include it in the HTML file");
+
         var item = await GetCollectionItem(input.CollectionId, input.CollectionItemId, input.CmsLocaleId);
         var collection = await GetCollection(input.CollectionId);
-        var fieldData = CollectionItemHtmlConverter.ToJson(fileStream, item.FieldData, collection.Fields);
+
+        var fieldData = CollectionItemHtmlConverter.ToJson(ms, item.FieldData, collection.Fields);
 
         var endpoint = $"collections/{input.CollectionId}/items/{input.CollectionItemId}";
         var request = new WebflowRequest(endpoint, Method.Patch, Creds)

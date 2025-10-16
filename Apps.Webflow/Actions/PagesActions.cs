@@ -22,27 +22,71 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
     [Action("Search pages", Description = "Search pages using filters")]
     public async Task<ListPagesResponse> SearchPages([ActionParameter] SearchPagesRequest input)
     {
-        var endpoint = $"sites/{input.SiteId}/pages";
-        var request = new WebflowRequest(endpoint, Method.Get, Creds);
+        var allPages = new List<PageResponse>();
+        var offset = 0;
+        const int pageSize = 100;
+        int total = int.MaxValue;
 
-        if (input.Offset != null)
+        while (allPages.Count < total)
         {
-            request.AddQueryParameter("offset", input.Offset);
+            var endpoint = $"sites/{input.SiteId}/pages";
+            var request = new WebflowRequest(endpoint, Method.Get, Creds);
+
+            if (!string.IsNullOrEmpty(input.LocaleId))
+                request.AddQueryParameter("localeId", input.LocaleId);
+
+            request.AddQueryParameter("offset", offset.ToString());
+            request.AddQueryParameter("limit", pageSize.ToString());
+
+            var batch = await Client.ExecuteWithErrorHandling<ListPagesResponse>(request);
+
+            var batchPages = batch.Pages?.ToList() ?? new List<PageResponse>();
+            total = batch.Pagination?.Total ?? batchPages.Count;
+
+            allPages.AddRange(batchPages);
+
+            if (batchPages.Count == 0) break;
+            offset += batchPages.Count;
         }
 
-        if (input.Limit != null)
+        IEnumerable<PageResponse> filtered = allPages;
+
+        if (!string.IsNullOrWhiteSpace(input.TitleContains))
+            filtered = filtered.Where(p => !string.IsNullOrEmpty(p.Title) &&
+                                           p.Title.Contains(input.TitleContains, StringComparison.OrdinalIgnoreCase));
+
+        if (!string.IsNullOrWhiteSpace(input.SlugContains))
+            filtered = filtered.Where(p => !string.IsNullOrEmpty(p.Slug) &&
+                                           p.Slug.Contains(input.SlugContains, StringComparison.OrdinalIgnoreCase));
+
+        if (input.CreatedAfter.HasValue)
+            filtered = filtered.Where(p => p.CreatedOn >= input.CreatedAfter.Value);
+
+        if (input.CreatedBefore.HasValue)
+            filtered = filtered.Where(p => p.CreatedOn <= input.CreatedBefore.Value);
+
+        if (input.LastUpdatedAfter.HasValue)
+            filtered = filtered.Where(p => p.LastUpdated >= input.LastUpdatedAfter.Value);
+
+        if (input.LastUpdatedBefore.HasValue)
+            filtered = filtered.Where(p => p.LastUpdated <= input.LastUpdatedBefore.Value);
+
+        if (input.Archived.HasValue)
+            filtered = filtered.Where(p => p.Archived.HasValue && p.Archived.Value == input.Archived.Value);
+
+        if (input.Draft.HasValue)
+            filtered = filtered.Where(p => p.Draft.HasValue && p.Draft.Value == input.Draft.Value);
+
+        var resultPages = filtered.ToList();
+
+        return new ListPagesResponse
         {
-            request.AddQueryParameter("limit", input.Limit);
-        }
-
-        if (input.LocaleId != null)
-        {
-            request.AddQueryParameter("localeId", input.LocaleId);
-        }
-
-        var pages = await Client.ExecuteWithErrorHandling<ListPagesResponse>(request);
-
-        return pages;
+            Pages = resultPages,
+            Pagination = new PaginationInfo
+            {
+                Total = resultPages.Count
+            }
+        };
     }
 
     [Action("Get page content as HTML", Description = "Get the page content in HTML file")]

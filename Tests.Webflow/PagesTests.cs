@@ -13,18 +13,25 @@ namespace Tests.Webflow
 
             var request = new SearchPagesRequest
             {
-                SiteId = "YOUR_SITE_ID",
-                Offset = "0",
-                Limit = "5",
+                SiteId = "6773fdfb5a841e3420ebc404",
+                //TitleContains = "Test",
+                //SlugContains = "project-4",
+                //CreatedBefore = DateTime.UtcNow.AddDays(-1200),
+                //CreatedAfter = DateTime.UtcNow.AddDays(-1200),
+                //LastUpdatedAfter = DateTime.UtcNow.AddDays(-200),
+                //LastUpdatedBefore = DateTime.UtcNow.AddDays(-200),
+                //Archived = true,
+                Draft = true
             };
 
             var actions = new PagesActions(InvocationContext, FileManager);
 
             // Act
             var result = await actions.SearchPages(request);
-
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(result);
+            Console.WriteLine(json);
             // Assert
-            Assert.IsNotNull(result, "Result should not be null.");
+            Assert.IsNotNull(result);
         }
 
 
@@ -34,8 +41,8 @@ namespace Tests.Webflow
             // Arrange
             var input = new GetPageAsHtmlRequest
             {
-                SiteId= "661d37f0bdd59efaf8124722",
-                PageId = "6682a16446a95c6b7b7ef208"
+                SiteId= "6773fdfb5a841e3420ebc404",
+                PageId = "6773fdfc5a841e3420ebc46d"
             };
 
             var actions = new PagesActions(InvocationContext, FileManager);
@@ -51,12 +58,12 @@ namespace Tests.Webflow
         public async Task UploadPageFromHtml_SuccessOperation()
         {
             // Arrange
-            var fileReference = await FileManager.UploadTestFileAsync("test_en.html");
+            var fileReference = await FileManager.UploadTestFileAsync("page_6773fdfc5a841e3420ebc46d.html");
 
             var input = new UpdatePageContentRequest
             {
-                PageId = "YOUR_PAGE_ID",
-                LocaleId = "YOUR_LOCALE_ID",
+                //PageId = "6773fdfc5a841e3420ebc46b",
+                LocaleId = "67765e8a8235a4578faed52a",
                 File = fileReference
             };
 
