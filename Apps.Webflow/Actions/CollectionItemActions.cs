@@ -72,9 +72,9 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         }
 
         if (string.IsNullOrWhiteSpace(input.CollectionId))
-            throw new PluginMisconfigurationException("Collection ID is missing. Provide it or include <meta name=\"blackbird-collection-id\" ...>.");
+            throw new PluginMisconfigurationException("Collection ID is missing. Provide it or include in HTML file");
         if (string.IsNullOrWhiteSpace(input.CollectionItemId))
-            throw new PluginMisconfigurationException("Collection item ID is missing. Provide it or include <meta name=\"blackbird-item-id\" ...>.");
+            throw new PluginMisconfigurationException("Collection item ID is missing.Provide it or include in HTML file");
 
         var item = await GetCollectionItem(input.CollectionId, input.CollectionItemId, input.CmsLocaleId);
         var collection = await GetCollection(input.CollectionId);
