@@ -50,14 +50,18 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         [ActionParameter] UpdateCollectionItemRequest input,
         [ActionParameter] FileModel file)
     {
-        using var fileStream = await fileManagementClient.DownloadAsync(file.File);
+        await using var source = await fileManagementClient.DownloadAsync(file.File);
+        using var ms = new MemoryStream();
+        await source.CopyToAsync(ms);
+        ms.Position = 0;
+
         if (string.IsNullOrEmpty(input.SiteId) ||
-       string.IsNullOrEmpty(input.CollectionId) ||
-       string.IsNullOrEmpty(input.CollectionItemId) ||
-       string.IsNullOrEmpty(input.CmsLocaleId))
+            string.IsNullOrEmpty(input.CollectionId) ||
+            string.IsNullOrEmpty(input.CollectionItemId) ||
+            string.IsNullOrEmpty(input.CmsLocaleId))
         {
             var doc = new HtmlAgilityPack.HtmlDocument();
-            doc.Load(fileStream);
+            doc.Load(ms);
 
             string? M(string name) =>
                 doc.DocumentNode.SelectSingleNode($"//meta[@name='{name}']")
@@ -66,19 +70,20 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
             input.SiteId ??= M("blackbird-site-id");
             input.CollectionId ??= M("blackbird-collection-id");
             input.CollectionItemId ??= M("blackbird-collection-item-id");
-            input.CmsLocaleId ??= M("blackbird-cmslocale-id");
+            input.CmsLocaleId ??= M("blackbird-locale-id");
 
-            fileStream.Position = 0;
+            ms.Position = 0;
         }
 
         if (string.IsNullOrWhiteSpace(input.CollectionId))
-            throw new PluginMisconfigurationException("Collection ID is missing. Provide it or include in HTML file");
+            throw new PluginMisconfigurationException("Collection ID is missing. Provide it or include it in the HTML file (<meta name=\"blackbird-collection-id\" ...>).");
         if (string.IsNullOrWhiteSpace(input.CollectionItemId))
-            throw new PluginMisconfigurationException("Collection item ID is missing.Provide it or include in HTML file");
+            throw new PluginMisconfigurationException("Collection item ID is missing. Provide it or include it in the HTML file (<meta name=\"blackbird-collection-item-id\" ...>).");
 
         var item = await GetCollectionItem(input.CollectionId, input.CollectionItemId, input.CmsLocaleId);
         var collection = await GetCollection(input.CollectionId);
-        var fieldData = CollectionItemHtmlConverter.ToJson(fileStream, item.FieldData, collection.Fields);
+
+        var fieldData = CollectionItemHtmlConverter.ToJson(ms, item.FieldData, collection.Fields);
 
         var endpoint = $"collections/{input.CollectionId}/items/{input.CollectionItemId}";
         var request = new WebflowRequest(endpoint, Method.Patch, Creds)
