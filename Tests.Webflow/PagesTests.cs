@@ -35,7 +35,7 @@ namespace Tests.Webflow
             var input = new GetPageAsHtmlRequest
             {
                 SiteId= "6773fdfb5a841e3420ebc404",
-                PageId = "6773fdfc5a841e3420ebc46b"
+                PageId = "6773fdfc5a841e3420ebc46d"
             };
 
             var actions = new PagesActions(InvocationContext, FileManager);
@@ -51,12 +51,12 @@ namespace Tests.Webflow
         public async Task UploadPageFromHtml_SuccessOperation()
         {
             // Arrange
-            var fileReference = await FileManager.UploadTestFileAsync("test_en.html");
+            var fileReference = await FileManager.UploadTestFileAsync("page_6773fdfc5a841e3420ebc46d.html");
 
             var input = new UpdatePageContentRequest
             {
-                PageId = "YOUR_PAGE_ID",
-                LocaleId = "YOUR_LOCALE_ID",
+                //PageId = "6773fdfc5a841e3420ebc46b",
+                LocaleId = "67765e8a8235a4578faed52a",
                 File = fileReference
             };
 

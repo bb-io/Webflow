@@ -65,7 +65,7 @@ namespace Tests.Webflow
         public async Task SiteLocaleDataSourceHandler_SearchString_FiltersLocales()
         {
             //Arange
-            var siteId = "661d37f0bdd59efaf8124722";
+            var siteId = "6773fdfb5a841e3420ebc404";
             var request = new UpdatePageContentRequest { SiteId = siteId };
             // Act
             var handler = new SiteLocaleDataSourceHandler(InvocationContext, request);
