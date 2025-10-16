@@ -70,7 +70,7 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
             input.SiteId ??= M("blackbird-site-id");
             input.CollectionId ??= M("blackbird-collection-id");
             input.CollectionItemId ??= M("blackbird-collection-item-id");
-            input.CmsLocaleId ??= M("blackbird-locale-id");
+            input.CmsLocaleId ??= M("blackbird-cmslocale-id");
 
             ms.Position = 0;
         }
