@@ -22,7 +22,7 @@ namespace Apps.Webflow.Models.Request.Collection
         public string? CmsLocaleId { get; set; }
 
         [Display("Collection item ID")]
-        [DataSource(typeof(CollectionItemDataSourceHandler))]
+        [DataSource(typeof(UpdateCollectionItemDataSourceHandler))]
         public string? CollectionItemId { get; set; }
     }
 }
