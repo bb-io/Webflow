@@ -4,6 +4,7 @@ using Apps.Webflow.DataSourceHandlers;
 using Apps.Webflow.DataSourceHandlers.Collection;
 using Apps.Webflow.DataSourceHandlers.CollectionItem;
 using Apps.Webflow.DataSourceHandlers.Locale;
+using Apps.Webflow.Models.Request.Components;
 using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Pages;
 using Blackbird.Applications.Sdk.Common.Dynamic;
@@ -62,10 +63,35 @@ namespace Tests.Webflow
         }
 
         [TestMethod]
+        public async Task ComponentDataSourceHandler_ReturnsComponents()
+        {
+            var siteId = "661d37f0bdd59efaf8124722";
+
+            var request = new GetComponentContentRequest { SiteId = siteId };
+
+            // Arrange
+            var handler = new ComponentDataSourceHandler(InvocationContext, request);
+
+            // Act
+            var data = await handler.GetDataAsync(
+                new DataSourceContext { SearchString = "" },
+                CancellationToken.None
+            );
+
+            // Assert
+            Assert.IsNotNull(data, "Handler returned null.");
+
+            foreach (var item in data)
+            {
+                Console.WriteLine($"Component ID: {item.Value}, Display Name: {item.DisplayName}");
+            }
+        }
+
+        [TestMethod]
         public async Task SiteLocaleDataSourceHandler_SearchString_FiltersLocales()
         {
             //Arange
-            var siteId = "6773fdfb5a841e3420ebc404";
+            var siteId = "661d37f0bdd59efaf8124722";
             var request = new UpdatePageContentRequest { SiteId = siteId };
             // Act
             var handler = new SiteLocaleDataSourceHandler(InvocationContext, request);

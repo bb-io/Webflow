@@ -51,6 +51,12 @@ Configure the OAuth redirect URL with: 'https://bridge.blackbird.io/api/Authoriz
 - **Get page content as HTML** Get the page content in HTML file
 - **Update page content as HTML** Update page content using HTML file
 
+### Components
+
+- **List components** List all components for a site. Supports filtering by name, group, and read-only status.
+- **Get component content as HTML** Get the component content in HTML file.
+- **Update component content as HTML** Update component content using HTML file.
+
 	
 ## Events
 
