@@ -1,5 +1,4 @@
 using System.Net.Mime;
-using Apps.Webflow.Api;
 using Apps.Webflow.Constants;
 using Apps.Webflow.HtmlConversion;
 using Apps.Webflow.Invocables;
@@ -86,7 +85,7 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         var fieldData = CollectionItemHtmlConverter.ToJson(ms, item.FieldData, collection.Fields);
 
         var endpoint = $"collections/{input.CollectionId}/items/{input.CollectionItemId}";
-        var request = new WebflowRequest(endpoint, Method.Patch, Creds)
+        var request = new RestRequest(endpoint, Method.Patch)
             .WithJsonBody(new
             {
                 fieldData,
@@ -101,7 +100,7 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
     public async Task PublishItem([ActionParameter] PublishItemRequest input)
     {
         var endpoint = $"collections/{input.CollectionId}/items/publish";
-        var request = new WebflowRequest(endpoint, Method.Post, Creds)
+        var request = new RestRequest(endpoint, Method.Post)
             .WithJsonBody(new
             {
                 itemIds = new[] { input.CollectionItemId },
@@ -118,14 +117,14 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         if (locale != null)
             endpoint = endpoint.SetQueryParameter("cmsLocaleId", locale);
 
-        var request = new WebflowRequest(endpoint, Method.Get, Creds);
+        var request = new RestRequest(endpoint, Method.Get);
 
         return Client.ExecuteWithErrorHandling<CollectionItemEntity>(request);
     }
 
     private Task<CollectionEntity> GetCollection(string collectionId)
     {
-        var request = new WebflowRequest($"collections/{collectionId}", Method.Get, Creds);
+        var request = new RestRequest($"collections/{collectionId}", Method.Get);
         return Client.ExecuteWithErrorHandling<CollectionEntity>(request);
     }
 }

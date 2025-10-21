@@ -1,4 +1,3 @@
-using Apps.Webflow.Api;
 using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Request.Components;
 using Apps.Webflow.Models.Response.Components;
@@ -23,7 +22,7 @@ namespace Apps.Webflow.DataSourceHandlers
             var siteId = _input.SiteId;
 
             var endpoint = $"sites/{siteId}/components";
-            var request = new WebflowRequest(endpoint, Method.Get, Creds);
+            var request = new RestRequest(endpoint, Method.Get);
 
             var response = await Client.ExecuteWithErrorHandling<ListComponentsResponse>(request);
 

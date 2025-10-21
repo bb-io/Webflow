@@ -1,4 +1,3 @@
-using Apps.Webflow.Api;
 using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Response;
 using Blackbird.Applications.Sdk.Common.Dynamic;
@@ -16,7 +15,7 @@ public class SiteDataSourceHandler : WebflowInvocable, IAsyncDataSourceHandler
     public async Task<Dictionary<string, string>> GetDataAsync(DataSourceContext context,
         CancellationToken cancellationToken)
     {
-        var request = new WebflowRequest("sites", Method.Get, Creds);
+        var request = new RestRequest("sites", Method.Get);
         var response = await Client.ExecuteWithErrorHandling<ListSitesResponse>(request);
 
         return response.Sites

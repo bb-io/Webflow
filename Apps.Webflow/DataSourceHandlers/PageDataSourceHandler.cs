@@ -1,5 +1,4 @@
-﻿using Apps.Webflow.Api;
-using Apps.Webflow.Invocables;
+﻿using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Request.Pages;
 using Apps.Webflow.Models.Response;
 using Blackbird.Applications.Sdk.Common;
@@ -23,7 +22,7 @@ namespace Apps.Webflow.DataSourceHandlers
             var siteId = _input.SiteId;
 
             var endpoint = $"sites/{siteId}/pages";
-            var request = new WebflowRequest(endpoint, Method.Get, Creds);
+            var request = new RestRequest(endpoint, Method.Get);
 
             var response = await Client.ExecuteWithErrorHandling<ListPagesResponse>(request);
 

@@ -1,4 +1,3 @@
-using Apps.Webflow.Api;
 using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Response.Collection;
 using Blackbird.Applications.Sdk.Common.Dynamic;
@@ -22,7 +21,7 @@ public class BaseCollectionDataSourceHandler: WebflowInvocable, IAsyncDataSource
         if (string.IsNullOrWhiteSpace(SiteId))
             throw new("You need to specify Site ID first");
 
-        var request = new WebflowRequest($"sites/{SiteId}/collections", Method.Get, Creds);
+        var request = new RestRequest($"sites/{SiteId}/collections", Method.Get);
         var response = await Client.ExecuteWithErrorHandling<ListCollectionsResponse>(request);
 
         return response.Collections

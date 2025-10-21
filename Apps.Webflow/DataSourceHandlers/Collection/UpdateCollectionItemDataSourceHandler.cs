@@ -1,5 +1,4 @@
-﻿using Apps.Webflow.Api;
-using Apps.Webflow.Invocables;
+﻿using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Entities;
 using Apps.Webflow.Models.Request.Collection;
 using Blackbird.Applications.Sdk.Common;
@@ -30,7 +29,7 @@ namespace Apps.Webflow.DataSourceHandlers.Collection
             endpoint = string.IsNullOrEmpty(Request.CmsLocaleId)
                 ? endpoint
                 : endpoint.SetQueryParameter("cmsLocaleIds", Request.CmsLocaleId);
-            var request = new WebflowRequest(endpoint, Method.Get, Creds);
+            var request = new RestRequest(endpoint, Method.Get);
             var response = await Client.Paginate<CollectionItemEntity>(request);
 
             return response

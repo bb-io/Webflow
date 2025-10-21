@@ -1,5 +1,4 @@
-﻿using Apps.Webflow.Api;
-using Apps.Webflow.HtmlConversion;
+﻿using Apps.Webflow.HtmlConversion;
 using Apps.Webflow.HtmlConversion.Constants;
 using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Request.Pages;
@@ -29,7 +28,7 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
         while (allPages.Count < total)
         {
             var endpoint = $"sites/{input.SiteId}/pages";
-            var request = new WebflowRequest(endpoint, Method.Get, Creds);
+            var request = new RestRequest(endpoint, Method.Get);
 
             if (!string.IsNullOrEmpty(input.LocaleId))
                 request.AddQueryParameter("localeId", input.LocaleId);
@@ -92,7 +91,7 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
     public async Task<GetPageAsHtmlResponse> GetPageAsHtml([ActionParameter] GetPageAsHtmlRequest input)
     {
         var domEndpoint = $"pages/{input.PageId}/dom";
-        var domRequest = new WebflowRequest(domEndpoint, Method.Get, Creds);
+        var domRequest = new RestRequest(domEndpoint, Method.Get);
 
         if (!string.IsNullOrEmpty(input.LocaleId))
             domRequest.AddQueryParameter("localeId", input.LocaleId);
@@ -114,7 +113,7 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
         if (!input.IncludeMetadata.HasValue || input.IncludeMetadata == true)
         {
             var metadataEndpoint = $"pages/{input.PageId}";
-            var metadataRequest = new WebflowRequest(metadataEndpoint, Method.Get, Creds);
+            var metadataRequest = new RestRequest(metadataEndpoint, Method.Get);
             metadata = await Client.ExecuteWithErrorHandling<PageResponse>(metadataRequest);
         }
 
@@ -174,7 +173,7 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
         };
 
         var endpoint = $"pages/{input.PageId}/dom";
-        var request = new WebflowRequest(endpoint, Method.Post, Creds)
+        var request = new RestRequest(endpoint, Method.Post)
         {
             RequestFormat = DataFormat.Json
         };
