@@ -18,6 +18,6 @@ public class GetPageAsHtmlRequest
     [DataSource(typeof(SiteLocaleDataSourceHandler))]
     public string? LocaleId { get; set; }
 
-    [Display("Include page metadata. True by default")]
+    [Display("Include page metadata", Description = "Includes page metadata, true by default")]
     public bool? IncludeMetadata { get; set; }
 }
