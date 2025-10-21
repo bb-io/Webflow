@@ -3,7 +3,7 @@ using Blackbird.Applications.Sdk.Common.Files;
 
 namespace Apps.Webflow.Models.Response.Pages;
 
-public class GetPageAsHtmlResponse(FileReference content, PageMetadata? metadata)
+public class GetPageAsHtmlResponse(FileReference content, PageResponse? metadata)
 {
     public FileReference Content { get; set; } = content;
 
@@ -23,10 +23,10 @@ public class GetPageAsHtmlResponse(FileReference content, PageMetadata? metadata
     public DateTime? LastUpdated { get; set; } = metadata?.LastUpdated;
 
     [Display("Is archived")]
-    public bool? IsArchived { get; set; } = metadata?.IsArchived;
+    public bool? Archived { get; set; } = metadata?.Archived;
 
     [Display("Is draft")]
-    public bool? IsDraft { get; set; } = metadata?.IsDraft;
+    public bool? Draft { get; set; } = metadata?.Draft;
 
     [Display("Locale ID")]
     public string? LocaleId { get; set; } = metadata?.LocaleId;

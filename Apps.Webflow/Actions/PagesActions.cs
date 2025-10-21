@@ -109,13 +109,13 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
         fileReference.Name = fileName;
         fileReference.ContentType = contentType;
 
-        PageMetadata? metadata = null;
+        PageResponse? metadata = null;
 
         if (!input.IncludeMetadata.HasValue || input.IncludeMetadata == true)
         {
             var metadataEndpoint = $"pages/{input.PageId}";
             var metadataRequest = new WebflowRequest(metadataEndpoint, Method.Get, Creds);
-            metadata = await Client.ExecuteWithErrorHandling<PageMetadata>(metadataRequest);
+            metadata = await Client.ExecuteWithErrorHandling<PageResponse>(metadataRequest);
         }
 
         return new GetPageAsHtmlResponse(fileReference, metadata);
