@@ -11,12 +11,8 @@ using Newtonsoft.Json.Linq;
 namespace Apps.Webflow.Webhooks;
 
 [WebhookList]
-public class WebhookList : WebflowInvocable
+public class WebhookList(InvocationContext invocationContext) : WebflowInvocable(invocationContext)
 {
-    public WebhookList(InvocationContext invocationContext) : base(invocationContext)
-    {
-    }
-
     [Webhook("On site published", typeof(SitePublishedWebhookHandler),
         Description = "Triggers when specific site was published")]
     public Task<WebhookResponse<SitePublishedResponse>> OnSitePublished(WebhookRequest webhookRequest)
