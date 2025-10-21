@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using Apps.Webflow.Actions;
+﻿using Apps.Webflow.Actions;
 using Apps.Webflow.Models.Request.Pages;
 
 namespace Tests.Webflow;
@@ -11,20 +10,18 @@ public class PagesTests : TestBase
     public async Task SearchPages_ReturnsExpectedPages()
     {
         // Arrange
-
         var request = new SearchPagesRequest
         {
-            SiteId = "6773fdfb5a841e3420ebc404",
-            Draft = true
+            SiteId = "6773fdfb5a841e3420ebc404"
         };
 
         var actions = new PagesActions(InvocationContext, FileManager);
 
         // Act
         var result = await actions.SearchPages(request);
-        var json = Newtonsoft.Json.JsonConvert.SerializeObject(result);
-        Console.WriteLine(json);
+
         // Assert
+        PrintJsonResult(result);
         Assert.IsNotNull(result);
     }
 
@@ -44,7 +41,7 @@ public class PagesTests : TestBase
         var result = await actions.GetPageAsHtml(input);
 
         // Assert
-        Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
+        PrintJsonResult(result);
         Assert.IsNotNull(result, "Result should not be null.");
     }
 
