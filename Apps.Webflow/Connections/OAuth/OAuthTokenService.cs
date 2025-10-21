@@ -1,27 +1,19 @@
-using Apps.Webflow.Constants;
-using Apps.Webflow.Invocables;
-using Blackbird.Applications.Sdk.Common.Authentication.OAuth2;
-using Blackbird.Applications.Sdk.Common.Invocation;
 using RestSharp;
+using Apps.Webflow.Invocables;
+using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.Sdk.Common.Authentication.OAuth2;
 
 namespace Apps.Webflow.Connections.OAuth;
 
-public class OAuthTokenService : WebflowInvocable, IOAuth2TokenService
+public class OAuthTokenService(InvocationContext invocationContext) : WebflowInvocable(invocationContext), IOAuth2TokenService
 {
-    public OAuthTokenService(InvocationContext invocationContext) : base(invocationContext)
-    {
-    }
-
     public Task<Dictionary<string, string>> RequestToken(string state, string code, Dictionary<string, string> values,
         CancellationToken cancellationToken)
     {
-        var tempClientId = values[CredsNames.ClientId];
-        var tempClientSecret = values[CredsNames.ClientSecret];
-
         var parameters = new Dictionary<string, string>
         {
-            { "client_id", tempClientId},//ApplicationConstants.ClientId },
-            { "client_secret", tempClientSecret},//ApplicationConstants.ClientSecret },
+            { "client_id", ApplicationConstants.ClientId },
+            { "client_secret", ApplicationConstants.ClientSecret },
             { "redirect_uri", $"{InvocationContext.UriInfo.BridgeServiceUrl.ToString().TrimEnd('/')}/AuthorizationCode" },
             { "code", code },
             { "state", state },
