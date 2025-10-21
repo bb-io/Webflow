@@ -1,4 +1,5 @@
-﻿using Apps.Webflow.Actions;
+﻿using Newtonsoft.Json;
+using Apps.Webflow.Actions;
 using Apps.Webflow.Models.Request.Pages;
 
 namespace Tests.Webflow;
@@ -27,14 +28,13 @@ public class PagesTests : TestBase
         Assert.IsNotNull(result);
     }
 
-
     [TestMethod]
     public async Task GetPageAsHtml_ReturnsFileReference()
     {
         // Arrange
         var input = new GetPageAsHtmlRequest
         {
-            SiteId= "6773fdfb5a841e3420ebc404",
+            SiteId = "6773fdfb5a841e3420ebc404",
             PageId = "6773fdfc5a841e3420ebc46d"
         };
 
@@ -44,6 +44,7 @@ public class PagesTests : TestBase
         var result = await actions.GetPageAsHtml(input);
 
         // Assert
+        Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
         Assert.IsNotNull(result, "Result should not be null.");
     }
 

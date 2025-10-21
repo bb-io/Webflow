@@ -1,17 +1,17 @@
-﻿using System.Web;
-using Apps.Webflow.Api;
+﻿using Apps.Webflow.Api;
 using Apps.Webflow.HtmlConversion;
 using Apps.Webflow.HtmlConversion.Constants;
 using Apps.Webflow.Invocables;
+using Apps.Webflow.Models.Entities;
 using Apps.Webflow.Models.Request.Pages;
 using Apps.Webflow.Models.Response;
 using Apps.Webflow.Models.Response.Pages;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
-using Blackbird.Applications.Sdk.Common.Files;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using RestSharp;
+using System.Web;
 
 namespace Apps.Webflow.Actions;
 
@@ -90,33 +90,37 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
     }
 
     [Action("Get page content as HTML", Description = "Get the page content in HTML file")]
-    public async Task<FileReference> GetPageAsHtml([ActionParameter] GetPageAsHtmlRequest input)
+    public async Task<GetPageAsHtmlResponse> GetPageAsHtml([ActionParameter] GetPageAsHtmlRequest input)
     {
-        var endpoint = $"pages/{input.PageId}/dom";
-        var request = new WebflowRequest(endpoint, Method.Get, Creds);
+        var domEndpoint = $"pages/{input.PageId}/dom";
+        var domRequest = new WebflowRequest(domEndpoint, Method.Get, Creds);
 
         if (!string.IsNullOrEmpty(input.LocaleId))
-            request.AddQueryParameter("localeId", input.LocaleId);
+            domRequest.AddQueryParameter("localeId", input.LocaleId);
 
-        var pageDom = await Client.ExecuteWithErrorHandling<PageDomEntity>(request);
+        var pageDom = await Client.ExecuteWithErrorHandling<PageDomEntity>(domRequest);
 
         var htmlStream = PageHtmlConverter.ToHtml(pageDom, input.SiteId, input.PageId);
-
 
         var fileName = $"page_{input.PageId}.html";
         var contentType = "text/html";
 
-        var fileReference = await fileManagementClient.UploadAsync(
-            htmlStream,
-            contentType,
-            fileName);
+        var fileReference = await fileManagementClient.UploadAsync(htmlStream, contentType, fileName);
 
         fileReference.Name = fileName;
         fileReference.ContentType = contentType;
 
-        return fileReference;
-    }
+        PageMetadataEntity? metadata = null;
 
+        if (!input.IncludeMetadata.HasValue || input.IncludeMetadata == true)
+        {
+            var metadataEndpoint = $"pages/{input.PageId}";
+            var metadataRequest = new WebflowRequest(metadataEndpoint, Method.Get, Creds);
+            metadata = await Client.ExecuteWithErrorHandling<PageMetadataEntity>(metadataRequest);
+        }
+
+        return new GetPageAsHtmlResponse(fileReference, metadata);
+    }
 
     [Action("Update page content as HTML", Description = "Update page content using HTML file")]
     public async Task<UpdatePageContentResponse> UpdatePageContentAsHtml([ActionParameter] UpdatePageContentRequest input)
@@ -189,5 +193,4 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
         };
 
     }
-
 }
