@@ -2,7 +2,6 @@
 using Apps.Webflow.HtmlConversion;
 using Apps.Webflow.HtmlConversion.Constants;
 using Apps.Webflow.Invocables;
-using Apps.Webflow.Models.Entities;
 using Apps.Webflow.Models.Request.Pages;
 using Apps.Webflow.Models.Response;
 using Apps.Webflow.Models.Response.Pages;
@@ -110,13 +109,13 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
         fileReference.Name = fileName;
         fileReference.ContentType = contentType;
 
-        PageMetadataEntity? metadata = null;
+        PageMetadata? metadata = null;
 
         if (!input.IncludeMetadata.HasValue || input.IncludeMetadata == true)
         {
             var metadataEndpoint = $"pages/{input.PageId}";
             var metadataRequest = new WebflowRequest(metadataEndpoint, Method.Get, Creds);
-            metadata = await Client.ExecuteWithErrorHandling<PageMetadataEntity>(metadataRequest);
+            metadata = await Client.ExecuteWithErrorHandling<PageMetadata>(metadataRequest);
         }
 
         return new GetPageAsHtmlResponse(fileReference, metadata);

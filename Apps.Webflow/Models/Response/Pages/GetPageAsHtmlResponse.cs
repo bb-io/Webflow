@@ -1,10 +1,9 @@
-﻿using Apps.Webflow.Models.Entities;
-using Blackbird.Applications.Sdk.Common;
+﻿using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Files;
 
 namespace Apps.Webflow.Models.Response.Pages;
 
-public class GetPageAsHtmlResponse(FileReference content, PageMetadataEntity? metadata)
+public class GetPageAsHtmlResponse(FileReference content, PageMetadata? metadata)
 {
     public FileReference Content { get; set; } = content;
 

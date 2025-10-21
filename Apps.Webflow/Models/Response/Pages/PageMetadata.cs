@@ -1,9 +1,9 @@
 ﻿using Newtonsoft.Json;
 
-namespace Apps.Webflow.Models.Entities;
+namespace Apps.Webflow.Models.Response.Pages;
 
 // https://developers.webflow.com/data/v2.0.0/reference/pages-and-components/pages/get-metadata
-public class PageMetadataEntity
+public class PageMetadata
 {
     [JsonProperty("siteId")]
     public string? SiteId { get; set; }
