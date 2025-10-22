@@ -108,7 +108,7 @@ public class DataSources : TestBase
     public async Task CollectionItemCollectionDataSourceHandler_IsSuccess()
     {
         //Arange
-        var siteId = "6773fdfb5a841e3420ebc404";
+        var siteId = "68f886ffe2a4dba6d693cbe1";
         var request = new Apps.Webflow.Models.Request.CollectionItem.CollectionItemRequest { SiteId = siteId };
         // Act
         var handler = new CollectionItemCollectionDataSourceHandler(InvocationContext, request);
@@ -130,9 +130,9 @@ public class DataSources : TestBase
     public async Task CollectionItemDataSourceHandler_IsSuccess()
     {
         //Arange
-        var siteId = "661d37f0bdd59efaf8124722";
+        var siteId = "68f886ffe2a4dba6d693cbe1";
         var request = new Apps.Webflow.Models.Request.CollectionItem.CollectionItemRequest { SiteId = siteId,
-            CollectionId = "68f0bd047d4742cba6c0b30c"
+            CollectionId = "68f88700e2a4dba6d693cc90"
         }; 
         // Act
         var handler = new CollectionItemDataSourceHandler(InvocationContext, request);
