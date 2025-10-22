@@ -1,3 +1,4 @@
+using Apps.Webflow.Constants;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Authentication.OAuth2;
 using Blackbird.Applications.Sdk.Common.Invocation;
@@ -10,10 +11,11 @@ public class OAuthAuthorizeService(InvocationContext invocationContext) : BaseIn
     public string GetAuthorizationUrl(Dictionary<string, string> values)
     {
         var bridgeOauthUrl = $"{InvocationContext.UriInfo.BridgeServiceUrl.ToString().TrimEnd('/')}/oauth";
-        
+
+        var tempClientId = values[CredsNames.ClientId];
         var parameters = new Dictionary<string, string>
         {
-            { "client_id", ApplicationConstants.ClientId },
+            { "client_id", tempClientId },//ApplicationConstants.ClientId },
             { "redirect_uri", $"{InvocationContext.UriInfo.BridgeServiceUrl.ToString().TrimEnd('/')}/AuthorizationCode" },
             { "response_type", "code" },
             { "scope", ApplicationConstants.Scope },

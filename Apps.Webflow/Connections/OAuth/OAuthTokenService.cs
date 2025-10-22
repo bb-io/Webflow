@@ -1,4 +1,5 @@
 using RestSharp;
+using Apps.Webflow.Constants;
 using Apps.Webflow.Invocables;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common.Authentication.OAuth2;
@@ -10,10 +11,13 @@ public class OAuthTokenService(InvocationContext invocationContext) : WebflowInv
     public Task<Dictionary<string, string>> RequestToken(string state, string code, Dictionary<string, string> values,
         CancellationToken cancellationToken)
     {
+        var tempClientId = values[CredsNames.ClientId];
+        var tempClientSecret = values[CredsNames.ClientSecret];
+
         var parameters = new Dictionary<string, string>
         {
-            { "client_id", ApplicationConstants.ClientId },
-            { "client_secret", ApplicationConstants.ClientSecret },
+            { "client_id", tempClientId },//ApplicationConstants.ClientId },
+            { "client_secret", tempClientSecret },//ApplicationConstants.ClientSecret },
             { "redirect_uri", $"{InvocationContext.UriInfo.BridgeServiceUrl.ToString().TrimEnd('/')}/AuthorizationCode" },
             { "code", code },
             { "state", state },
