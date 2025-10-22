@@ -9,12 +9,15 @@ public class CollectionItemEntity
     public string Id { get; set; }
     
     [Display("Locale ID")]
-    public string CmsLocaleId { get; set; }
+    public string? CmsLocaleId { get; set; }
     
     public string Name => FieldData?["name"]?.ToString() ?? Id;
 
     [Display("Last updated")]
     public DateTime? LastUpdated { get; set; }
+
+    [Display("Last published")]
+    public DateTime? LastPublished { get; set; }
 
     [DefinitionIgnore]
     public JObject FieldData { get; set; }

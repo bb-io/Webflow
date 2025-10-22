@@ -1,7 +1,5 @@
-﻿using Apps.Webflow.Api;
-using Apps.Webflow.DataSourceHandlers;
+﻿using Apps.Webflow.DataSourceHandlers.Site;
 using Apps.Webflow.Invocables;
-using Apps.Webflow.Models.Response;
 using Apps.Webflow.Polling.Models;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Dynamic;
@@ -35,7 +33,7 @@ namespace Apps.Webflow.Polling
                 };
             }
 
-            var pagesRequest = new WebflowRequest($"sites/{siteId}/pages", Method.Get, Creds);
+            var pagesRequest = new RestRequest($"sites/{siteId}/pages", Method.Get);
             var pagesResponse = await Client.ExecuteWithErrorHandling<ListPagesPollingResponse>(pagesRequest);
 
             var lastPollingTime = request.Memory.LastPollingTime ?? DateTime.MinValue;

@@ -13,6 +13,6 @@ public class WebflowInvocable : BaseInvocable
     protected WebflowClient Client { get; }
     public WebflowInvocable(InvocationContext invocationContext) : base(invocationContext)
     {
-        Client = new();
+        Client = new(Creds);
     }
 }

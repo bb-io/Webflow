@@ -1,4 +1,3 @@
-using Apps.Webflow.Api;
 using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Entities;
 using Blackbird.Applications.Sdk.Common.Dynamic;
@@ -22,7 +21,7 @@ public class CmsLocaleDataSourceHandler :  WebflowInvocable, IAsyncDataSourceHan
         if (string.IsNullOrWhiteSpace(SiteId))
             throw new("You need to specify Site ID first");
 
-        var request = new WebflowRequest($"sites/{SiteId}", Method.Get, Creds);
+        var request = new RestRequest($"sites/{SiteId}", Method.Get);
         var site = await Client.ExecuteWithErrorHandling<SiteEntity>(request);
 
         if (site.Locales is null)

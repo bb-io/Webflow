@@ -11,9 +11,8 @@ public class ConnectionValidator : IConnectionValidator
         IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
         CancellationToken cancellationToken)
     {
-        var client = new WebflowClient();
-        await client.ExecuteWithErrorHandling(new WebflowRequest("sites", Method.Get,
-            authenticationCredentialsProviders));
+        var client = new WebflowClient(authenticationCredentialsProviders);
+        await client.ExecuteWithErrorHandling(new RestRequest("sites", Method.Get));
 
         return new()
         {

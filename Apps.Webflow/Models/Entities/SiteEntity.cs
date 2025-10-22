@@ -1,16 +1,25 @@
 using Apps.Webflow.Models.Response;
+using Blackbird.Applications.Sdk.Common;
 
 namespace Apps.Webflow.Models.Entities;
 
 public class SiteEntity
 {
+    [Display("Site ID")]
     public string Id { get; set; }
-    
-    public string DisplayName { get; set; }
-    
+
+    [Display("Display name")]
+    public string? DisplayName { get; set; }
+
+    [Display("Last published")]
     public DateTime? LastPublished { get; set; }
 
+    [Display("Last updated")]
     public DateTime? LastUpdated { get; set; }
 
+    [Display("Locales")]
     public LocalesResponse? Locales { get; set; }
+
+    [Display("Custom domains")]
+    public IEnumerable<CustomDomainEntity> CustomDomains { get; set; }
 }

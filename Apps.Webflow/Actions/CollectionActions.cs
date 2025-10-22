@@ -1,4 +1,3 @@
-using Apps.Webflow.Api;
 using Apps.Webflow.Constants;
 using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Entities;
@@ -18,7 +17,7 @@ public class CollectionActions(InvocationContext invocationContext) : WebflowInv
     [Action("Get collection", Description = "Get details of a specific collection")]
     public async Task<FullCollectionEntity> GetCollection([ActionParameter] CollectionRequest collectionRequest)
     {
-        var request = new WebflowRequest($"collections/{collectionRequest.CollectionId}", Method.Get, Creds);
+        var request = new RestRequest($"collections/{collectionRequest.CollectionId}", Method.Get);
         var response = await Client.ExecuteWithErrorHandling<FullCollectionEntity>(request);
 
         response.CollectionItems = await GetCollectionItems(collectionRequest.CollectionId);
@@ -29,7 +28,7 @@ public class CollectionActions(InvocationContext invocationContext) : WebflowInv
     public Task<CollectionEntity> CreateCollection([ActionParameter] SiteRequest site,
         [ActionParameter] CreateCollectionRequest input)
     {
-        var request = new WebflowRequest($"sites/{site.SiteId}/collections", Method.Post, Creds)
+        var request = new RestRequest($"sites/{site.SiteId}/collections", Method.Post)
             .WithJsonBody(input, JsonConfig.Settings);
         return Client.ExecuteWithErrorHandling<CollectionEntity>(request);
     }
@@ -37,14 +36,14 @@ public class CollectionActions(InvocationContext invocationContext) : WebflowInv
     [Action("Delete collection", Description = "Delete a specific collection")]
     public Task DeleteCollection([ActionParameter] CollectionRequest collectionRequest)
     {
-        var request = new WebflowRequest($"collections/{collectionRequest.CollectionId}", Method.Delete, Creds);
+        var request = new RestRequest($"collections/{collectionRequest.CollectionId}", Method.Delete);
         return Client.ExecuteWithErrorHandling(request);
     }
 
     private Task<List<CollectionItemEntity>> GetCollectionItems(string collectionId)
     {
         var endpoint = $"collections/{collectionId}/items";
-        var request = new WebflowRequest(endpoint, Method.Get, Creds);
+        var request = new RestRequest(endpoint, Method.Get);
 
         return Client.Paginate<CollectionItemEntity>(request);
     }

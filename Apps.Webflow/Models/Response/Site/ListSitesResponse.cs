@@ -1,6 +1,6 @@
 using Apps.Webflow.Models.Entities;
 
-namespace Apps.Webflow.Models.Response;
+namespace Apps.Webflow.Models.Response.Site;
 
 public class ListSitesResponse
 {

@@ -1,5 +1,4 @@
 ﻿using System.Web;
-using Apps.Webflow.Api;
 using Apps.Webflow.HtmlConversion;
 using Apps.Webflow.HtmlConversion.Constants;
 using Apps.Webflow.Invocables;
@@ -32,7 +31,7 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
         while (allComponents.Count < total)
         {
             var endpoint = $"sites/{input.SiteId}/components";
-            var request = new WebflowRequest(endpoint, Method.Get, Creds);
+            var request = new RestRequest(endpoint, Method.Get);
 
             request.AddQueryParameter("offset", offset.ToString());
             request.AddQueryParameter("limit", pageSize.ToString());
@@ -77,7 +76,7 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
     public async Task<FileReference> GetComponentAsHtml([ActionParameter] GetComponentContentRequest input)
     {
         var endpoint = $"sites/{input.SiteId}/components/{input.ComponentId}/dom";
-        var request = new WebflowRequest(endpoint, Method.Get, Creds);
+        var request = new RestRequest(endpoint, Method.Get);
 
         if (!string.IsNullOrEmpty(input.LocaleId))
             request.AddQueryParameter("localeId", input.LocaleId);
@@ -172,8 +171,7 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
         };
 
         var endpoint = $"sites/{input.SiteId}/components/{input.ComponentId}/dom";
-        var apiRequest = new WebflowRequest(endpoint, Method.Post, Creds)
-            .WithJsonBody(body);
+        var apiRequest = new RestRequest(endpoint, Method.Post).WithJsonBody(body);
 
         apiRequest.RequestFormat = DataFormat.Json;
         apiRequest.AddQueryParameter("localeId", input.LocaleId);
