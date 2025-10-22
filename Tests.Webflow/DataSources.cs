@@ -2,6 +2,7 @@
 using Apps.Webflow.DataSourceHandlers.Collection;
 using Apps.Webflow.DataSourceHandlers.CollectionItem;
 using Apps.Webflow.DataSourceHandlers.Locale;
+using Apps.Webflow.DataSourceHandlers.Site;
 using Apps.Webflow.Models.Request.Components;
 using Apps.Webflow.Models.Request.Pages;
 using Blackbird.Applications.Sdk.Common.Dynamic;
@@ -25,11 +26,11 @@ public class DataSources : TestBase
 
         // Assert
         Assert.IsNotNull(data, "Handler returned null.");
-        Assert.AreNotEqual(0, data.Count, "No sites were returned.");
+        Assert.AreNotEqual(0, data.Count(), "No sites were returned.");
 
         foreach (var item in data)
         {
-            Console.WriteLine($"ID: {item.Key}, Name: {item.Value}");
+            Console.WriteLine($"ID: {item.Value}, Name: {item.DisplayName}");
         }
     }
 
