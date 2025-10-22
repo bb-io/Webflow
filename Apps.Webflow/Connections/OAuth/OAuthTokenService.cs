@@ -1,5 +1,6 @@
 using Apps.Webflow.Constants;
 using Apps.Webflow.Invocables;
+using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Authentication.OAuth2;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Newtonsoft.Json;
@@ -7,7 +8,7 @@ using RestSharp;
 
 namespace Apps.Webflow.Connections.OAuth;
 
-public class OAuthTokenService(InvocationContext invocationContext) : WebflowInvocable(invocationContext), IOAuth2TokenService
+public class OAuthTokenService(InvocationContext invocationContext) : BaseInvocable(invocationContext), IOAuth2TokenService
 {
     public async Task<Dictionary<string, string>> RequestToken(string state, string code, Dictionary<string, string> values,
         CancellationToken cancellationToken)
@@ -50,7 +51,8 @@ public class OAuthTokenService(InvocationContext invocationContext) : WebflowInv
         var request = new RestRequest("https://api.webflow.com/oauth/revoke_authorization", Method.Post);
         parameters.ToList().ForEach(x => request.AddParameter(x.Key, x.Value));
 
-        return Client.ExecuteWithErrorHandling(request);
+        var restClient = new RestClient();
+        return restClient.ExecuteAsync(request);
     }
 
     public Task<Dictionary<string, string>> RefreshToken(Dictionary<string, string> values,

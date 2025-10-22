@@ -11,6 +11,7 @@ public class WebflowInvocable : BaseInvocable
         InvocationContext.AuthenticationCredentialsProviders.ToArray();
 
     protected WebflowClient Client { get; }
+    
     public WebflowInvocable(InvocationContext invocationContext) : base(invocationContext)
     {
         Client = new(Creds);
