@@ -1,6 +1,7 @@
 using Apps.Webflow.Constants;
 using Apps.Webflow.Models.Response;
 using Blackbird.Applications.Sdk.Common.Authentication;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Utils.Extensions.Sdk;
 using Blackbird.Applications.Sdk.Utils.Extensions.String;
 using Blackbird.Applications.Sdk.Utils.RestSharp;
@@ -24,7 +25,7 @@ public class WebflowClient : BlackBirdRestClient
     protected override Exception ConfigureErrorException(RestResponse response)
     {
         var error = JsonConvert.DeserializeObject<WebflowError>(response.Content!)!;
-        return new(error.Message);
+        return new PluginApplicationException(error.Message);
     }
 
     public async Task<List<T>> Paginate<T>(RestRequest request)
