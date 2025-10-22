@@ -12,7 +12,7 @@ public class PageResponse
     public string Id { get; set; }
 
     [Display("Page title")]
-    public string? Title { get; set; }
+    public string Title { get; set; } = string.Empty;
 
     [Display("Slug")]
     public string? Slug { get; set; }

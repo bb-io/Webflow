@@ -12,7 +12,7 @@ public class PagesTests : TestBase
         // Arrange
         var request = new SearchPagesRequest
         {
-            SiteId = "6773fdfb5a841e3420ebc404"
+            SiteId = "68f886ffe2a4dba6d693cbe1"
         };
 
         var actions = new PagesActions(InvocationContext, FileManager);
