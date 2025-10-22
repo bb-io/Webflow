@@ -3,9 +3,11 @@ using Apps.Webflow.DataSourceHandlers.Collection;
 using Apps.Webflow.DataSourceHandlers.CollectionItem;
 using Apps.Webflow.DataSourceHandlers.Locale;
 using Apps.Webflow.DataSourceHandlers.Site;
+using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Components;
 using Apps.Webflow.Models.Request.Pages;
 using Blackbird.Applications.Sdk.Common.Dynamic;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 
 namespace Tests.Webflow;
 
@@ -149,5 +151,39 @@ public class DataSources : TestBase
         {
             Console.WriteLine($"Display name: {locale.Key}, Locale ID: {locale.Value}");
         }
+    }
+
+    [TestMethod]
+    public async Task CustomDomainDataSourceHandler_WithSiteId_ReturnsCustomDomains()
+    {
+        // Arrange
+        var input = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
+        var dataContext = new DataSourceContext { SearchString = "" };
+        var handler = new CustomDomainDataSourceHandler(InvocationContext, input);
+
+        // Act
+        var data = await handler.GetDataAsync(dataContext, CancellationToken.None);
+
+        // Assert
+        Assert.IsNotNull(data, "Handler returned null.");
+
+        foreach (var item in data)
+        {
+            Console.WriteLine($"ID: {item.Value}, Name: {item.DisplayName}");
+        }
+    }
+
+    [TestMethod]
+    public async Task CustomDomainDataSourceHandler_WithoutSiteId_ReturnsCustomDomains()
+    {
+        // Arrange
+        var input = new SiteRequest { SiteId = "" };
+        var dataContext = new DataSourceContext { SearchString = "" };
+        var handler = new CustomDomainDataSourceHandler(InvocationContext, input);
+
+        // Act & Assert
+        await Assert.ThrowsExactlyAsync<PluginMisconfigurationException>(
+            async () => await handler.GetDataAsync(dataContext, CancellationToken.None)
+        );
     }
 }

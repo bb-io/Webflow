@@ -3,6 +3,7 @@ using Apps.Webflow.Models.Request.Pages;
 using Apps.Webflow.Models.Response.Pages;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Dynamic;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using RestSharp;
 
@@ -14,7 +15,7 @@ public class SiteLocaleDataSourceHandler(InvocationContext invocationContext, [A
     public async Task<IEnumerable<DataSourceItem>> GetDataAsync(DataSourceContext context, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(input.SiteId))
-            throw new Exception("Site ID cannot be null or empty.");
+            throw new PluginMisconfigurationException("Site ID cannot be null or empty");
 
         var endpoint = $"sites/{input.SiteId}";
         var request = new RestRequest(endpoint, Method.Get);
