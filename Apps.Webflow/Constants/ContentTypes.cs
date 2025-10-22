@@ -2,6 +2,6 @@
 
 public class ContentTypes
 {
-    public const string Page = "page";
-    public const string Component = "component";
+    public const string Page = "Page";
+    public const string Component = "Component";
 }

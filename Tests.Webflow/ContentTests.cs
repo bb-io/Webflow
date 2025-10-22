@@ -1,4 +1,5 @@
 ﻿using Apps.Webflow.Actions;
+using Apps.Webflow.Constants;
 using Apps.Webflow.Models.Request.Content;
 
 namespace Tests.Webflow;
@@ -11,7 +12,7 @@ public class ContentTests : TestBase
     {
 		// Arrange
 		var action = new ContentActions(InvocationContext);
-		var contentType = new ContentFilter { ContentType = "page" };
+		var contentType = new ContentFilter { ContentType = ContentTypes.Page };
 		var input = new SearchContentRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
 
 		// Act

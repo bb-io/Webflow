@@ -9,8 +9,8 @@ public class ContentTypeStaticDataHandler : IDataSourceItemHandler
     {
         return new List<DataSourceItem>
         {
-            new DataSourceItem(ContentTypes.Page, "Page"),
-            new DataSourceItem(ContentTypes.Component, "Component")
+            new DataSourceItem(ContentTypes.Page, ContentTypes.Page),
+            new DataSourceItem(ContentTypes.Component, ContentTypes.Component)
         };
     }
 }
