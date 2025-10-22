@@ -7,20 +7,24 @@ using Apps.Webflow.Models.Response.Site;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 
 namespace Apps.Webflow.Actions;
 
 [ActionList]
 public class SiteActions(InvocationContext invocationContext) : WebflowInvocable(invocationContext)
 {
-    [Action("List sites", Description = "Lists all sites")]
-    public async Task<ListSitesResponse> ListSites()
+    [Action("Search sites", Description = "Search sites based on search criteria")]
+    public async Task<SearchSitesResponse> SearchSites([ActionParameter] SearchSitesRequest input)
     {
+        ValidateInputDates(input);
+
         var request = new RestRequest("sites", Method.Get);
         var result = await Client.ExecuteWithErrorHandling<SiteEntitiesList>(request);
 
-        var sites = result.Sites.Select(entity => new GetSiteResponse(entity));
-        return new ListSitesResponse(sites);
+        var filteredResult = ApplySiteFilters(input, result);
+        var sites = filteredResult.Select(entity => new GetSiteResponse(entity));
+        return new SearchSitesResponse(sites);
     }
 
     [Action("Get site", Description = "Get details of a site")]
@@ -44,5 +48,53 @@ public class SiteActions(InvocationContext invocationContext) : WebflowInvocable
             request.AddJsonBody(new { publishToWebflowSubdomain = true });
 
         return await Client.ExecuteWithErrorHandling<CustomDomainsResponse>(request);
+    }
+
+    private static void ValidateInputDates(SearchSitesRequest input)
+    {
+        if (!IsCorrectDateRange(input.CreatedBefore, input.CreatedAfter))
+            throw new PluginMisconfigurationException("Please specify a valid date range. 'Created after' date cannot be later than the 'Created before' date");
+
+        if (!IsCorrectDateRange(input.LastPublishedBefore, input.LastPublishedAfter))
+            throw new PluginMisconfigurationException("Please specify a valid date range. 'Last published after' date cannot be later than the 'Last published before' date");
+        
+        if (!IsCorrectDateRange(input.LastUpdatedBefore, input.LastUpdatedAfter))
+            throw new PluginMisconfigurationException("Please specify a valid date range. 'Last published after' date cannot be later than the 'Last published before' date");
+    }
+
+    private static bool IsCorrectDateRange(DateTime? before, DateTime? after)
+    {
+        if (!before.HasValue || !after.HasValue)
+            return true;
+
+        return after <= before;
+    }
+
+    private static IEnumerable<SiteEntity> ApplySiteFilters(SearchSitesRequest input, SiteEntitiesList result)
+    {
+        var sites = result.Sites;
+
+        if (input.CreatedBefore.HasValue)
+            sites = sites.Where(x => x.CreatedOn < input.CreatedBefore);
+
+        if (input.CreatedAfter.HasValue)
+            sites = sites.Where(x => x.CreatedOn > input.CreatedAfter);
+
+        if (input.LastPublishedBefore.HasValue)
+            sites = sites.Where(x => x.LastPublished < input.LastPublishedBefore);
+
+        if (input.LastPublishedAfter.HasValue)
+            sites = sites.Where(x => x.LastPublished > input.LastPublishedAfter);
+
+        if (input.LastUpdatedBefore.HasValue)
+            sites = sites.Where(x => x.LastUpdated < input.LastUpdatedBefore);
+
+        if (input.LastUpdatedAfter.HasValue)
+            sites = sites.Where(x => x.LastUpdated > input.LastUpdatedAfter);
+
+        if (!string.IsNullOrEmpty(input.DisplayNameContains))
+            sites = sites.Where(x => x.DisplayName.Contains(input.DisplayNameContains));
+
+        return sites.ToList();
     }
 }

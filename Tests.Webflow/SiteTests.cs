@@ -8,20 +8,92 @@ namespace Tests.Webflow;
 public class SiteTests : TestBase
 {
     [TestMethod]
-    public async Task ListSites_ReturnsSites()
+    public async Task SearchSites_NoFilters_ReturnsSites()
     {
 		// Arrange
 		var action = new SiteActions(InvocationContext);
+		var input = new SearchSitesRequest { };
 
 		// Act
-		var result = await action.ListSites();
+		var result = await action.SearchSites(input);
 
 		// Assert
 		PrintJsonResult(result);
 		Assert.IsNotNull(result);
-	}
+    }
 
-	[TestMethod]
+    [TestMethod]
+    public async Task SearchSites_CreatedDateFilter_ReturnsSites()
+    {
+        // Arrange
+        var action = new SiteActions(InvocationContext);
+        var input = new SearchSitesRequest {
+            CreatedAfter = new DateTime(2025, 10, 22, 7, 0, 0, DateTimeKind.Utc),
+            CreatedBefore = new DateTime(2025, 10, 22, 10, 0, 0, DateTimeKind.Utc)
+        };
+
+        // Act
+        var result = await action.SearchSites(input);
+
+        // Assert
+        PrintJsonResult(result);
+        Assert.IsNotNull(result);
+    }
+
+    [TestMethod]
+    public async Task SearchSites_LastPublishedFilter_ReturnsSites()
+    {
+        // Arrange
+        var action = new SiteActions(InvocationContext);
+        var input = new SearchSitesRequest
+        {
+            LastPublishedAfter = new DateTime(2025, 10, 22, 10, 0, 0, DateTimeKind.Utc),
+            LastPublishedBefore = new DateTime(2025, 10, 22, 11, 0, 0, DateTimeKind.Utc)
+        };
+
+        // Act
+        var result = await action.SearchSites(input);
+
+        // Assert
+        PrintJsonResult(result);
+        Assert.IsNotNull(result);
+    }
+
+    [TestMethod]
+    public async Task SearchSites_LastUpdatedFilter_ReturnsSites()
+    {
+        // Arrange
+        var action = new SiteActions(InvocationContext);
+        var input = new SearchSitesRequest
+        {
+            LastUpdatedAfter = new DateTime(2025, 10, 22, 7, 0, 0, DateTimeKind.Utc),
+            LastUpdatedBefore = new DateTime(2025, 10, 22, 8, 0, 0, DateTimeKind.Utc)
+        };
+
+        // Act
+        var result = await action.SearchSites(input);
+
+        // Assert
+        PrintJsonResult(result);
+        Assert.IsNotNull(result);
+    }
+
+    [TestMethod]
+    public async Task SearchSites_DisplayNameFilter_ReturnsSites()
+    {
+        // Arrange
+        var action = new SiteActions(InvocationContext);
+        var input = new SearchSitesRequest { DisplayNameContains = "Exceptional" };
+
+        // Act
+        var result = await action.SearchSites(input);
+
+        // Assert
+        PrintJsonResult(result);
+        Assert.IsNotNull(result);
+    }
+
+    [TestMethod]
 	public async Task GetSite_ReturnsSite()
 	{
         // Arrange

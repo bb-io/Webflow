@@ -9,13 +9,16 @@ public class SiteEntity
     public string Id { get; set; }
 
     [Display("Display name")]
-    public string? DisplayName { get; set; }
+    public string DisplayName { get; set; } = string.Empty;
 
     [Display("Last published")]
     public DateTime? LastPublished { get; set; }
 
     [Display("Last updated")]
     public DateTime? LastUpdated { get; set; }
+
+    [Display("Created on")]
+    public DateTime? CreatedOn { get; set; }
 
     [Display("Locales")]
     public LocalesResponse? Locales { get; set; }

@@ -11,7 +11,7 @@ public class SiteDataSourceHandler(InvocationContext invocationContext) : Webflo
     public async Task<IEnumerable<DataSourceItem>> GetDataAsync(DataSourceContext context, CancellationToken cancellationToken)
     {
         var request = new RestRequest("sites", Method.Get);
-        var response = await Client.ExecuteWithErrorHandling<ListSitesResponse>(request);
+        var response = await Client.ExecuteWithErrorHandling<SearchSitesResponse>(request);
         return response.Sites.Select(x => new DataSourceItem(x.Id, x.DisplayName)).ToList();
     }
 }

@@ -17,6 +17,9 @@ public class GetSiteResponse(SiteEntity entity)
     [Display("Last updated")]
     public DateTime? LastUpdated { get; set; } = entity.LastUpdated;
 
+    [Display("Created on")]
+    public DateTime? CreatedOn { get; set; } = entity.CreatedOn;
+
     [Display("Primary locale")]
     public string? PrimaryLocale { get; set; } = entity.Locales?.Primary.DisplayName;
 
