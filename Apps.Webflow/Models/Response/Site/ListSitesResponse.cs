@@ -1,8 +1,6 @@
-using Apps.Webflow.Models.Entities;
-
 namespace Apps.Webflow.Models.Response.Site;
 
-public class ListSitesResponse
+public class ListSitesResponse(IEnumerable<GetSiteResponse> sites)
 {
-    public IEnumerable<SiteEntity> Sites { get; set; }
+    public IEnumerable<GetSiteResponse> Sites { get; set; } = sites;
 }

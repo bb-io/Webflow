@@ -17,14 +17,18 @@ public class SiteActions(InvocationContext invocationContext) : WebflowInvocable
     public async Task<ListSitesResponse> ListSites()
     {
         var request = new RestRequest("sites", Method.Get);
-        return await Client.ExecuteWithErrorHandling<ListSitesResponse>(request);
+        var result = await Client.ExecuteWithErrorHandling<SiteEntitiesList>(request);
+
+        var sites = result.Sites.Select(entity => new GetSiteResponse(entity));
+        return new ListSitesResponse(sites);
     }
 
     [Action("Get site", Description = "Get details of a site")]
-    public async Task<SiteEntity> GetSite([ActionParameter] SiteRequest input)
+    public async Task<GetSiteResponse> GetSite([ActionParameter] SiteRequest input)
     {
         var request = new RestRequest($"sites/{input.SiteId}", Method.Get);
-        return await Client.ExecuteWithErrorHandling<SiteEntity>(request);
+        var result = await Client.ExecuteWithErrorHandling<SiteEntity>(request);
+        return new GetSiteResponse(result);
     }
 
     [Action("Publish site", Description = "Publishes a site to one or more more domains")]
