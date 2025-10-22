@@ -1,4 +1,5 @@
 ﻿using Apps.Webflow.DataSourceHandlers;
+using Apps.Webflow.DataSourceHandlers.Locale;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 
