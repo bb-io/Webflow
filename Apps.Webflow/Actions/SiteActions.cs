@@ -1,6 +1,6 @@
 ﻿using RestSharp;
 using Apps.Webflow.Invocables;
-using Apps.Webflow.Models.Response;
+using Apps.Webflow.Models.Response.Site;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 

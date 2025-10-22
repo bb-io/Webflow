@@ -1,5 +1,5 @@
 using Apps.Webflow.Invocables;
-using Apps.Webflow.Models.Response;
+using Apps.Webflow.Models.Response.Site;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using RestSharp;
