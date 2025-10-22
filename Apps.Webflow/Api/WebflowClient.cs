@@ -19,8 +19,11 @@ public class WebflowClient : BlackBirdRestClient
         BaseUrl = "https://api.webflow.com/v2".ToUri()
     })
     {
-        if (creds.Any())
+        var accessTokenProvider = creds.FirstOrDefault(x => x.KeyName == CredsNames.AccessToken);
+        if (accessTokenProvider != null && !string.IsNullOrEmpty(accessTokenProvider.Value))
+        {
             this.AddDefaultHeader("Authorization", $"Bearer {creds.Get(CredsNames.AccessToken).Value}");
+        }
     }
 
     protected override Exception ConfigureErrorException(RestResponse response)
