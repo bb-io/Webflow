@@ -3,6 +3,7 @@ using Apps.Webflow.HtmlConversion;
 using Apps.Webflow.HtmlConversion.Constants;
 using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Entities;
+using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Components;
 using Apps.Webflow.Models.Response.Components;
 using Apps.Webflow.Models.Response.Pagination;
@@ -21,56 +22,32 @@ namespace Apps.Webflow.Actions;
 public class ComponentsActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
     : WebflowInvocable(invocationContext)
 {
-    [Action("List components", Description = "List all components for a site")]
-    public async Task<ListComponentsResponse> ListComponents([ActionParameter] SearchComponentsRequest input)
+    [Action("Search components", Description = "Search all components for a site")]
+    public async Task<SearchComponentsResponse> SearchComponents(
+        [ActionParameter] SiteRequest site,
+        [ActionParameter] SearchComponentsRequest input)
     {
-        var allComponents = new List<ComponentEntity>();
-        var offset = 0;
-        const int pageSize = 100;
-        int total = int.MaxValue;
+        var endpoint = $"sites/{site.SiteId}/components";
+        var request = new RestRequest(endpoint, Method.Get);
 
-        while (allComponents.Count < total)
-        {
-            var endpoint = $"sites/{input.SiteId}/components";
-            var request = new RestRequest(endpoint, Method.Get);
-
-            request.AddQueryParameter("offset", offset.ToString());
-            request.AddQueryParameter("limit", pageSize.ToString());
-
-            var batch = await Client.ExecuteWithErrorHandling<ListComponentsResponse>(request);
-
-            var batchComponents = batch.Components?.ToList() ?? [];
-            total = batch.Pagination?.Total ?? batchComponents.Count;
-
-            allComponents.AddRange(batchComponents);
-
-            if (batchComponents.Count == 0) break;
-            offset += batchComponents.Count;
-        }
-
-        IEnumerable<ComponentEntity> filtered = allComponents;
+        IEnumerable<ComponentEntity> pages = await Client.Paginate<ComponentEntity, ComponentsPaginationResponse>(request, r => r.Components);
 
         if (!string.IsNullOrWhiteSpace(input.NameContains))
-            filtered = filtered.Where(c => !string.IsNullOrEmpty(c.Name) &&
+            pages = pages.Where(c => !string.IsNullOrEmpty(c.Name) &&
+                                           c.Name.Contains(input.NameContains, StringComparison.OrdinalIgnoreCase));
+
+        if (!string.IsNullOrWhiteSpace(input.NameContains))
+            pages = pages.Where(c => !string.IsNullOrEmpty(c.Name) &&
                                            c.Name.Contains(input.NameContains, StringComparison.OrdinalIgnoreCase));
 
         if (!string.IsNullOrWhiteSpace(input.GroupContains))
-            filtered = filtered.Where(c => !string.IsNullOrEmpty(c.Group) &&
+            pages = pages.Where(c => !string.IsNullOrEmpty(c.Group) &&
                                            c.Group.Contains(input.GroupContains, StringComparison.OrdinalIgnoreCase));
 
         if (input.InludeReadOnly != true)
-            filtered = filtered.Where(c => c.ReadOnly != true);
+            pages = pages.Where(c => c.ReadOnly != true);
 
-        var resultComponents = filtered.ToList();
-
-        return new ListComponentsResponse
-        {
-            Components = resultComponents,
-            Pagination = new PaginationInfo
-            {
-                Total = resultComponents.Count
-            }
-        };
+        return new SearchComponentsResponse(pages.ToList());
     }
 
     [Action("Get component content as HTML", Description = "Get the component content in HTML file")]

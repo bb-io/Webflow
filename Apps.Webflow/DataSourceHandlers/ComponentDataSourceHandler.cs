@@ -24,7 +24,7 @@ public class ComponentDataSourceHandler : WebflowInvocable, IAsyncDataSourceItem
         var endpoint = $"sites/{siteId}/components";
         var request = new RestRequest(endpoint, Method.Get);
 
-        var response = await Client.ExecuteWithErrorHandling<ListComponentsResponse>(request);
+        var response = await Client.ExecuteWithErrorHandling<SearchComponentsResponse>(request);
 
         var dataSourceItems = response.Components?
             .Select(component => new DataSourceItem

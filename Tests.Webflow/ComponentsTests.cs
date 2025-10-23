@@ -1,4 +1,5 @@
 using Apps.Webflow.Actions;
+using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Components;
 
 namespace Tests.Webflow;
@@ -12,26 +13,35 @@ public class ComponentsTests : TestBase
     private const string SampleTargetLocaleId = "667e7f0ca4540c2dc643af76"; // German
 
     [TestMethod]
-    public async Task ListComponents_ReturnsExpectedComponents()
+    public async Task SearchComponents_WithoutFilters_ReturnsComponents()
     {
         // Arrange
-        var request = new SearchComponentsRequest
-        {
-            SiteId = SampleSiteId,
-            //NameContains = "Footer",
-            //GroupContains = "Navigation",
-            //ReadOnly = false
-        };
-
+        var request = new SearchComponentsRequest { };
+        var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
         var actions = new ComponentsActions(InvocationContext, FileManager);
 
         // Act
-        var result = await actions.ListComponents(request);
-        var json = Newtonsoft.Json.JsonConvert.SerializeObject(result);
-        Console.WriteLine(json);
+        var result = await actions.SearchComponents(site, request);
 
         // Assert
-        Assert.IsTrue(result.Components.Any());
+        PrintJsonResult(result);
+        Assert.IsNotNull(result);
+    }
+
+    [TestMethod]
+    public async Task SearchComponents_WithFilters_ReturnsComponents()
+    {
+        // Arrange
+        var request = new SearchComponentsRequest { NameContains = "ter" };
+        var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
+        var actions = new ComponentsActions(InvocationContext, FileManager);
+
+        // Act
+        var result = await actions.SearchComponents(site, request);
+
+        // Assert
+        PrintJsonResult(result);
+        Assert.IsNotNull(result);
     }
 
     [TestMethod]
