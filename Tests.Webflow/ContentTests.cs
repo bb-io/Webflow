@@ -60,4 +60,59 @@ public class ContentTests : TestBase
             async () => await action.SearchContent(site, contentType, dates, input)
         );
     }
+    
+    [TestMethod]
+    public async Task SearchContent_ComponentTypeWithoutFilters_ReturnsPageMetadata()
+    {
+        // Arrange
+        var action = new ContentActions(InvocationContext);
+        var contentType = new ContentFilter { ContentType = ContentTypes.Component };
+        var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
+        var input = new SearchContentRequest { };
+        var dates = new DateFilter { };
+
+        // Act
+        var result = await action.SearchContent(site, contentType, dates, input);
+
+        // Assert
+        PrintJsonResult(result);
+        Assert.IsNotNull(result);
+    }
+
+    [TestMethod]
+    public async Task SearchContent_ComponentTypeWithNameFilter_ReturnsPageMetadata()
+    {
+        // Arrange
+        var action = new ContentActions(InvocationContext);
+        var contentType = new ContentFilter { ContentType = ContentTypes.Component };
+        var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
+        var input = new SearchContentRequest { NameContains = "Navigation" };
+        var dates = new DateFilter { };
+
+        // Act
+        var result = await action.SearchContent(site, contentType, dates, input);
+
+        // Assert
+        PrintJsonResult(result);
+        Assert.IsNotNull(result);
+    }
+
+    [TestMethod]
+    public async Task SearchContent_ComponentTypeWithDateFilter_ReturnsPageMetadata()
+    {
+        // Arrange
+        var action = new ContentActions(InvocationContext);
+        var contentType = new ContentFilter { ContentType = ContentTypes.Component };
+        var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
+        var input = new SearchContentRequest { };
+        var dates = new DateFilter { CreatedAfter = DateTime.UtcNow };
+
+        // Act
+        var ex = await Assert.ThrowsExactlyAsync<PluginMisconfigurationException>(
+            async () => await action.SearchContent(site, contentType, dates, input)
+        );
+
+        // Assert
+        StringAssert.Contains(ex.Message, "Date filters are not supported for Components");
+    }
 }

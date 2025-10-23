@@ -2,6 +2,7 @@
 using Apps.Webflow.HtmlConversion;
 using Apps.Webflow.HtmlConversion.Constants;
 using Apps.Webflow.Invocables;
+using Apps.Webflow.Models.Entities;
 using Apps.Webflow.Models.Request.Components;
 using Apps.Webflow.Models.Response.Components;
 using Apps.Webflow.Models.Response.Pagination;
@@ -23,7 +24,7 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
     [Action("List components", Description = "List all components for a site")]
     public async Task<ListComponentsResponse> ListComponents([ActionParameter] SearchComponentsRequest input)
     {
-        var allComponents = new List<ComponentResponse>();
+        var allComponents = new List<ComponentEntity>();
         var offset = 0;
         const int pageSize = 100;
         int total = int.MaxValue;
@@ -47,7 +48,7 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
             offset += batchComponents.Count;
         }
 
-        IEnumerable<ComponentResponse> filtered = allComponents;
+        IEnumerable<ComponentEntity> filtered = allComponents;
 
         if (!string.IsNullOrWhiteSpace(input.NameContains))
             filtered = filtered.Where(c => !string.IsNullOrEmpty(c.Name) &&

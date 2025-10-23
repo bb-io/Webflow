@@ -1,9 +1,9 @@
 using Blackbird.Applications.Sdk.Common;
 using Newtonsoft.Json;
 
-namespace Apps.Webflow.Models.Response.Components;
+namespace Apps.Webflow.Models.Entities;
 
-public class ComponentResponse
+public class ComponentEntity
 {
     [Display("Component ID")]
     [JsonProperty("id")]
