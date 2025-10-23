@@ -1,9 +1,10 @@
 ﻿using Apps.Webflow.HtmlConversion;
 using Apps.Webflow.HtmlConversion.Constants;
 using Apps.Webflow.Invocables;
+using Apps.Webflow.Models.Entities;
 using Apps.Webflow.Models.Request.Pages;
-using Apps.Webflow.Models.Response;
 using Apps.Webflow.Models.Response.Pages;
+using Apps.Webflow.Models.Response.Pagination;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Invocation;
@@ -20,7 +21,7 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
     [Action("Search pages", Description = "Search pages using filters")]
     public async Task<ListPagesResponse> SearchPages([ActionParameter] SearchPagesRequest input)
     {
-        var allPages = new List<PageResponse>();
+        var allPages = new List<PageEntity>();
         var offset = 0;
         const int pageSize = 100;
         int total = int.MaxValue;
@@ -38,7 +39,7 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
 
             var batch = await Client.ExecuteWithErrorHandling<ListPagesResponse>(request);
 
-            var batchPages = batch.Pages?.ToList() ?? new List<PageResponse>();
+            var batchPages = batch.Pages?.ToList() ?? new List<PageEntity>();
             total = batch.Pagination?.Total ?? batchPages.Count;
 
             allPages.AddRange(batchPages);
@@ -47,7 +48,7 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
             offset += batchPages.Count;
         }
 
-        IEnumerable<PageResponse> filtered = allPages;
+        IEnumerable<PageEntity> filtered = allPages;
 
         if (!string.IsNullOrWhiteSpace(input.TitleContains))
             filtered = filtered.Where(p => !string.IsNullOrEmpty(p.Title) &&
@@ -108,13 +109,13 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
         fileReference.Name = fileName;
         fileReference.ContentType = contentType;
 
-        PageResponse? metadata = null;
+        PageEntity? metadata = null;
 
         if (!input.IncludeMetadata.HasValue || input.IncludeMetadata == true)
         {
             var metadataEndpoint = $"pages/{input.PageId}";
             var metadataRequest = new RestRequest(metadataEndpoint, Method.Get);
-            metadata = await Client.ExecuteWithErrorHandling<PageResponse>(metadataRequest);
+            metadata = await Client.ExecuteWithErrorHandling<PageEntity>(metadataRequest);
         }
 
         return new GetPageAsHtmlResponse(fileReference, metadata);
