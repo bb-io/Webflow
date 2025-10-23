@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace Apps.Webflow.Models.Entities;
 
-public class PageEntity
+public class PageEntity : IDateFilterable
 {
     [Display("Site ID")]
     public string? SiteId { get; set; }

@@ -2,6 +2,7 @@
 using Apps.Webflow.Constants;
 using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Content;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 
 namespace Tests.Webflow;
 
@@ -9,7 +10,7 @@ namespace Tests.Webflow;
 public class ContentTests : TestBase
 {
     [TestMethod]
-    public async Task SearchContent_PageType_ReturnsPageMetadata()
+    public async Task SearchContent_PageTypeWithoutFilters_ReturnsPageMetadata()
     {
 		// Arrange
 		var action = new ContentActions(InvocationContext);
@@ -24,5 +25,39 @@ public class ContentTests : TestBase
 		// Assert
 		PrintJsonResult(result);
 		Assert.IsNotNull(result);
-	}
+    }
+
+    [TestMethod]
+    public async Task SearchContent_PageTypeWithFilters_ReturnsPageMetadata()
+    {
+        // Arrange
+        var action = new ContentActions(InvocationContext);
+        var contentType = new ContentFilter { ContentType = ContentTypes.Page };
+        var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
+        var input = new SearchContentRequest { /*NameContains = "Pay"*/ };
+        var dates = new DateFilter { CreatedAfter = new DateTime(2019, 10, 1, 10, 0, 0, DateTimeKind.Utc) };
+
+        // Act
+        var result = await action.SearchContent(site, contentType, dates, input);
+
+        // Assert
+        PrintJsonResult(result);
+        Assert.IsNotNull(result);
+    }
+
+    [TestMethod]
+    public async Task SearchContent_PageTypeWithPublishDateFilter_ThrowsMisconfigException()
+    {
+        // Arrange
+        var action = new ContentActions(InvocationContext);
+        var contentType = new ContentFilter { ContentType = ContentTypes.Page };
+        var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
+        var input = new SearchContentRequest { LastPublishedAfter = new DateTime(2025, 10, 10) /*NameContains = "Pay"*/ };
+        var dates = new DateFilter { };
+
+        // Act & Assert
+        await Assert.ThrowsExactlyAsync<PluginMisconfigurationException>(
+            async () => await action.SearchContent(site, contentType, dates, input)
+        );
+    }
 }
