@@ -13,6 +13,7 @@ public class ContentServicesFactory(InvocationContext invocationContext)
         {
             ContentTypes.Page => new PageService(invocationContext),
             ContentTypes.Component => new ComponentService(invocationContext),
+            ContentTypes.CollectionItem => new CollectionItemService(invocationContext),
             _ => throw new PluginApplicationException($"This content type is not supported: {contentType}")
         };
     }

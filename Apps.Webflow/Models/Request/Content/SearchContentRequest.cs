@@ -1,4 +1,6 @@
 ﻿using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Dynamic;
+using Apps.Webflow.DataSourceHandlers.Collection;
 
 namespace Apps.Webflow.Models.Request.Content;
 
@@ -12,4 +14,8 @@ public class SearchContentRequest
 
     [Display("Last published after")]
     public DateTime? LastPublishedAfter { get; set; }
+
+    [Display("Collection ID")]
+    [DataSource(typeof(CollectionItemCollectionDataSourceHandler))]
+    public string? CollectionId { get; set; }
 }

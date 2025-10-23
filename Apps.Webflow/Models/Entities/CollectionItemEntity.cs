@@ -3,7 +3,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Apps.Webflow.Models.Entities;
 
-public class CollectionItemEntity
+public class CollectionItemEntity : IDateFilterable
 {
     [Display("Collection item ID")]
     public string Id { get; set; }
@@ -18,6 +18,9 @@ public class CollectionItemEntity
 
     [Display("Last published")]
     public DateTime? LastPublished { get; set; }
+
+    [Display("Created on")]
+    public DateTime? CreatedOn { get; set; }
 
     [DefinitionIgnore]
     public JObject FieldData { get; set; }
