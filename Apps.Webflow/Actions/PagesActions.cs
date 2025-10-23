@@ -3,9 +3,10 @@ using Apps.Webflow.HtmlConversion.Constants;
 using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Entities;
 using Apps.Webflow.Models.Request;
+using Apps.Webflow.Models.Request.Content;
 using Apps.Webflow.Models.Request.Pages;
 using Apps.Webflow.Models.Response.Pages;
-using Apps.Webflow.Models.Response.Pagination;
+using Apps.Webflow.Services.Concrete;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Invocation;
@@ -25,71 +26,22 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
         [ActionParameter] SearchPagesRequest input,
         [ActionParameter] DateFilter dateFilter)
     {
-        var allPages = new List<PageEntity>();
-        var offset = 0;
-        const int pageSize = 100;
-        int total = int.MaxValue;
-
-        while (allPages.Count < total)
-        {
-            var endpoint = $"sites/{site.SiteId}/pages";
-            var request = new RestRequest(endpoint, Method.Get);
-
-            if (!string.IsNullOrEmpty(input.LocaleId))
-                request.AddQueryParameter("localeId", input.LocaleId);
-
-            request.AddQueryParameter("offset", offset.ToString());
-            request.AddQueryParameter("limit", pageSize.ToString());
-
-            var batch = await Client.ExecuteWithErrorHandling<ListPagesResponse>(request);
-
-            var batchPages = batch.Pages?.ToList() ?? new List<PageEntity>();
-            total = batch.Pagination?.Total ?? batchPages.Count;
-
-            allPages.AddRange(batchPages);
-
-            if (batchPages.Count == 0) break;
-            offset += batchPages.Count;
-        }
-
-        IEnumerable<PageEntity> filtered = allPages;
-
-        if (!string.IsNullOrWhiteSpace(input.TitleContains))
-            filtered = filtered.Where(p => !string.IsNullOrEmpty(p.Title) &&
-                                           p.Title.Contains(input.TitleContains, StringComparison.OrdinalIgnoreCase));
+        var service = new PageService(InvocationContext);
+        var searchContentRequest = new SearchContentRequest { NameContains = input.TitleContains };
+        var filtered = await service.SearchContent(site, searchContentRequest, dateFilter);
 
         if (!string.IsNullOrWhiteSpace(input.SlugContains))
             filtered = filtered.Where(p => !string.IsNullOrEmpty(p.Slug) &&
                                            p.Slug.Contains(input.SlugContains, StringComparison.OrdinalIgnoreCase));
 
-        if (dateFilter.CreatedAfter.HasValue)
-            filtered = filtered.Where(p => p.CreatedOn >= dateFilter.CreatedAfter.Value);
-
-        if (dateFilter.CreatedBefore.HasValue)
-            filtered = filtered.Where(p => p.CreatedOn <= dateFilter.CreatedBefore.Value);
-
-        if (dateFilter.LastUpdatedAfter.HasValue)
-            filtered = filtered.Where(p => p.LastUpdated >= dateFilter.LastUpdatedAfter.Value);
-
-        if (dateFilter.LastUpdatedBefore.HasValue)
-            filtered = filtered.Where(p => p.LastUpdated <= dateFilter.LastUpdatedBefore.Value);
-
         if (input.Archived.HasValue)
-            filtered = filtered.Where(p => p.Archived.HasValue && p.Archived.Value == input.Archived.Value);
+            filtered = filtered.Where(p => p.Archived == input.Archived.Value);
 
         if (input.Draft.HasValue)
-            filtered = filtered.Where(p => p.Draft.HasValue && p.Draft.Value == input.Draft.Value);
+            filtered = filtered.Where(p => p.Draft == input.Draft.Value);
 
         var resultPages = filtered.ToList();
-
-        return new ListPagesResponse
-        {
-            Pages = resultPages,
-            Pagination = new PaginationInfo
-            {
-                Total = resultPages.Count
-            }
-        };
+        return new ListPagesResponse(resultPages);
     }
 
     [Action("Get page content as HTML", Description = "Get the page content in HTML file")]

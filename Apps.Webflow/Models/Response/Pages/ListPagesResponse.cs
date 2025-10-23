@@ -1,14 +1,8 @@
 ﻿using Apps.Webflow.Models.Entities;
-using Apps.Webflow.Models.Response.Pagination;
-using Newtonsoft.Json;
 
 namespace Apps.Webflow.Models.Response.Pages;
 
-public class ListPagesResponse
+public class ListPagesResponse(IEnumerable<PageEntity> pages)
 {
-    [JsonProperty("pages")]
-    public IEnumerable<PageEntity>? Pages { get; set; }
-
-    [JsonProperty("pagination")]
-    public PaginationInfo Pagination { get; set; }
+    public IEnumerable<PageEntity> Pages { get; set; } = pages;
 }
