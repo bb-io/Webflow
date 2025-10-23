@@ -15,7 +15,7 @@ public class OAuthAuthorizeService(InvocationContext invocationContext) : BaseIn
         var tempClientId = values[CredsNames.ClientId];
         var parameters = new Dictionary<string, string>
         {
-            { "client_id", tempClientId },//ApplicationConstants.ClientId },
+            { "client_id", tempClientId },
             { "redirect_uri", $"{InvocationContext.UriInfo.BridgeServiceUrl.ToString().TrimEnd('/')}/AuthorizationCode" },
             { "response_type", "code" },
             { "scope", ApplicationConstants.Scope },

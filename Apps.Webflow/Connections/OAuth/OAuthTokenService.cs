@@ -1,5 +1,4 @@
 using Apps.Webflow.Constants;
-using Apps.Webflow.Invocables;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Authentication.OAuth2;
 using Blackbird.Applications.Sdk.Common.Invocation;
@@ -18,8 +17,8 @@ public class OAuthTokenService(InvocationContext invocationContext) : BaseInvoca
 
         var parameters = new Dictionary<string, string>
         {
-            { "client_id", tempClientId },//ApplicationConstants.ClientId },
-            { "client_secret", tempClientSecret },//ApplicationConstants.ClientSecret },
+            { "client_id", tempClientId },
+            { "client_secret", tempClientSecret },
             { "redirect_uri", $"{InvocationContext.UriInfo.BridgeServiceUrl.ToString().TrimEnd('/')}/AuthorizationCode" },
             { "code", code },
             { "state", state },
