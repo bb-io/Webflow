@@ -1,6 +1,7 @@
 ﻿using RestSharp;
 using Apps.Webflow.Constants;
 using Apps.Webflow.Models.Entities;
+using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Content;
 using Apps.Webflow.Models.Response.Content;
 using Apps.Webflow.Models.Response.Pagination;
@@ -10,9 +11,9 @@ namespace Apps.Webflow.Services.Concrete;
 
 public class PageService(InvocationContext invocationContext) : BaseContentService(invocationContext)
 {
-    public override async Task<SearchContentResponse> SearchContent(SearchContentRequest input)
+    public override async Task<SearchContentResponse> SearchContent(SiteRequest site, SearchContentRequest input, DateFilter dateFilter)
     {
-        var endpoint = $"sites/{input.SiteId}/pages";
+        var endpoint = $"sites/{site.SiteId}/pages";
         var request = new RestRequest(endpoint, Method.Get);
 
         var pages = await Client.Paginate<PageEntity, PagesPaginationResponse>(request, r => r.Pages);

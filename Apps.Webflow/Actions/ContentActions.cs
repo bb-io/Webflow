@@ -1,4 +1,5 @@
 ﻿using Apps.Webflow.Invocables;
+using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Content;
 using Apps.Webflow.Models.Response.Content;
 using Apps.Webflow.Services;
@@ -17,10 +18,12 @@ public class ContentActions(InvocationContext invocationContext) : WebflowInvoca
     [BlueprintActionDefinition(BlueprintAction.SearchContent)]
     [Action("Search content", Description = "Search for any type of content")]
     public async Task<SearchContentResponse> SearchContent(
+        [ActionParameter] SiteRequest siteRequest,
         [ActionParameter] ContentFilter contentFilter,
+        [ActionParameter] DateFilter dateFilter,
         [ActionParameter] SearchContentRequest request)
     {
         IContentService service = _factory.Create(contentFilter.ContentType);
-        return await service.SearchContent(request);
+        return await service.SearchContent(siteRequest, request, dateFilter);
     }
 }

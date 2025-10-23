@@ -15,14 +15,16 @@ namespace Apps.Webflow.Actions;
 public class SiteActions(InvocationContext invocationContext) : WebflowInvocable(invocationContext)
 {
     [Action("Search sites", Description = "Search sites based on search criteria")]
-    public async Task<SearchSitesResponse> SearchSites([ActionParameter] SearchSitesRequest input)
+    public async Task<SearchSitesResponse> SearchSites(
+        [ActionParameter] SearchSitesRequest input,
+        [ActionParameter] DateFilter dateFilter)
     {
-        ValidateInputDates(input);
+        ValidateInputDates(input, dateFilter);
 
         var request = new RestRequest("sites", Method.Get);
         var result = await Client.ExecuteWithErrorHandling<SiteEntitiesList>(request);
 
-        var filteredResult = ApplySiteFilters(input, result);
+        var filteredResult = ApplySiteFilters(input, dateFilter, result);
         var sites = filteredResult.Select(entity => new GetSiteResponse(entity));
         return new SearchSitesResponse(sites);
     }
@@ -50,15 +52,15 @@ public class SiteActions(InvocationContext invocationContext) : WebflowInvocable
         return await Client.ExecuteWithErrorHandling<CustomDomainsResponse>(request);
     }
 
-    private static void ValidateInputDates(SearchSitesRequest input)
+    private static void ValidateInputDates(SearchSitesRequest input, DateFilter date)
     {
-        if (!IsCorrectDateRange(input.CreatedBefore, input.CreatedAfter))
+        if (!IsCorrectDateRange(date.CreatedBefore, date.CreatedAfter))
             throw new PluginMisconfigurationException("Please specify a valid date range. 'Created after' date cannot be later than the 'Created before' date");
 
         if (!IsCorrectDateRange(input.LastPublishedBefore, input.LastPublishedAfter))
             throw new PluginMisconfigurationException("Please specify a valid date range. 'Last published after' date cannot be later than the 'Last published before' date");
         
-        if (!IsCorrectDateRange(input.LastUpdatedBefore, input.LastUpdatedAfter))
+        if (!IsCorrectDateRange(date.LastUpdatedBefore, date.LastUpdatedAfter))
             throw new PluginMisconfigurationException("Please specify a valid date range. 'Last published after' date cannot be later than the 'Last published before' date");
     }
 
@@ -70,15 +72,15 @@ public class SiteActions(InvocationContext invocationContext) : WebflowInvocable
         return after <= before;
     }
 
-    private static IEnumerable<SiteEntity> ApplySiteFilters(SearchSitesRequest input, SiteEntitiesList result)
+    private static IEnumerable<SiteEntity> ApplySiteFilters(SearchSitesRequest input, DateFilter date, SiteEntitiesList result)
     {
         var sites = result.Sites;
 
-        if (input.CreatedBefore.HasValue)
-            sites = sites.Where(x => x.CreatedOn < input.CreatedBefore);
+        if (date.CreatedBefore.HasValue)
+            sites = sites.Where(x => x.CreatedOn < date.CreatedBefore);
 
-        if (input.CreatedAfter.HasValue)
-            sites = sites.Where(x => x.CreatedOn > input.CreatedAfter);
+        if (date.CreatedAfter.HasValue)
+            sites = sites.Where(x => x.CreatedOn > date.CreatedAfter);
 
         if (input.LastPublishedBefore.HasValue)
             sites = sites.Where(x => x.LastPublished < input.LastPublishedBefore);
@@ -86,11 +88,11 @@ public class SiteActions(InvocationContext invocationContext) : WebflowInvocable
         if (input.LastPublishedAfter.HasValue)
             sites = sites.Where(x => x.LastPublished > input.LastPublishedAfter);
 
-        if (input.LastUpdatedBefore.HasValue)
-            sites = sites.Where(x => x.LastUpdated < input.LastUpdatedBefore);
+        if (date.LastUpdatedBefore.HasValue)
+            sites = sites.Where(x => x.LastUpdated < date.LastUpdatedBefore);
 
-        if (input.LastUpdatedAfter.HasValue)
-            sites = sites.Where(x => x.LastUpdated > input.LastUpdatedAfter);
+        if (date.LastUpdatedAfter.HasValue)
+            sites = sites.Where(x => x.LastUpdated > date.LastUpdatedAfter);
 
         if (!string.IsNullOrEmpty(input.DisplayNameContains))
             sites = sites.Where(x => x.DisplayName.Contains(input.DisplayNameContains));

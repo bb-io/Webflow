@@ -1,12 +1,15 @@
-﻿using Apps.Webflow.DataSourceHandlers.Site;
-using Blackbird.Applications.Sdk.Common;
-using Blackbird.Applications.Sdk.Common.Dynamic;
+﻿using Blackbird.Applications.Sdk.Common;
 
 namespace Apps.Webflow.Models.Request.Content;
 
 public class SearchContentRequest
 {
-    [Display("Site ID")]
-    [DataSource(typeof(SiteDataSourceHandler))]
-    public string SiteId { get; set; }
+    [Display("Name or title contains")]
+    public string? NameContains { get; set; }
+
+    [Display("Last published before")]
+    public DateTime? LastPublishedBefore { get; set; }
+
+    [Display("Last published after")]
+    public DateTime? LastPublishedAfter { get; set; }
 }

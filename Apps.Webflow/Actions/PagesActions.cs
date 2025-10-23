@@ -2,6 +2,7 @@
 using Apps.Webflow.HtmlConversion.Constants;
 using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Entities;
+using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Pages;
 using Apps.Webflow.Models.Response.Pages;
 using Apps.Webflow.Models.Response.Pagination;
@@ -19,7 +20,10 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
     : WebflowInvocable(invocationContext)
 {
     [Action("Search pages", Description = "Search pages using filters")]
-    public async Task<ListPagesResponse> SearchPages([ActionParameter] SearchPagesRequest input)
+    public async Task<ListPagesResponse> SearchPages(
+        [ActionParameter] SiteRequest site,
+        [ActionParameter] SearchPagesRequest input,
+        [ActionParameter] DateFilter dateFilter)
     {
         var allPages = new List<PageEntity>();
         var offset = 0;
@@ -28,7 +32,7 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
 
         while (allPages.Count < total)
         {
-            var endpoint = $"sites/{input.SiteId}/pages";
+            var endpoint = $"sites/{site.SiteId}/pages";
             var request = new RestRequest(endpoint, Method.Get);
 
             if (!string.IsNullOrEmpty(input.LocaleId))
@@ -58,17 +62,17 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
             filtered = filtered.Where(p => !string.IsNullOrEmpty(p.Slug) &&
                                            p.Slug.Contains(input.SlugContains, StringComparison.OrdinalIgnoreCase));
 
-        if (input.CreatedAfter.HasValue)
-            filtered = filtered.Where(p => p.CreatedOn >= input.CreatedAfter.Value);
+        if (dateFilter.CreatedAfter.HasValue)
+            filtered = filtered.Where(p => p.CreatedOn >= dateFilter.CreatedAfter.Value);
 
-        if (input.CreatedBefore.HasValue)
-            filtered = filtered.Where(p => p.CreatedOn <= input.CreatedBefore.Value);
+        if (dateFilter.CreatedBefore.HasValue)
+            filtered = filtered.Where(p => p.CreatedOn <= dateFilter.CreatedBefore.Value);
 
-        if (input.LastUpdatedAfter.HasValue)
-            filtered = filtered.Where(p => p.LastUpdated >= input.LastUpdatedAfter.Value);
+        if (dateFilter.LastUpdatedAfter.HasValue)
+            filtered = filtered.Where(p => p.LastUpdated >= dateFilter.LastUpdatedAfter.Value);
 
-        if (input.LastUpdatedBefore.HasValue)
-            filtered = filtered.Where(p => p.LastUpdated <= input.LastUpdatedBefore.Value);
+        if (dateFilter.LastUpdatedBefore.HasValue)
+            filtered = filtered.Where(p => p.LastUpdated <= dateFilter.LastUpdatedBefore.Value);
 
         if (input.Archived.HasValue)
             filtered = filtered.Where(p => p.Archived.HasValue && p.Archived.Value == input.Archived.Value);

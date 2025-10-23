@@ -1,5 +1,6 @@
 ﻿using Apps.Webflow.Actions;
 using Apps.Webflow.Constants;
+using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Content;
 
 namespace Tests.Webflow;
@@ -13,10 +14,12 @@ public class ContentTests : TestBase
 		// Arrange
 		var action = new ContentActions(InvocationContext);
 		var contentType = new ContentFilter { ContentType = ContentTypes.Page };
-		var input = new SearchContentRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
+		var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
+		var input = new SearchContentRequest { };
+		var dates = new DateFilter { };
 
 		// Act
-		var result = await action.SearchContent(contentType, input);
+		var result = await action.SearchContent(site, contentType, dates, input);
 
 		// Assert
 		PrintJsonResult(result);

@@ -13,9 +13,10 @@ public class SiteTests : TestBase
 		// Arrange
 		var action = new SiteActions(InvocationContext);
 		var input = new SearchSitesRequest { };
+        var dates = new DateFilter { };
 
 		// Act
-		var result = await action.SearchSites(input);
+		var result = await action.SearchSites(input, dates);
 
 		// Assert
 		PrintJsonResult(result);
@@ -27,13 +28,15 @@ public class SiteTests : TestBase
     {
         // Arrange
         var action = new SiteActions(InvocationContext);
-        var input = new SearchSitesRequest {
+        var input = new SearchSitesRequest { };
+        var dates = new DateFilter 
+        {
             CreatedAfter = new DateTime(2025, 10, 22, 7, 0, 0, DateTimeKind.Utc),
             CreatedBefore = new DateTime(2025, 10, 22, 10, 0, 0, DateTimeKind.Utc)
         };
 
         // Act
-        var result = await action.SearchSites(input);
+        var result = await action.SearchSites(input, dates);
 
         // Assert
         PrintJsonResult(result);
@@ -50,9 +53,10 @@ public class SiteTests : TestBase
             LastPublishedAfter = new DateTime(2025, 10, 22, 10, 0, 0, DateTimeKind.Utc),
             LastPublishedBefore = new DateTime(2025, 10, 22, 11, 0, 0, DateTimeKind.Utc)
         };
+        var dates = new DateFilter { };
 
         // Act
-        var result = await action.SearchSites(input);
+        var result = await action.SearchSites(input, dates);
 
         // Assert
         PrintJsonResult(result);
@@ -64,14 +68,15 @@ public class SiteTests : TestBase
     {
         // Arrange
         var action = new SiteActions(InvocationContext);
-        var input = new SearchSitesRequest
+        var input = new SearchSitesRequest { };
+        var dates = new DateFilter
         {
             LastUpdatedAfter = new DateTime(2025, 10, 22, 7, 0, 0, DateTimeKind.Utc),
             LastUpdatedBefore = new DateTime(2025, 10, 22, 8, 0, 0, DateTimeKind.Utc)
         };
 
         // Act
-        var result = await action.SearchSites(input);
+        var result = await action.SearchSites(input, dates);
 
         // Assert
         PrintJsonResult(result);
@@ -84,9 +89,10 @@ public class SiteTests : TestBase
         // Arrange
         var action = new SiteActions(InvocationContext);
         var input = new SearchSitesRequest { DisplayNameContains = "Exceptional" };
+        var dates = new DateFilter { };
 
         // Act
-        var result = await action.SearchSites(input);
+        var result = await action.SearchSites(input, dates);
 
         // Assert
         PrintJsonResult(result);

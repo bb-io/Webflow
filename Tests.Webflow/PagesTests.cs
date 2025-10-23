@@ -1,4 +1,5 @@
 ﻿using Apps.Webflow.Actions;
+using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Pages;
 
 namespace Tests.Webflow;
@@ -10,15 +11,14 @@ public class PagesTests : TestBase
     public async Task SearchPages_ReturnsExpectedPages()
     {
         // Arrange
-        var request = new SearchPagesRequest
-        {
-            SiteId = "68f886ffe2a4dba6d693cbe1"
-        };
+        var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
+        var request = new SearchPagesRequest { };
+        var dates = new DateFilter { };
 
         var actions = new PagesActions(InvocationContext, FileManager);
 
         // Act
-        var result = await actions.SearchPages(request);
+        var result = await actions.SearchPages(site, request, dates);
 
         // Assert
         PrintJsonResult(result);
