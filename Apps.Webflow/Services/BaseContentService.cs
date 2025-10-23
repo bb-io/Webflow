@@ -2,15 +2,14 @@
 using Apps.Webflow.Models.Entities;
 using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Content;
-using Apps.Webflow.Models.Response.Content;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 
 namespace Apps.Webflow.Services;
 
-public abstract class BaseContentService(InvocationContext invocationContext) : WebflowInvocable(invocationContext), IContentService
+public abstract class BaseContentService<T>(InvocationContext invocationContext) : WebflowInvocable(invocationContext), IContentService<T> 
 {
-    public abstract Task<SearchContentResponse> SearchContent(SiteRequest site, SearchContentRequest input, DateFilter dateFilter);
+    public abstract Task<IEnumerable<T>> SearchContent(SiteRequest site, SearchContentRequest input, DateFilter dateFilter);
 
     protected static void ValidateInputDates(DateFilter date)
     {

@@ -1,4 +1,6 @@
-﻿using Apps.Webflow.Invocables;
+﻿using Apps.Webflow.Constants;
+using Apps.Webflow.Invocables;
+using Apps.Webflow.Models.Entities;
 using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Content;
 using Apps.Webflow.Models.Response.Content;
@@ -23,7 +25,15 @@ public class ContentActions(InvocationContext invocationContext) : WebflowInvoca
         [ActionParameter] DateFilter dateFilter,
         [ActionParameter] SearchContentRequest request)
     {
-        IContentService service = _factory.Create(contentFilter.ContentType);
-        return await service.SearchContent(siteRequest, request, dateFilter);
+        var service = _factory.Create<PageEntity>(contentFilter.ContentType);
+        var response = await service.SearchContent(siteRequest, request, dateFilter);
+
+        var result = response.Select(x => new ContentItemEntity 
+        { 
+            ContentId = x.Id, 
+            Name = x.Title, 
+            Type = ContentTypes.Page 
+        }); 
+        return new SearchContentResponse(result);
     }
 }

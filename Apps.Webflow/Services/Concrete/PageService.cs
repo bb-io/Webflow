@@ -1,18 +1,16 @@
 ﻿using RestSharp;
-using Apps.Webflow.Constants;
 using Apps.Webflow.Models.Entities;
 using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Content;
-using Apps.Webflow.Models.Response.Content;
 using Apps.Webflow.Models.Response.Pagination;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 
 namespace Apps.Webflow.Services.Concrete;
 
-public class PageService(InvocationContext invocationContext) : BaseContentService(invocationContext)
+public class PageService(InvocationContext invocationContext) : BaseContentService<PageEntity>(invocationContext)
 {
-    public override async Task<SearchContentResponse> SearchContent(SiteRequest site, SearchContentRequest input, DateFilter dateFilter)
+    public override async Task<IEnumerable<PageEntity>> SearchContent(SiteRequest site, SearchContentRequest input, DateFilter dateFilter)
     {
         if (input.LastPublishedBefore.HasValue || input.LastPublishedAfter.HasValue)
             throw new PluginMisconfigurationException("'Last published' filter is not supported for pages");
@@ -30,12 +28,6 @@ public class PageService(InvocationContext invocationContext) : BaseContentServi
             filtered = filtered.Where(p => !string.IsNullOrEmpty(p.Title) && 
                 p.Title.Contains(input.NameContains, StringComparison.OrdinalIgnoreCase));
 
-        var result = filtered.Select(x => new ContentItemEntity
-        {
-            ContentId = x.Id,
-            Name = x.Title,
-            Type = ContentTypes.Page
-        }).ToList();
-        return new SearchContentResponse(result);
+        return filtered;
     }
 }
