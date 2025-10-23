@@ -1,9 +1,10 @@
 ﻿using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Content;
+using Apps.Webflow.Models.Response.Content;
 
 namespace Apps.Webflow.Services;
 
-public interface IContentService<T>
+public interface IContentService
 {
-    Task<IEnumerable<T>> SearchContent(SiteRequest site, SearchContentRequest input, DateFilter dateFilter);
+    Task<SearchContentResponse> SearchContent(SiteRequest site, SearchContentRequest input, DateFilter dateFilter);
 }

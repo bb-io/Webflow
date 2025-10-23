@@ -1,12 +1,12 @@
-﻿using Apps.Webflow.HtmlConversion;
+﻿using Apps.Webflow.Helper;
+using Apps.Webflow.HtmlConversion;
 using Apps.Webflow.HtmlConversion.Constants;
 using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Entities;
 using Apps.Webflow.Models.Request;
-using Apps.Webflow.Models.Request.Content;
 using Apps.Webflow.Models.Request.Pages;
 using Apps.Webflow.Models.Response.Pages;
-using Apps.Webflow.Services.Concrete;
+using Apps.Webflow.Models.Response.Pagination;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Invocation;
@@ -21,27 +21,39 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
     : WebflowInvocable(invocationContext)
 {
     [Action("Search pages", Description = "Search pages using filters")]
-    public async Task<ListPagesResponse> SearchPages(
+    public async Task<SearchPagesResponse> SearchPages(
         [ActionParameter] SiteRequest site,
         [ActionParameter] SearchPagesRequest input,
         [ActionParameter] DateFilter dateFilter)
     {
-        var service = new PageService(InvocationContext);
-        var searchContentRequest = new SearchContentRequest { NameContains = input.TitleContains };
-        var filtered = await service.SearchContent(site, searchContentRequest, dateFilter);
+        ValidatorHelper.ValidateInputDates(dateFilter);
+
+        var endpoint = $"sites/{site.SiteId}/pages";
+        var request = new RestRequest(endpoint, Method.Get);
+
+        var allPages = await Client.Paginate<PageEntity, PagesPaginationResponse>(request, r => r.Pages);
+        if (!allPages.Any())
+            return new SearchPagesResponse(new List<PageEntity>());
+
+        IEnumerable<PageEntity> filtered = allPages;
+
+        if (!string.IsNullOrWhiteSpace(input.TitleContains))
+            filtered = filtered.Where(p => !string.IsNullOrEmpty(p.Title) &&
+                                           p.Title.Contains(input.TitleContains, StringComparison.OrdinalIgnoreCase));
 
         if (!string.IsNullOrWhiteSpace(input.SlugContains))
             filtered = filtered.Where(p => !string.IsNullOrEmpty(p.Slug) &&
                                            p.Slug.Contains(input.SlugContains, StringComparison.OrdinalIgnoreCase));
 
+        filtered = FilterHelper.ApplyDateFilters(filtered, dateFilter);
+
         if (input.Archived.HasValue)
-            filtered = filtered.Where(p => p.Archived == input.Archived.Value);
+            filtered = filtered.Where(p => p.Archived.HasValue && p.Archived.Value == input.Archived.Value);
 
         if (input.Draft.HasValue)
-            filtered = filtered.Where(p => p.Draft == input.Draft.Value);
+            filtered = filtered.Where(p => p.Draft.HasValue && p.Draft.Value == input.Draft.Value);
 
-        var resultPages = filtered.ToList();
-        return new ListPagesResponse(resultPages);
+        return new SearchPagesResponse(filtered.ToList());
     }
 
     [Action("Get page content as HTML", Description = "Get the page content in HTML file")]

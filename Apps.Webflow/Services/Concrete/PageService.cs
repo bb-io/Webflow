@@ -1,33 +1,43 @@
-﻿using RestSharp;
+﻿using Apps.Webflow.Constants;
+using Apps.Webflow.Helper;
 using Apps.Webflow.Models.Entities;
 using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Content;
+using Apps.Webflow.Models.Response.Content;
 using Apps.Webflow.Models.Response.Pagination;
-using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common.Exceptions;
+using Blackbird.Applications.Sdk.Common.Invocation;
+using RestSharp;
 
 namespace Apps.Webflow.Services.Concrete;
 
-public class PageService(InvocationContext invocationContext) : BaseContentService<PageEntity>(invocationContext)
+public class PageService(InvocationContext invocationContext) : BaseContentService(invocationContext)
 {
-    public override async Task<IEnumerable<PageEntity>> SearchContent(SiteRequest site, SearchContentRequest input, DateFilter dateFilter)
+    public override async Task<SearchContentResponse> SearchContent(SiteRequest site, SearchContentRequest input, DateFilter dateFilter)
     {
         if (input.LastPublishedBefore.HasValue || input.LastPublishedAfter.HasValue)
             throw new PluginMisconfigurationException("'Last published' filter is not supported for pages");
 
-        ValidateInputDates(dateFilter);
+        ValidatorHelper.ValidateInputDates(dateFilter);
 
         var endpoint = $"sites/{site.SiteId}/pages";
         var request = new RestRequest(endpoint, Method.Get);
 
         var pages = await Client.Paginate<PageEntity, PagesPaginationResponse>(request, r => r.Pages);
 
-        IEnumerable<PageEntity> filtered = ApplyDateFilters(pages, dateFilter);
+        IEnumerable<PageEntity> filtered = FilterHelper.ApplyDateFilters(pages, dateFilter);
 
         if (!string.IsNullOrWhiteSpace(input.NameContains))
             filtered = filtered.Where(p => !string.IsNullOrEmpty(p.Title) && 
                 p.Title.Contains(input.NameContains, StringComparison.OrdinalIgnoreCase));
 
-        return filtered;
+        var result = filtered.Select(x => new ContentItemEntity
+        {
+            ContentId = x.Id,
+            Name = x.Title,
+            Type = ContentTypes.Page
+        });
+
+        return new SearchContentResponse(result);
     }
 }

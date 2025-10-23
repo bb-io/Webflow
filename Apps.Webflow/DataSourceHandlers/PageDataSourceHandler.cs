@@ -24,7 +24,7 @@ public class PageDataSourceHandler : WebflowInvocable, IAsyncDataSourceItemHandl
         var endpoint = $"sites/{siteId}/pages";
         var request = new RestRequest(endpoint, Method.Get);
 
-        var response = await Client.ExecuteWithErrorHandling<ListPagesResponse>(request);
+        var response = await Client.ExecuteWithErrorHandling<SearchPagesResponse>(request);
 
         var dataSourceItems = response.Pages
             .Select(page => new DataSourceItem
