@@ -55,10 +55,13 @@ public class ContentTests : TestBase
         var input = new SearchContentRequest { LastPublishedAfter = new DateTime(2025, 10, 10) /*NameContains = "Pay"*/ };
         var dates = new DateFilter { };
 
-        // Act & Assert
-        await Assert.ThrowsExactlyAsync<PluginMisconfigurationException>(
+        // Act
+        var ex = await Assert.ThrowsExactlyAsync<PluginMisconfigurationException>(
             async () => await action.SearchContent(site, contentType, dates, input)
         );
+
+        // Assert
+        StringAssert.Contains(ex.Message, "'Last published' filter is not supported for Pages");
     }
     
     [TestMethod]
@@ -98,7 +101,7 @@ public class ContentTests : TestBase
     }
 
     [TestMethod]
-    public async Task SearchContent_ComponentTypeWithDateFilter_ReturnsPageMetadata()
+    public async Task SearchContent_ComponentTypeWithDateFilter_ThrowsMisconfigMetadata()
     {
         // Arrange
         var action = new ContentActions(InvocationContext);

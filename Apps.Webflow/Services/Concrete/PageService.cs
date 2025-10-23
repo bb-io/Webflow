@@ -12,9 +12,11 @@ namespace Apps.Webflow.Services.Concrete;
 
 public class PageService(InvocationContext invocationContext) : BaseContentService(invocationContext)
 {
+    private const string ContentType = ContentTypes.Page;
+
     public override async Task<SearchContentResponse> SearchContent(SiteRequest site, SearchContentRequest input, DateFilter dateFilter)
     {
-        ThrowForPublishedDateInputs(input, ContentTypes.Page);
+        ThrowForPublishedDateInputs(input, ContentType);
 
         ValidatorHelper.ValidateInputDates(dateFilter);
 
@@ -33,7 +35,7 @@ public class PageService(InvocationContext invocationContext) : BaseContentServi
         {
             ContentId = x.Id,
             Name = x.Title,
-            Type = ContentTypes.Page
+            Type = ContentType
         });
 
         return new SearchContentResponse(result);
