@@ -5,7 +5,6 @@ using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Content;
 using Apps.Webflow.Models.Response.Content;
 using Apps.Webflow.Models.Response.Pagination;
-using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using RestSharp;
 
@@ -15,8 +14,7 @@ public class PageService(InvocationContext invocationContext) : BaseContentServi
 {
     public override async Task<SearchContentResponse> SearchContent(SiteRequest site, SearchContentRequest input, DateFilter dateFilter)
     {
-        if (input.LastPublishedBefore.HasValue || input.LastPublishedAfter.HasValue)
-            throw new PluginMisconfigurationException("'Last published' filter is not supported for pages");
+        ThrowForPublishedDateInputs(input, ContentTypes.Page);
 
         ValidatorHelper.ValidateInputDates(dateFilter);
 
