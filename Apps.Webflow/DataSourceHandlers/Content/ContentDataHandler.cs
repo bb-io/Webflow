@@ -11,7 +11,8 @@ namespace Apps.Webflow.DataSourceHandlers.Content;
 
 public class ContentDataHandler(InvocationContext invocationContext, 
     [ActionParameter] ContentFilter contentFilter,
-    [ActionParameter] SiteRequest site) 
+    [ActionParameter] SiteRequest site,
+    [ActionParameter] string? CollectionId) 
     : WebflowInvocable(invocationContext), IAsyncDataSourceItemHandler
 {
     private readonly ContentServicesFactory _factory = new(invocationContext);
@@ -25,7 +26,7 @@ public class ContentDataHandler(InvocationContext invocationContext,
             throw new PluginMisconfigurationException("Please specify the 'Site ID' input");
 
         var service = _factory.GetContentService(contentFilter.ContentType);
-        var input = new SearchContentRequest { ContentTypes = [contentFilter.ContentType] };
+        var input = new SearchContentRequest { ContentTypes = [contentFilter.ContentType], CollectionId = CollectionId };
         var dateFilter = new DateFilter { };
 
         var result = await service.SearchContent(site, input, dateFilter);
