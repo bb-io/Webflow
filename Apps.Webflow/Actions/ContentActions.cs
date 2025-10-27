@@ -43,4 +43,15 @@ public class ContentActions(InvocationContext invocationContext, IFileManagement
         var fileReference = await fileManagementClient.UploadAsync(stream, MediaTypeNames.Text.Html, fileName);
         return new DownloadContentResponse(fileReference);
     }
+
+    [BlueprintActionDefinition(BlueprintAction.UploadContent)]
+    [Action("Upload content", Description = "Update content from an HTML file")]
+    public async Task UploadContent(
+        [ActionParameter] SiteRequest siteRequest,
+        [ActionParameter] UploadContentRequest request,
+        [ActionParameter] ContentFilter contentFilter)
+    {
+        var service = _factory.GetContentService(contentFilter.ContentType);
+        await service.UploadContent(siteRequest, request);
+    }
 }

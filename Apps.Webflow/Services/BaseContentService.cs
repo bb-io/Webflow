@@ -13,6 +13,8 @@ public abstract class BaseContentService(InvocationContext invocationContext) : 
 
     public abstract Task<Stream> DownloadContent(SiteRequest site, DownloadContentRequest input);
 
+    public abstract Task UploadContent(SiteRequest site, UploadContentRequest input);
+
     protected static void ThrowForDateInputs(DateFilter date, string contentType)
     {
         if (date.CreatedAfter.HasValue || date.CreatedBefore.HasValue || date.LastUpdatedAfter.HasValue || date.LastUpdatedBefore.HasValue)

@@ -6,7 +6,6 @@ using Apps.Webflow.Models.Request.Content;
 using Apps.Webflow.Models.Response.Components;
 using Apps.Webflow.Models.Response.Content;
 using Apps.Webflow.Models.Response.Pagination;
-using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using RestSharp;
 
@@ -56,5 +55,10 @@ public class ComponentService(InvocationContext invocationContext) : BaseContent
         memoryStream.Position = 0;
 
         return memoryStream;
+    }
+
+    public override Task UploadContent(SiteRequest site, UploadContentRequest input)
+    {
+        throw new NotImplementedException();
     }
 }

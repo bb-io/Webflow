@@ -60,4 +60,9 @@ public class PageService(InvocationContext invocationContext) : BaseContentServi
 
         return memoryStream;
     }
+    
+    public override Task UploadContent(SiteRequest site, UploadContentRequest input)
+    {
+        throw new NotImplementedException();
+    }
 }

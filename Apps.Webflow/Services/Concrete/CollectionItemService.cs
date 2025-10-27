@@ -73,4 +73,9 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
 
         return memoryStream;
     }
+
+    public override Task UploadContent(SiteRequest site, UploadContentRequest input)
+    {
+        throw new NotImplementedException();
+    }
 }

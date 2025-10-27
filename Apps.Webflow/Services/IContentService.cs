@@ -8,4 +8,5 @@ public interface IContentService
 {
     Task<SearchContentResponse> SearchContent(SiteRequest site, SearchContentRequest input, DateFilter dateFilter);
     Task<Stream> DownloadContent(SiteRequest site, DownloadContentRequest input);
+    Task UploadContent(SiteRequest site, UploadContentRequest input);
 }
