@@ -1,5 +1,6 @@
 ﻿using Apps.Webflow.Constants;
 using Apps.Webflow.Helper;
+using Apps.Webflow.HtmlConversion;
 using Apps.Webflow.Models.Entities;
 using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Content;
@@ -7,6 +8,7 @@ using Apps.Webflow.Models.Response.Content;
 using Apps.Webflow.Models.Response.Pagination;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.Sdk.Utils.Extensions.String;
 using RestSharp;
 
 namespace Apps.Webflow.Services.Concrete;
@@ -51,6 +53,24 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
 
     public override async Task<Stream> DownloadContent(SiteRequest site, DownloadContentRequest input)
     {
-        throw new NotImplementedException();
+        if (string.IsNullOrWhiteSpace(input.CollectionId))
+            throw new PluginMisconfigurationException("Collection ID is required");
+
+        var collectionRequest = new RestRequest($"collections/{input.CollectionId}", Method.Get);
+        var collection = await Client.ExecuteWithErrorHandling<CollectionEntity>(collectionRequest);
+
+        var itemEndpoint = $"collections/{input.CollectionId}/items/{input.ContentId}";
+        if (!string.IsNullOrWhiteSpace(input.CmsLocaleId))
+            itemEndpoint = itemEndpoint.SetQueryParameter("cmsLocaleId", input.CmsLocaleId);
+
+        var itemRequest = new RestRequest(itemEndpoint, Method.Get);
+        var item = await Client.ExecuteWithErrorHandling<CollectionItemEntity>(itemRequest);
+
+        var stream = CollectionItemHtmlConverter.ToHtml(item, collection.Fields, site.SiteId, input.CollectionId, input.ContentId);
+        var memoryStream = new MemoryStream();
+        await stream.CopyToAsync(memoryStream);
+        memoryStream.Position = 0;
+
+        return memoryStream;
     }
 }

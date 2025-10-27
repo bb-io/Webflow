@@ -267,4 +267,48 @@ public class ContentTests : TestBase
         PrintJsonResult(result);
         Assert.IsNotNull(result);
     }
+    
+    [TestMethod]
+    public async Task DownloadContent_CollectionItemTypeWithoutLocaleInput_ReturnsDownloadedContent()
+    {
+        // Arrange
+        var context = GetInvocationContext(ConnectionTypes.OAuth2);
+        var action = new ContentActions(context, FileManagementClient);
+        var site = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
+        var request = new DownloadContentRequest 
+        { 
+            CollectionId = "68f8b337cbd1cac54f5b9d9b", 
+            ContentId = "68f8b337cbd1cac54f5b9df9" 
+        };
+        var contentFilter = new ContentFilter { ContentType = ContentTypes.CollectionItem };
+
+        // Act
+        var result = await action.DownloadContent(site, request, contentFilter);
+
+        // Assert
+        PrintJsonResult(result);
+        Assert.IsNotNull(result);
+    }
+
+    [TestMethod]
+    public async Task DownloadContent_CollectionItemTypeWithoutCollectionId_ThrowsMisconfigException()
+    {
+        // Arrange
+        var context = GetInvocationContext(ConnectionTypes.OAuth2);
+        var action = new ContentActions(context, FileManagementClient);
+        var site = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
+        var request = new DownloadContentRequest
+        {
+            ContentId = "68f8b337cbd1cac54f5b9df9"
+        };
+        var contentFilter = new ContentFilter { ContentType = ContentTypes.CollectionItem };
+
+        // Act
+        var ex = await Assert.ThrowsExactlyAsync<PluginMisconfigurationException>(async () =>
+            await action.DownloadContent(site, request, contentFilter)
+        );
+
+        // Assert
+        Assert.Contains(ex.Message, "Collection ID is required");
+    }
 }

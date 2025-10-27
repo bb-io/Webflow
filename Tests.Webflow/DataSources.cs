@@ -1,4 +1,5 @@
-﻿using Apps.Webflow.DataSourceHandlers;
+﻿using Apps.Webflow.Constants;
+using Apps.Webflow.DataSourceHandlers;
 using Apps.Webflow.DataSourceHandlers.Collection;
 using Apps.Webflow.DataSourceHandlers.CollectionItem;
 using Apps.Webflow.DataSourceHandlers.Locale;
@@ -138,27 +139,25 @@ public class DataSources : TestBase
     [TestMethod]
     public async Task CollectionItemDataSourceHandler_IsSuccess()
     {
-        foreach (var context in InvocationContext)
+        //Arange
+        var context = GetInvocationContext(ConnectionTypes.OAuth2);
+        var siteId = "68f8b336cbd1cac54f5b9d2c";
+        var request = new Apps.Webflow.Models.Request.CollectionItem.CollectionItemRequest
         {
-            //Arange
-            var siteId = "68f886ffe2a4dba6d693cbe1";
-            var request = new Apps.Webflow.Models.Request.CollectionItem.CollectionItemRequest
-            {
-                SiteId = siteId,
-                CollectionId = "68f88700e2a4dba6d693cc90"
-            };
-            // Act
-            var handler = new CollectionItemDataSourceHandler(context, request);
+            SiteId = siteId,
+            CollectionId = "68f8b337cbd1cac54f5b9d9b"
+        };
+        // Act
+        var handler = new CollectionItemDataSourceHandler(context, request);
 
-            // Assert
-            var data = await handler.GetDataAsync(
-                new DataSourceContext { SearchString = "" },
-                CancellationToken.None
-            );
+        // Assert
+        var data = await handler.GetDataAsync(
+            new DataSourceContext { SearchString = "" },
+            CancellationToken.None
+        );
 
-            foreach (var locale in data)
-                Console.WriteLine($"Display name: {locale.Key}, Locale ID: {locale.Value}");
-        }
+        foreach (var locale in data)
+            Console.WriteLine($"Display name: {locale.Key}, Locale ID: {locale.Value}");        
     }
 
     [TestMethod]

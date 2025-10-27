@@ -39,7 +39,7 @@ public class ContentActions(InvocationContext invocationContext, IFileManagement
     {
         var service = _factory.GetContentService(contentFilter.ContentType);
         var stream = await service.DownloadContent(siteRequest, request);
-        var fileName = $"{contentFilter.ContentType.ToLower()}_{request.ContentId}.html";
+        var fileName = $"{contentFilter.ContentType.Replace(' ', '_').ToLower()}_{request.ContentId}.html";
         var fileReference = await fileManagementClient.UploadAsync(stream, MediaTypeNames.Text.Html, fileName);
         return new DownloadContentResponse(fileReference);
     }

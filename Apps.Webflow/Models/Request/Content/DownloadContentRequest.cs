@@ -1,4 +1,5 @@
-﻿using Apps.Webflow.DataSourceHandlers.Content;
+﻿using Apps.Webflow.DataSourceHandlers.Collection;
+using Apps.Webflow.DataSourceHandlers.Content;
 using Apps.Webflow.DataSourceHandlers.Locale;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Dynamic;
@@ -15,4 +16,12 @@ public class DownloadContentRequest : IDownloadContentInput
     [Display("Locale ID")]
     [DataSource(typeof(SiteLocaleDataSourceHandler))]
     public string? LocaleId { get; set; }
+
+    [Display("Collection ID")]
+    [DataSource(typeof(CollectionItemCollectionDataSourceHandler))]
+    public string? CollectionId { get; set; }
+
+    [Display("Collection item locale ID")]
+    [DataSource(typeof(CollectionItemLocaleDataSourceHandler))]
+    public string? CmsLocaleId { get; set; }
 }
