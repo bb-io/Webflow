@@ -57,7 +57,7 @@ public class ComponentService(InvocationContext invocationContext) : BaseContent
         return memoryStream;
     }
 
-    public override Task UploadContent(SiteRequest site, UploadContentRequest input)
+    public override Task UploadContent(Stream content, SiteRequest site, UploadContentRequest input)
     {
         throw new NotImplementedException();
     }

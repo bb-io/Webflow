@@ -6,14 +6,19 @@ using Apps.Webflow.Models.Response.Content;
 using Apps.Webflow.Services;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using Blackbird.Applications.SDK.Blueprints;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
+using Blackbird.Filters.Transformations;
+using Blackbird.Filters.Xliff.Xliff2;
 using System.Net.Mime;
+using System.Text;
 
 namespace Apps.Webflow.Actions;
 
-[ActionList]
+[ActionList("Content")]
 public class ContentActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient) 
     : WebflowInvocable(invocationContext)
 {
@@ -51,7 +56,19 @@ public class ContentActions(InvocationContext invocationContext, IFileManagement
         [ActionParameter] UploadContentRequest request,
         [ActionParameter] ContentFilter contentFilter)
     {
+        var file = await fileManagementClient.DownloadAsync(request.Content); string fileString;
+        using (var reader = new StreamReader(file, Encoding.UTF8))
+            fileString = await reader.ReadToEndAsync();
+
+        var html = Encoding.UTF8.GetString(await file.GetByteData());
+        if (Xliff2Serializer.IsXliff2(html))
+        {
+            html = Transformation.Parse(html, request.Content.Name).Target().Serialize();
+            if (html == null) throw new PluginMisconfigurationException("XLIFF did not contain files");
+        }
+
+        using var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(fileString));
         var service = _factory.GetContentService(contentFilter.ContentType);
-        await service.UploadContent(siteRequest, request);
+        await service.UploadContent(memoryStream, siteRequest, request);
     }
 }
