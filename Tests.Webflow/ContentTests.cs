@@ -16,7 +16,7 @@ public class ContentTests : TestBase
         foreach (var context in InvocationContext)
         {
             // Arrange
-            var action = new ContentActions(context);
+            var action = new ContentActions(context, FileManagementClient);
             var site = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
             var input = new SearchContentRequest 
             { 
@@ -40,7 +40,7 @@ public class ContentTests : TestBase
         foreach (var context in InvocationContext)
         {
             // Arrange
-            var action = new ContentActions(context);
+            var action = new ContentActions(context, FileManagementClient);
             var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
             var input = new SearchContentRequest 
             { 
@@ -64,7 +64,7 @@ public class ContentTests : TestBase
         foreach (var context in InvocationContext)
         {
             // Arrange
-            var action = new ContentActions(context);
+            var action = new ContentActions(context, FileManagementClient);
             var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
             var input = new SearchContentRequest 
             { 
@@ -91,7 +91,7 @@ public class ContentTests : TestBase
         foreach (var context in InvocationContext)
         {
             // Arrange
-            var action = new ContentActions(context);
+            var action = new ContentActions(context, FileManagementClient);
             var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
             var input = new SearchContentRequest 
             { 
@@ -114,7 +114,7 @@ public class ContentTests : TestBase
         foreach (var context in InvocationContext)
         {
             // Arrange
-            var action = new ContentActions(context);
+            var action = new ContentActions(context, FileManagementClient);
             var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
             var input = new SearchContentRequest 
             { 
@@ -138,7 +138,7 @@ public class ContentTests : TestBase
         foreach (var context in InvocationContext)
         {
             // Arrange
-            var action = new ContentActions(context);
+            var action = new ContentActions(context, FileManagementClient);
             var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
             var input = new SearchContentRequest 
             {
@@ -162,7 +162,7 @@ public class ContentTests : TestBase
         foreach (var context in InvocationContext)
         {
             // Arrange
-            var action = new ContentActions(context);
+            var action = new ContentActions(context, FileManagementClient);
             var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
             var input = new SearchContentRequest 
             { 
@@ -186,7 +186,7 @@ public class ContentTests : TestBase
         foreach (var context in InvocationContext)
         {
             // Arrange
-            var action = new ContentActions(context);
+            var action = new ContentActions(context, FileManagementClient);
             var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
             var input = new SearchContentRequest
             {
@@ -212,7 +212,7 @@ public class ContentTests : TestBase
         foreach (var context in InvocationContext)
         {
             // Arrange
-            var action = new ContentActions(context);
+            var action = new ContentActions(context, FileManagementClient);
             var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
             var input = new SearchContentRequest
             {
@@ -230,5 +230,23 @@ public class ContentTests : TestBase
             // Assert
             StringAssert.Contains(ex.Message, "Please specify collection ID in order to search content items");
         }
+    }
+
+    [TestMethod]
+    public async Task DownloadContent_PageType_ReturnsDownloadedContent()
+    {
+        // Arrange
+        var context = GetInvocationContext(ConnectionTypes.OAuth2);
+        var action = new ContentActions(context, FileManagementClient);
+        var site = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
+        var request = new DownloadContentRequest { ContentId = "68f8b337cbd1cac54f5b9d84" };
+        var contentFilter = new ContentFilter { ContentType = ContentTypes.Page };
+
+        // Act
+        var result = await action.DownloadContent(site, request, contentFilter);
+
+        // Assert
+        PrintJsonResult(result);
+        Assert.IsNotNull(result);
     }
 }

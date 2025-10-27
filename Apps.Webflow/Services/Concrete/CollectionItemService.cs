@@ -49,7 +49,7 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
         return new SearchContentResponse(result);
     }
 
-    public override Task<DownloadContentResponse> DownloadContent(string id)
+    public override async Task<Stream> DownloadContent(SiteRequest site, DownloadContentRequest input)
     {
         throw new NotImplementedException();
     }

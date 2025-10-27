@@ -1,13 +1,18 @@
 ﻿using Apps.Webflow.DataSourceHandlers.Content;
+using Apps.Webflow.DataSourceHandlers.Locale;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.SDK.Blueprints.Interfaces.CMS;
 
 namespace Apps.Webflow.Models.Request.Content;
 
-public class ContentRequest : IDownloadContentInput
+public class DownloadContentRequest : IDownloadContentInput
 {
-    [DataSource(typeof(ContentDataHandler))]
     [Display("Content ID")]
+    [DataSource(typeof(ContentDataHandler))]
     public string ContentId { get; set; }
+
+    [Display("Locale ID")]
+    [DataSource(typeof(SiteLocaleDataSourceHandler))]
+    public string? LocaleId { get; set; }
 }

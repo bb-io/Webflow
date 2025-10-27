@@ -11,7 +11,7 @@ public abstract class BaseContentService(InvocationContext invocationContext) : 
 {
     public abstract Task<SearchContentResponse> SearchContent(SiteRequest site, SearchContentRequest input, DateFilter dateFilter);
 
-    public abstract Task<DownloadContentResponse> DownloadContent(string id);
+    public abstract Task<Stream> DownloadContent(SiteRequest site, DownloadContentRequest input);
 
     protected static void ThrowForDateInputs(DateFilter date, string contentType)
     {

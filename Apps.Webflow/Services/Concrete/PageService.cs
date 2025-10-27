@@ -1,9 +1,11 @@
 ﻿using Apps.Webflow.Constants;
 using Apps.Webflow.Helper;
+using Apps.Webflow.HtmlConversion;
 using Apps.Webflow.Models.Entities;
 using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Content;
 using Apps.Webflow.Models.Response.Content;
+using Apps.Webflow.Models.Response.Pages;
 using Apps.Webflow.Models.Response.Pagination;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using RestSharp;
@@ -41,8 +43,21 @@ public class PageService(InvocationContext invocationContext) : BaseContentServi
         return new SearchContentResponse(result);
     }
 
-    public override Task<DownloadContentResponse> DownloadContent(string id)
+    public override async Task<Stream> DownloadContent(SiteRequest site, DownloadContentRequest input)
     {
-        throw new NotImplementedException();
+        var domEndpoint = $"pages/{input.ContentId}/dom";
+        var domRequest = new RestRequest(domEndpoint, Method.Get);
+
+        if (!string.IsNullOrEmpty(input.LocaleId))
+            domRequest.AddQueryParameter("localeId", input.LocaleId);
+
+        var pageDom = await Client.ExecuteWithErrorHandling<PageDomEntity>(domRequest);
+
+        var stream = PageHtmlConverter.ToHtml(pageDom, site.SiteId, input.ContentId);
+        var memoryStream = new MemoryStream();
+        await stream.CopyToAsync(memoryStream);
+        memoryStream.Position = 0;
+
+        return memoryStream;
     }
 }

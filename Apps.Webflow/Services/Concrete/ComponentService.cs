@@ -37,7 +37,7 @@ public class ComponentService(InvocationContext invocationContext) : BaseContent
         return new SearchContentResponse(result);
     }
 
-    public override Task<DownloadContentResponse> DownloadContent(string id)
+    public override async Task<Stream> DownloadContent(SiteRequest site, DownloadContentRequest input)
     {
         throw new NotImplementedException();
     }

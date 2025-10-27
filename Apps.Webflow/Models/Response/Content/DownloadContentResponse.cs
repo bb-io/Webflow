@@ -3,7 +3,7 @@ using Blackbird.Applications.SDK.Blueprints.Interfaces.CMS;
 
 namespace Apps.Webflow.Models.Response.Content;
 
-public class DownloadContentResponse : IDownloadContentOutput
+public class DownloadContentResponse(FileReference content) : IDownloadContentOutput
 {
-    public FileReference Content { get; set; }
+    public FileReference Content { get; set; } = content;
 }
