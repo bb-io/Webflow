@@ -1,5 +1,7 @@
 using Apps.Webflow.Connections;
 using Blackbird.Applications.Sdk.Common.Authentication;
+using Blackbird.Applications.Sdk.Common.Exceptions;
+using Tests.Webflow.Base;
 
 namespace Tests.Webflow;
 
@@ -7,30 +9,28 @@ namespace Tests.Webflow;
 public class Validator : TestBase
 {
     [TestMethod]
-    public async Task ValidatesCorrectConnection()
+    public async Task ValidateConnection_WithCorrectCredentials_ReturnsValidResult()
     {
         var validator = new ConnectionValidator();
 
-        var result = await validator.ValidateConnection(Creds, CancellationToken.None);
-        Assert.IsTrue(result.IsValid);
+        var tasks = CredentialGroups.Select(x => validator.ValidateConnection(x, CancellationToken.None).AsTask());
+        var results = await Task.WhenAll(tasks);
+        Assert.IsTrue(results.All(x => x.IsValid));
     }
 
     [TestMethod]
-    public async Task DoesNotValidateIncorrectConnection()
+    public async Task ValidateConnection_WithIncorrectCredentials_ReturnsInvalidResult()
     {
+        // Arrange
         var validator = new ConnectionValidator();
+        var newCreds = CredentialGroups.First().Select(x => new AuthenticationCredentialsProvider(x.KeyName, x.Value + "_incorrect"));
 
-        var newCreds = Creds.Select(x => new AuthenticationCredentialsProvider(AuthenticationCredentialsRequestLocation.None,x.KeyName, x.Value + "_incorrect"));
-        try
-        {
-            var result = await validator.ValidateConnection(newCreds, CancellationToken.None);
+        // Act
+        var ex = await Assert.ThrowsExactlyAsync<PluginApplicationException>(async () =>
+            await validator.ValidateConnection(newCreds, CancellationToken.None)
+        );
 
-            Assert.Fail("Expected an exception to be thrown for invalid credentials, but no exception was thrown.");
-        }
-        catch (Exception e)
-        {
-            Assert.AreEqual("Request not authorized", e.Message,
-                "Expected exception message to be 'Request not authorized'");
-        }
+        // Assert
+        Assert.Contains("Request not authorized", ex.Message);
     }
 }

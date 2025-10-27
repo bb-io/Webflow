@@ -1,6 +1,7 @@
 ﻿using Apps.Webflow.Polling;
 using Apps.Webflow.Polling.Models;
 using Blackbird.Applications.Sdk.Common.Polling;
+using Tests.Webflow.Base;
 
 namespace Tests.Webflow;
 
@@ -10,28 +11,31 @@ public class PollingTests : TestBase
     [TestMethod]
     public async Task OnPageUpdated_ReturnsUpdatedPages()
     {
-        // Arrange
-        var siteId = "YOUR_SITE_ID";
-        var lastPollingTime = DateTime.UtcNow.AddHours(-10);
-        var polling = new PagePollingList(InvocationContext);
-
-        var request = new PollingEventRequest<PageMemory>
+        foreach (var context in InvocationContext)
         {
-            Memory = new PageMemory
+            // Arrange
+            var siteId = "YOUR_SITE_ID";
+            var lastPollingTime = DateTime.UtcNow.AddHours(-10);
+            var polling = new PagePollingList(context);
+
+            var request = new PollingEventRequest<PageMemory>
             {
-                LastPollingTime = lastPollingTime,
-                Triggered = false
+                Memory = new PageMemory
+                {
+                    LastPollingTime = lastPollingTime,
+                    Triggered = false
+                }
+            };
+
+            // Act
+            var response = polling.OnPageUpdated(request, siteId);
+
+            //Assert
+            Assert.IsNotNull(response, "Response should not be null.");
+            foreach (var page in response.Result.Result.Pages)
+            {
+                Console.WriteLine($"Page ID: {page.Id}, Title: {page.Title}, Last Updated: {page.LastUpdated}");
             }
-        };
-
-        // Act
-        var response = polling.OnPageUpdated(request,siteId);
-
-        //Assert
-        Assert.IsNotNull(response, "Response should not be null.");
-        foreach (var page in response.Result.Result.Pages)
-        {
-            Console.WriteLine($"Page ID: {page.Id}, Title: {page.Title}, Last Updated: {page.LastUpdated}");
         }
     }
 }

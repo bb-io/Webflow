@@ -1,6 +1,8 @@
 ﻿using Apps.Webflow.Actions;
 using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Pages;
+using Blackbird.Applications.Sdk.Common.Files;
+using Tests.Webflow.Base;
 
 namespace Tests.Webflow;
 
@@ -10,60 +12,74 @@ public class PagesTests : TestBase
     [TestMethod]
     public async Task SearchPages_ReturnsExpectedPages()
     {
-        // Arrange
-        var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
-        var request = new SearchPagesRequest { };
-        var dates = new DateFilter { };
+        foreach (var context in InvocationContext)
+        {
+            // Arrange
+            var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
+            var request = new SearchPagesRequest { };
+            var dates = new DateFilter { };
 
-        var actions = new PagesActions(InvocationContext, FileManager);
+            var actions = new PagesActions(context, FileManagementClient);
 
-        // Act
-        var result = await actions.SearchPages(site, request, dates);
+            // Act
+            var result = await actions.SearchPages(site, request, dates);
 
-        // Assert
-        PrintJsonResult(result);
-        Assert.IsNotNull(result);
+            // Assert
+            PrintJsonResult(result);
+            Assert.IsNotNull(result);
+        }
     }
 
     [TestMethod]
     public async Task GetPageAsHtml_ReturnsFileReference()
     {
-        // Arrange
-        var input = new GetPageAsHtmlRequest
+
+        foreach (var context in InvocationContext)
         {
-            SiteId = "6773fdfb5a841e3420ebc404",
-            PageId = "6773fdfc5a841e3420ebc46d"
-        };
+            // Arrange
+            var input = new GetPageAsHtmlRequest
+            {
+                SiteId = "6773fdfb5a841e3420ebc404",
+                PageId = "6773fdfc5a841e3420ebc46d"
+            };
 
-        var actions = new PagesActions(InvocationContext, FileManager);
+            var actions = new PagesActions(context, FileManagementClient);
 
-        // Act
-        var result = await actions.GetPageAsHtml(input);
+            // Act
+            var result = await actions.GetPageAsHtml(input);
 
-        // Assert
-        PrintJsonResult(result);
-        Assert.IsNotNull(result, "Result should not be null.");
+            // Assert
+            PrintJsonResult(result);
+            Assert.IsNotNull(result, "Result should not be null.");
+        }
     }
 
     [TestMethod]
     public async Task UploadPageFromHtml_SuccessOperation()
     {
-        // Arrange
-        var fileReference = await FileManager.UploadTestFileAsync("page_6773fdfc5a841e3420ebc46d.html");
-
-        var input = new UpdatePageContentRequest
+        foreach (var context in InvocationContext)
         {
-            //PageId = "6773fdfc5a841e3420ebc46b",
-            LocaleId = "67765e8a8235a4578faed52a",
-            File = fileReference
-        };
+            // Arrange
+            var fileReference = new FileReference
+            {
+                Name = "page_6773fdfc5a841e3420ebc46d.html",
+                ContentType = "text/html",
+            };
 
-        var action = new PagesActions(InvocationContext, FileManager);
+            var input = new UpdatePageContentRequest
+            {
+                //PageId = "6773fdfc5a841e3420ebc46b",
+                LocaleId = "67765e8a8235a4578faed52a",
+                File = fileReference
+            };
 
-        //Act 
-        var result = await action.UpdatePageContentAsHtml(input);
+            var action = new PagesActions(context, FileManagementClient);
 
-        //Assert
-        Assert.IsTrue(result.Success, "Result should not be null.");
+            //Act 
+            var result = await action.UpdatePageContentAsHtml(input);
+
+            //Assert
+            Assert.IsTrue(result.Success, "Result should not be null.");
+        }
     }
 }
