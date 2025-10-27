@@ -10,19 +10,36 @@ public class ConnectionDefinition : IConnectionDefinition
     {
         new()
         {
-            Name = "OAuth2",
+            Name = ConnectionTypes.OAuth2,
             AuthenticationType = ConnectionAuthenticationType.OAuth2,
             ConnectionProperties = new List<ConnectionProperty>
             {
                 new(CredsNames.ClientId){ DisplayName = "Client ID" },
                 new(CredsNames.ClientSecret){ DisplayName = "Client secret" }
             }
+        },
+        new()
+        {
+            Name = ConnectionTypes.SiteToken,
+            AuthenticationType = ConnectionAuthenticationType.Undefined,
+            ConnectionProperties = new List<ConnectionProperty>
+            {
+                new(CredsNames.AccessToken){ DisplayName = "API token" }
+            }
         }
     };
 
-    public IEnumerable<AuthenticationCredentialsProvider> CreateAuthorizationCredentialsProviders(
-        Dictionary<string, string> values) =>
-        values.Select(x =>
-                new AuthenticationCredentialsProvider(x.Key, x.Value))
-            .ToList();
+    public IEnumerable<AuthenticationCredentialsProvider> CreateAuthorizationCredentialsProviders(Dictionary<string, string> values)
+    {
+        var providers = values.Select(x => new AuthenticationCredentialsProvider(x.Key, x.Value)).ToList();
+
+        var connectionType = values[nameof(ConnectionPropertyGroup)] switch
+        {
+            var ct when ConnectionTypes.SupportedConnectionTypes.Contains(ct) => ct,
+            _ => throw new Exception($"Unknown connection type: {values[nameof(ConnectionPropertyGroup)]}")
+        };
+
+        providers.Add(new AuthenticationCredentialsProvider(CredsNames.ConnectionType, connectionType));
+        return providers;
+    }
 }
