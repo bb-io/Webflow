@@ -1,4 +1,5 @@
-﻿using Apps.Webflow.Invocables;
+﻿using Apps.Webflow.Extensions;
+using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Content;
 using Apps.Webflow.Models.Response.Content;
@@ -23,7 +24,7 @@ public class ContentActions(InvocationContext invocationContext) : WebflowInvoca
         [ActionParameter] DateFilter dateFilter,
         [ActionParameter] SearchContentRequest request)
     {
-        var service = _factory.Create(contentFilter.ContentType);
-        return await service.SearchContent(siteRequest, request, dateFilter);
+        var contentServices = _factory.GetContentServices(contentFilter.ContentTypes);
+        return await contentServices.ExecuteMany(siteRequest, request, dateFilter);
     }
 }

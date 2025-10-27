@@ -7,7 +7,17 @@ namespace Apps.Webflow.Services;
 
 public class ContentServicesFactory(InvocationContext invocationContext)
 {
-    public IContentService Create(string contentType)
+    public List<IContentService> GetContentServices(IEnumerable<string> contentTypes)
+    {
+        var contentServices = new List<IContentService>();
+
+        foreach (var contentType in contentTypes)
+            contentServices.Add(GetContentService(contentType));
+
+        return contentServices;
+    }
+
+    public IContentService GetContentService(string contentType)
     {
         return contentType switch
         {

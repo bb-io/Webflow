@@ -8,5 +8,5 @@ public class ContentFilter
 {
     [Display("Content type")]
     [StaticDataSource(typeof(ContentTypeStaticDataHandler))]
-    public string ContentType { get; set; }
+    public IEnumerable<string> ContentTypes { get; set; }
 }

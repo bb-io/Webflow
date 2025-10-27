@@ -11,15 +11,18 @@ namespace Tests.Webflow;
 public class ContentTests : TestBase
 {
     [TestMethod]
-    public async Task SearchContent_PageTypeWithoutFilters_ReturnsPageMetadata()
+    public async Task SearchContent_AllTypesWithoutFilters_ReturnsPageMetadata()
     {
         foreach (var context in InvocationContext)
         {
             // Arrange
             var action = new ContentActions(context);
-            var contentType = new ContentFilter { ContentType = ContentTypes.Page };
-            var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
-            var input = new SearchContentRequest { };
+            var contentType = new ContentFilter 
+            { 
+                ContentTypes = [ContentTypes.Page, ContentTypes.Component, ContentTypes.CollectionItem] 
+            };
+            var site = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
+            var input = new SearchContentRequest { CollectionId = "68f8b337cbd1cac54f5b9d9c" };
             var dates = new DateFilter { };
 
             // Act
@@ -38,7 +41,7 @@ public class ContentTests : TestBase
         {
             // Arrange
             var action = new ContentActions(context);
-            var contentType = new ContentFilter { ContentType = ContentTypes.Page };
+            var contentType = new ContentFilter { ContentTypes = [ContentTypes.Page] };
             var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
             var input = new SearchContentRequest { /*NameContains = "Pay"*/ };
             var dates = new DateFilter { CreatedAfter = new DateTime(2019, 10, 1, 10, 0, 0, DateTimeKind.Utc) };
@@ -59,7 +62,7 @@ public class ContentTests : TestBase
         {
             // Arrange
             var action = new ContentActions(context);
-            var contentType = new ContentFilter { ContentType = ContentTypes.Page };
+            var contentType = new ContentFilter { ContentTypes = [ContentTypes.Page] };
             var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
             var input = new SearchContentRequest { LastPublishedAfter = new DateTime(2025, 10, 10) /*NameContains = "Pay"*/ };
             var dates = new DateFilter { };
@@ -82,7 +85,7 @@ public class ContentTests : TestBase
         {
             // Arrange
             var action = new ContentActions(context);
-            var contentType = new ContentFilter { ContentType = ContentTypes.Component };
+            var contentType = new ContentFilter { ContentTypes = [ContentTypes.Component] };
             var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
             var input = new SearchContentRequest { };
             var dates = new DateFilter { };
@@ -103,7 +106,7 @@ public class ContentTests : TestBase
         {
             // Arrange
             var action = new ContentActions(context);
-            var contentType = new ContentFilter { ContentType = ContentTypes.Component };
+            var contentType = new ContentFilter { ContentTypes = [ContentTypes.Component] };
             var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
             var input = new SearchContentRequest { NameContains = "Navigation" };
             var dates = new DateFilter { };
@@ -124,7 +127,7 @@ public class ContentTests : TestBase
         {
             // Arrange
             var action = new ContentActions(context);
-            var contentType = new ContentFilter { ContentType = ContentTypes.Component };
+            var contentType = new ContentFilter { ContentTypes = [ContentTypes.Component] };
             var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
             var input = new SearchContentRequest { };
             var dates = new DateFilter { CreatedAfter = DateTime.UtcNow };
@@ -146,7 +149,7 @@ public class ContentTests : TestBase
         {
             // Arrange
             var action = new ContentActions(context);
-            var contentType = new ContentFilter { ContentType = ContentTypes.CollectionItem };
+            var contentType = new ContentFilter { ContentTypes = [ContentTypes.CollectionItem] };
             var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
             var input = new SearchContentRequest { CollectionId = "68f88700e2a4dba6d693cc90" };
             var dates = new DateFilter { };
@@ -167,7 +170,7 @@ public class ContentTests : TestBase
         {
             // Arrange
             var action = new ContentActions(context);
-            var contentType = new ContentFilter { ContentType = ContentTypes.CollectionItem };
+            var contentType = new ContentFilter { ContentTypes = [ContentTypes.CollectionItem] };
             var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
             var input = new SearchContentRequest
             {
@@ -193,7 +196,7 @@ public class ContentTests : TestBase
         {
             // Arrange
             var action = new ContentActions(context);
-            var contentType = new ContentFilter { ContentType = ContentTypes.CollectionItem };
+            var contentType = new ContentFilter { ContentTypes = [ContentTypes.CollectionItem] };
             var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
             var input = new SearchContentRequest
             {
