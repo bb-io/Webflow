@@ -11,10 +11,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <None Remove="Services\ContentServicesFactory.cs~RFab89d95.TMP" />
-    </ItemGroup>
-
-    <ItemGroup>
         <PackageReference Include="Blackbird.Applications.SDK.Blueprints" Version="1.0.0-rc.10308" />
         <PackageReference Include="Blackbird.Applications.Sdk.Utils" Version="1.0.26" />
     </ItemGroup>

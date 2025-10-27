@@ -1,11 +1,12 @@
 ﻿using Apps.Webflow.Constants;
+using Blackbird.Applications.Sdk.Common.Dictionaries;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 
 namespace Apps.Webflow.DataSourceHandlers.Content;
 
-public class ContentTypeStaticDataHandler : IDataSourceItemHandler
+public class ContentTypeStaticDataHandler : IStaticDataSourceItemHandler
 {
-    public IEnumerable<DataSourceItem> GetData(DataSourceContext context)
+    public IEnumerable<DataSourceItem> GetData()
     {
         return new List<DataSourceItem>
         {
