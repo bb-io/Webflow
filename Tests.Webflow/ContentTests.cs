@@ -233,7 +233,7 @@ public class ContentTests : TestBase
     }
 
     [TestMethod]
-    public async Task DownloadContent_PageType_ReturnsDownloadedContent()
+    public async Task DownloadContent_PageTypeWithoutLocaleInput_ReturnsDownloadedContent()
     {
         // Arrange
         var context = GetInvocationContext(ConnectionTypes.OAuth2);
@@ -241,6 +241,24 @@ public class ContentTests : TestBase
         var site = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
         var request = new DownloadContentRequest { ContentId = "68f8b337cbd1cac54f5b9d84" };
         var contentFilter = new ContentFilter { ContentType = ContentTypes.Page };
+
+        // Act
+        var result = await action.DownloadContent(site, request, contentFilter);
+
+        // Assert
+        PrintJsonResult(result);
+        Assert.IsNotNull(result);
+    }
+    
+    [TestMethod]
+    public async Task DownloadContent_ComponentTypeWithoutLocaleInput_ReturnsDownloadedContent()
+    {
+        // Arrange
+        var context = GetInvocationContext(ConnectionTypes.SiteToken);
+        var action = new ContentActions(context, FileManagementClient);
+        var site = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
+        var request = new DownloadContentRequest { ContentId = "2df3695a-ff87-37fa-7ac7-63d4f4891939" };
+        var contentFilter = new ContentFilter { ContentType = ContentTypes.Component };
 
         // Act
         var result = await action.DownloadContent(site, request, contentFilter);
