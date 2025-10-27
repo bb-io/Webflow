@@ -20,11 +20,20 @@ public class ContentActions(InvocationContext invocationContext) : WebflowInvoca
     [Action("Search content", Description = "Search for any type of content")]
     public async Task<SearchContentResponse> SearchContent(
         [ActionParameter] SiteRequest siteRequest,
-        [ActionParameter] ContentFilter contentFilter,
-        [ActionParameter] DateFilter dateFilter,
-        [ActionParameter] SearchContentRequest request)
+        [ActionParameter] SearchContentRequest request,
+        [ActionParameter] DateFilter dateFilter)
     {
-        var contentServices = _factory.GetContentServices(contentFilter.ContentTypes);
+        var contentServices = _factory.GetContentServices(request.ContentTypes);
         return await contentServices.ExecuteMany(siteRequest, request, dateFilter);
+    }
+
+    [BlueprintActionDefinition(BlueprintAction.DownloadContent)]
+    [Action("Download content", Description = "Download content as HTML for a specific content type based on its ID")]
+    public async Task<DownloadContentResponse> DownloadContent(
+        [ActionParameter] ContentRequest request,
+        [ActionParameter] ContentFilter contentFilter)
+    {
+        var service = _factory.GetContentService(contentFilter.ContentType);
+        return await service.DownloadContent(request.ContentId);
     }
 }

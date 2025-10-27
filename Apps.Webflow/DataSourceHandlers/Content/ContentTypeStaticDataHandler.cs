@@ -11,7 +11,8 @@ public class ContentTypeStaticDataHandler : IStaticDataSourceItemHandler
         return new List<DataSourceItem>
         {
             new DataSourceItem(ContentTypes.Page, ContentTypes.Page),
-            new DataSourceItem(ContentTypes.Component, ContentTypes.Component)
+            new DataSourceItem(ContentTypes.Component, ContentTypes.Component),
+            new DataSourceItem(ContentTypes.CollectionItem, ContentTypes.CollectionItem)
         };
     }
 }

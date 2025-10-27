@@ -36,4 +36,9 @@ public class ComponentService(InvocationContext invocationContext) : BaseContent
 
         return new SearchContentResponse(result);
     }
+
+    public override Task<DownloadContentResponse> DownloadContent(string id)
+    {
+        throw new NotImplementedException();
+    }
 }

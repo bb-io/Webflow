@@ -17,16 +17,16 @@ public class ContentTests : TestBase
         {
             // Arrange
             var action = new ContentActions(context);
-            var contentType = new ContentFilter 
+            var site = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
+            var input = new SearchContentRequest 
             { 
+                CollectionId = "68f8b337cbd1cac54f5b9d9c",
                 ContentTypes = [ContentTypes.Page, ContentTypes.Component, ContentTypes.CollectionItem] 
             };
-            var site = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
-            var input = new SearchContentRequest { CollectionId = "68f8b337cbd1cac54f5b9d9c" };
             var dates = new DateFilter { };
 
             // Act
-            var result = await action.SearchContent(site, contentType, dates, input);
+            var result = await action.SearchContent(site, input, dates);
 
             // Assert
             PrintJsonResult(result);
@@ -41,13 +41,16 @@ public class ContentTests : TestBase
         {
             // Arrange
             var action = new ContentActions(context);
-            var contentType = new ContentFilter { ContentTypes = [ContentTypes.Page] };
             var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
-            var input = new SearchContentRequest { /*NameContains = "Pay"*/ };
+            var input = new SearchContentRequest 
+            { 
+                /*NameContains = "Pay"*/ 
+                ContentTypes = [ContentTypes.Page]
+            };
             var dates = new DateFilter { CreatedAfter = new DateTime(2019, 10, 1, 10, 0, 0, DateTimeKind.Utc) };
 
             // Act
-            var result = await action.SearchContent(site, contentType, dates, input);
+            var result = await action.SearchContent(site, input, dates);
 
             // Assert
             PrintJsonResult(result);
@@ -62,14 +65,18 @@ public class ContentTests : TestBase
         {
             // Arrange
             var action = new ContentActions(context);
-            var contentType = new ContentFilter { ContentTypes = [ContentTypes.Page] };
             var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
-            var input = new SearchContentRequest { LastPublishedAfter = new DateTime(2025, 10, 10) /*NameContains = "Pay"*/ };
+            var input = new SearchContentRequest 
+            { 
+                ContentTypes = [ContentTypes.Page],
+                LastPublishedAfter = new DateTime(2025, 10, 10) 
+                /*NameContains = "Pay"*/ 
+            };
             var dates = new DateFilter { };
 
             // Act
             var ex = await Assert.ThrowsExactlyAsync<PluginMisconfigurationException>(
-                async () => await action.SearchContent(site, contentType, dates, input)
+                async () => await action.SearchContent(site, input, dates)
             );
 
             // Assert
@@ -85,13 +92,15 @@ public class ContentTests : TestBase
         {
             // Arrange
             var action = new ContentActions(context);
-            var contentType = new ContentFilter { ContentTypes = [ContentTypes.Component] };
             var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
-            var input = new SearchContentRequest { };
+            var input = new SearchContentRequest 
+            { 
+                ContentTypes = [ContentTypes.Component]            
+            };
             var dates = new DateFilter { };
 
             // Act
-            var result = await action.SearchContent(site, contentType, dates, input);
+            var result = await action.SearchContent(site, input, dates);
 
             // Assert
             PrintJsonResult(result);
@@ -106,13 +115,16 @@ public class ContentTests : TestBase
         {
             // Arrange
             var action = new ContentActions(context);
-            var contentType = new ContentFilter { ContentTypes = [ContentTypes.Component] };
             var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
-            var input = new SearchContentRequest { NameContains = "Navigation" };
+            var input = new SearchContentRequest 
+            { 
+                ContentTypes = [ContentTypes.Component],
+                NameContains = "Navigation" 
+            };
             var dates = new DateFilter { };
 
             // Act
-            var result = await action.SearchContent(site, contentType, dates, input);
+            var result = await action.SearchContent(site, input, dates);
 
             // Assert
             PrintJsonResult(result);
@@ -127,14 +139,16 @@ public class ContentTests : TestBase
         {
             // Arrange
             var action = new ContentActions(context);
-            var contentType = new ContentFilter { ContentTypes = [ContentTypes.Component] };
             var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
-            var input = new SearchContentRequest { };
+            var input = new SearchContentRequest 
+            {
+                ContentTypes = [ContentTypes.Component]            
+            };
             var dates = new DateFilter { CreatedAfter = DateTime.UtcNow };
 
             // Act
             var ex = await Assert.ThrowsExactlyAsync<PluginMisconfigurationException>(
-                async () => await action.SearchContent(site, contentType, dates, input)
+                async () => await action.SearchContent(site, input, dates)
             );
 
             // Assert
@@ -149,13 +163,16 @@ public class ContentTests : TestBase
         {
             // Arrange
             var action = new ContentActions(context);
-            var contentType = new ContentFilter { ContentTypes = [ContentTypes.CollectionItem] };
             var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
-            var input = new SearchContentRequest { CollectionId = "68f88700e2a4dba6d693cc90" };
+            var input = new SearchContentRequest 
+            { 
+                CollectionId = "68f88700e2a4dba6d693cc90",
+                ContentTypes = [ContentTypes.CollectionItem]
+            };
             var dates = new DateFilter { };
 
             // Act
-            var result = await action.SearchContent(site, contentType, dates, input);
+            var result = await action.SearchContent(site, input, dates);
 
             // Assert
             PrintJsonResult(result);
@@ -170,10 +187,10 @@ public class ContentTests : TestBase
         {
             // Arrange
             var action = new ContentActions(context);
-            var contentType = new ContentFilter { ContentTypes = [ContentTypes.CollectionItem] };
             var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
             var input = new SearchContentRequest
             {
+                ContentTypes = [ContentTypes.CollectionItem], 
                 LastPublishedAfter = new DateTime(2025, 10, 22, 5, 0, 0, DateTimeKind.Utc),
                 CollectionId = "68f88700e2a4dba6d693cc90",
                 /* NameContains = "Effective"*/
@@ -181,7 +198,7 @@ public class ContentTests : TestBase
             var dates = new DateFilter { LastUpdatedAfter = new DateTime(2025, 1, 1, 10, 0, 0, DateTimeKind.Utc) };
 
             // Act
-            var result = await action.SearchContent(site, contentType, dates, input);
+            var result = await action.SearchContent(site, input, dates);
 
             // Assert
             PrintJsonResult(result);
@@ -196,10 +213,10 @@ public class ContentTests : TestBase
         {
             // Arrange
             var action = new ContentActions(context);
-            var contentType = new ContentFilter { ContentTypes = [ContentTypes.CollectionItem] };
             var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
             var input = new SearchContentRequest
             {
+                ContentTypes = [ContentTypes.CollectionItem],
                 LastPublishedAfter = new DateTime(2025, 10, 22, 5, 0, 0, DateTimeKind.Utc),
                 CollectionId = "",
             };
@@ -207,7 +224,7 @@ public class ContentTests : TestBase
 
             // Act
             var ex = await Assert.ThrowsExactlyAsync<PluginMisconfigurationException>(
-                async () => await action.SearchContent(site, contentType, dates, input)
+                async () => await action.SearchContent(site, input, dates)
             );
 
             // Assert

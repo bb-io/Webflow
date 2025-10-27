@@ -1,11 +1,17 @@
-﻿using Blackbird.Applications.Sdk.Common;
+﻿using Apps.Webflow.DataSourceHandlers.Collection;
+using Apps.Webflow.DataSourceHandlers.Content;
+using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Dictionaries;
 using Blackbird.Applications.Sdk.Common.Dynamic;
-using Apps.Webflow.DataSourceHandlers.Collection;
 
 namespace Apps.Webflow.Models.Request.Content;
 
 public class SearchContentRequest
 {
+    [Display("Content type")]
+    [StaticDataSource(typeof(ContentTypeStaticDataHandler))]
+    public IEnumerable<string> ContentTypes { get; set; }
+
     [Display("Name or title contains")]
     public string? NameContains { get; set; }
 

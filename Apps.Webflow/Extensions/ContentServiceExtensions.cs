@@ -18,7 +18,7 @@ public static class ContentServiceExtensions
 
         foreach (var contentService in contentServices)
         {
-            var response = (await contentService.SearchContent(site, request, dateFilter)).Result;
+            var response = (await contentService.SearchContent(site, request, dateFilter)).Items;
             result.AddRange(response);
         }
 

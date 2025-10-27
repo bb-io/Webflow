@@ -11,6 +11,8 @@ public abstract class BaseContentService(InvocationContext invocationContext) : 
 {
     public abstract Task<SearchContentResponse> SearchContent(SiteRequest site, SearchContentRequest input, DateFilter dateFilter);
 
+    public abstract Task<DownloadContentResponse> DownloadContent(string id);
+
     protected static void ThrowForDateInputs(DateFilter date, string contentType)
     {
         if (date.CreatedAfter.HasValue || date.CreatedBefore.HasValue || date.LastUpdatedAfter.HasValue || date.LastUpdatedBefore.HasValue)

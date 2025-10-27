@@ -4,5 +4,5 @@ namespace Apps.Webflow.Models.Response.Content;
 
 public class SearchContentResponse(IEnumerable<ContentItemEntity> result)
 {
-    public IEnumerable<ContentItemEntity> Result { get; set; } = result;
+    public IEnumerable<ContentItemEntity> Items { get; set; } = result;
 }

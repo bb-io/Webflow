@@ -40,4 +40,9 @@ public class PageService(InvocationContext invocationContext) : BaseContentServi
 
         return new SearchContentResponse(result);
     }
+
+    public override Task<DownloadContentResponse> DownloadContent(string id)
+    {
+        throw new NotImplementedException();
+    }
 }
