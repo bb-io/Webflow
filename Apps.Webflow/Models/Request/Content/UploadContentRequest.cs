@@ -1,4 +1,5 @@
-﻿using Apps.Webflow.DataSourceHandlers.Content;
+﻿using Apps.Webflow.DataSourceHandlers.CollectionItem;
+using Apps.Webflow.DataSourceHandlers.Content;
 using Apps.Webflow.DataSourceHandlers.Locale;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Dynamic;
@@ -23,4 +24,8 @@ public class UploadContentRequest : IUploadContentInput
     [Display("Locale")]
     [DataSource(typeof(UpdateCollectionItemLocaleDataSourceHandler))]
     public string? CmsLocaleId { get; set; }
+
+    [Display("Collection ID")]
+    [DataSource(typeof(UpdateCollectionItemCollectionDataSourceHandler))]
+    public string? CollectionId { get; set; }
 }

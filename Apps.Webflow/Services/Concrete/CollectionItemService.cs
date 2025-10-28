@@ -8,6 +8,7 @@ using Apps.Webflow.Models.Response.Content;
 using Apps.Webflow.Models.Response.Pagination;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using Blackbird.Applications.Sdk.Utils.Extensions.String;
 using RestSharp;
 
@@ -74,8 +75,34 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
         return memoryStream;
     }
 
-    public override Task UploadContent(Stream content, SiteRequest site, UploadContentRequest input)
+    public override async Task UploadContent(Stream content, SiteRequest site, UploadContentRequest input)
     {
-        throw new NotImplementedException();
+        var memoryStream = new MemoryStream();
+        await content.CopyToAsync(memoryStream);
+        memoryStream.Position = 0;
+
+        var doc = new HtmlAgilityPack.HtmlDocument();
+        doc.Load(memoryStream);
+        memoryStream.Position = 0;
+
+        if (string.IsNullOrWhiteSpace(input.CollectionId))
+            throw new PluginMisconfigurationException("Collection ID is missing. Provide it or include it in the HTML file");
+
+        var itemEndpoint = $"collections/{input.CollectionId}/items/{input.ContentId}";
+        if (input.CmsLocaleId != null)
+            itemEndpoint = itemEndpoint.SetQueryParameter("cmsLocaleId", input.CmsLocaleId);
+        var itemRequest = new RestRequest(itemEndpoint, Method.Get);
+        var item = await Client.ExecuteWithErrorHandling<CollectionItemEntity>(itemRequest);
+
+        var collectionRequest = new RestRequest($"collections/{input.CollectionId}", Method.Get);
+        var collection = await Client.ExecuteWithErrorHandling<CollectionEntity>(collectionRequest);
+
+        var fieldData = CollectionItemHtmlConverter.ToJson(memoryStream, item.FieldData, collection.Fields);
+
+        var endpoint = $"collections/{input.CollectionId}/items/{input.ContentId}";
+        var request = new RestRequest(endpoint, Method.Patch)
+            .WithJsonBody(new { fieldData, cmsLocaleId = input.CmsLocaleId }, JsonConfig.Settings);
+
+        await Client.ExecuteWithErrorHandling<CollectionItemEntity>(request);
     }
 }

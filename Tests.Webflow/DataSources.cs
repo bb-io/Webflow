@@ -5,6 +5,7 @@ using Apps.Webflow.DataSourceHandlers.CollectionItem;
 using Apps.Webflow.DataSourceHandlers.Locale;
 using Apps.Webflow.DataSourceHandlers.Site;
 using Apps.Webflow.Models.Request;
+using Apps.Webflow.Models.Request.Collection;
 using Apps.Webflow.Models.Request.Components;
 using Apps.Webflow.Models.Request.Pages;
 using Blackbird.Applications.Sdk.Common.Dynamic;
@@ -157,6 +158,30 @@ public class DataSources : TestBase
 
         foreach (var locale in data)
             Console.WriteLine($"Display name: {locale.Key}, Locale ID: {locale.Value}");        
+    }
+
+    [TestMethod]
+    public async Task CollectionItemLocaleDataSourceHandler_IsSuccess()
+    {
+        //Arange
+        var context = GetInvocationContext(ConnectionTypes.OAuth2);
+        var siteId = "68f8b336cbd1cac54f5b9d2c";
+        var request = new UpdateCollectionItemRequest
+        {
+            SiteId = siteId,
+            CollectionId = "68f8b337cbd1cac54f5b9d9b"
+        };
+        // Act
+        var handler = new UpdateCollectionItemLocaleDataSourceHandler(context, request);
+
+        // Assert
+        var data = await handler.GetDataAsync(
+            new DataSourceContext { SearchString = "" },
+            CancellationToken.None
+        );
+
+        foreach (var locale in data)
+            Console.WriteLine($"Display name: {locale.Key}, Locale ID: {locale.Value}");
     }
 
     [TestMethod]

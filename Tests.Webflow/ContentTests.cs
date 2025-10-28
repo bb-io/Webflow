@@ -279,7 +279,7 @@ public class ContentTests : TestBase
         var request = new DownloadContentRequest 
         { 
             CollectionId = "68f8b337cbd1cac54f5b9d9b", 
-            ContentId = "68f8b337cbd1cac54f5b9df9" 
+            ContentId = "68f8b337cbd1cac54f5b9df8"
         };
         var contentFilter = new ContentFilter { ContentType = ContentTypes.CollectionItem };
 
@@ -346,6 +346,26 @@ public class ContentTests : TestBase
             Locale = "69007d6cf09bd27cf732e155"
         };
         var contentFilter = new ContentFilter { ContentType = ContentTypes.Component };
+
+        // Act
+        await action.UploadContent(site, request, contentFilter);
+    }
+
+    [TestMethod]
+    public async Task UploadContent_CollectionItemType_IsSuccess()
+    {
+        // Arrange
+        var context = GetInvocationContext(ConnectionTypes.OAuth2);
+        var action = new ContentActions(context, FileManagementClient);
+        var site = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
+        var request = new UploadContentRequest
+        {
+            Content = new FileReference { Name = "col-item-se.html", ContentType = "text/html" },
+            ContentId = "68f8b337cbd1cac54f5b9df8",
+            CollectionId = "68f8b337cbd1cac54f5b9d9b",
+            CmsLocaleId = "69007d6cf09bd27cf732e15a"
+        };
+        var contentFilter = new ContentFilter { ContentType = ContentTypes.CollectionItem };
 
         // Act
         await action.UploadContent(site, request, contentFilter);
