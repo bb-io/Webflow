@@ -74,8 +74,8 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
     {
         var data = webhookRequest.GetPayload<CollectionCreatedWebhookResponse>();
 
-        data.ContentId ??= (data.FieldData.Descendants().First(x => x is JProperty { Name: "_id" }) as JProperty)!.Value
-            .ToString();
+        //data.ContentId ??= (data.FieldData.Descendants().First(x => x is JProperty { Name: "_id" }) as JProperty)!.Value
+        //    .ToString();
 
         if (input.LocaleId != null && data.FieldData["_locale"]!.ToString() != input.LocaleId)
             return Task.FromResult(new WebhookResponse<CollectionItemResponse>
