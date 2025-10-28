@@ -11,7 +11,7 @@ using Blackbird.Applications.Sdk.Common.Exceptions;
 
 namespace Apps.Webflow.Actions;
 
-[ActionList]
+[ActionList("Sites")]
 public class SiteActions(InvocationContext invocationContext) : WebflowInvocable(invocationContext)
 {
     [Action("Search sites", Description = "Search sites based on search criteria")]
