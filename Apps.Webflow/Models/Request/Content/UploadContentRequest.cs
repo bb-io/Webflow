@@ -21,7 +21,7 @@ public class UploadContentRequest : IUploadContentInput
     [DataSource(typeof(ContentDataHandler))]
     public string? ContentId { get; set; }
 
-    [Display("Locale")]
+    [Display("Collection item locale ID")]
     [DataSource(typeof(UpdateCollectionItemLocaleDataSourceHandler))]
     public string? CmsLocaleId { get; set; }
 
