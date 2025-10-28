@@ -72,10 +72,14 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
     public Task<WebhookResponse<CollectionItemResponse>> OnCollectionItemCreated(WebhookRequest webhookRequest,
         [WebhookParameter] SiteCmsLocaleRequest input)
     {
-        var data = webhookRequest.GetPayload<CollectionCreatedWebhookResponse>();
+        var root = webhookRequest.GetPayload<JObject>();
+        var payload = (JObject)root["payload"]!;
 
-        //data.ContentId ??= (data.FieldData.Descendants().First(x => x is JProperty { Name: "_id" }) as JProperty)!.Value
-        //    .ToString();
+        var data = new CollectionCreatedWebhookResponse
+        {
+            FieldData = (JObject)payload["fieldData"]!,
+            ContentId = payload["id"]?.ToString()!
+        };
 
         if (input.LocaleId != null && data.FieldData["_locale"]!.ToString() != input.LocaleId)
             return Task.FromResult(new WebhookResponse<CollectionItemResponse>
