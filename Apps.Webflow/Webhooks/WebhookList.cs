@@ -1,4 +1,3 @@
-using System.Net;
 using Apps.Webflow.Extensions;
 using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Request;
@@ -6,7 +5,9 @@ using Apps.Webflow.Webhooks.Handlers;
 using Apps.Webflow.Webhooks.Models.Response;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common.Webhooks;
+using Blackbird.Applications.SDK.Blueprints;
 using Newtonsoft.Json.Linq;
+using System.Net;
 
 namespace Apps.Webflow.Webhooks;
 
@@ -65,6 +66,7 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
         });
     }
 
+    [BlueprintEventDefinition(BlueprintEvent.ContentCreatedOrUpdated)]
     [Webhook("On collection item created", typeof(CollectionItemCreatedWebhookHandler),
         Description = "Triggers when specific collection item was created")]
     public Task<WebhookResponse<CollectionItemResponse>> OnCollectionItemCreated(WebhookRequest webhookRequest,
@@ -72,7 +74,7 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
     {
         var data = webhookRequest.GetPayload<CollectionCreatedWebhookResponse>();
 
-        data.Id ??= (data.FieldData.Descendants().First(x => x is JProperty { Name: "_id" }) as JProperty)!.Value
+        data.ContentId ??= (data.FieldData.Descendants().First(x => x is JProperty { Name: "_id" }) as JProperty)!.Value
             .ToString();
 
         if (input.LocaleId != null && data.FieldData["_locale"]!.ToString() != input.LocaleId)

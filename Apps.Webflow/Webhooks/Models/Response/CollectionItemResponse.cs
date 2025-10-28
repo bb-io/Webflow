@@ -1,10 +1,11 @@
 using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.SDK.Blueprints.Interfaces.CMS;
 
 namespace Apps.Webflow.Webhooks.Models.Response;
 
-public class CollectionItemResponse
+public class CollectionItemResponse : IDownloadContentInput
 {
-    [Display("Collection item ID")] public string Id { get; set; }
+    [Display("Collection item ID")] public string ContentId { get; set; }
     
     [Display("Site ID")] public string SiteId { get; set; }
     
