@@ -87,6 +87,9 @@ public class PageService(InvocationContext invocationContext) : BaseContentServi
                 site.SiteId = metaSiteIdNode.GetAttributeValue("content", string.Empty);
         }
 
+        if (string.IsNullOrEmpty(input.ContentId))
+            throw new PluginMisconfigurationException("Page ID was not found in the file. Please specify it in the input value");
+
         var elements = doc.DocumentNode
             .Descendants()
             .Where(x => x.NodeType == HtmlAgilityPack.HtmlNodeType.Element &&

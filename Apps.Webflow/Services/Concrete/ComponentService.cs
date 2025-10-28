@@ -73,6 +73,16 @@ public class ComponentService(InvocationContext invocationContext) : BaseContent
 
         var doc = new HtmlAgilityPack.HtmlDocument();
         doc.Load(memoryStream);
+
+        if (string.IsNullOrEmpty(input.ContentId))
+        {
+            var metaComponentIdNode = doc.DocumentNode.SelectSingleNode("//meta[@name='blackbird-component-id']");
+            input.ContentId = metaComponentIdNode?.GetAttributeValue("content", string.Empty);
+
+            if (string.IsNullOrEmpty(input.ContentId))
+                throw new PluginMisconfigurationException("Component ID not found in the HTML file. Please, provide it in input or ensure that file contains <meta name=\"blackbird-component-id\"> tag.");
+        }
+
         var elements = doc.DocumentNode
             .Descendants()
             .Where(x => x.NodeType == HtmlAgilityPack.HtmlNodeType.Element &&

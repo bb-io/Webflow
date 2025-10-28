@@ -85,8 +85,20 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
         doc.Load(memoryStream);
         memoryStream.Position = 0;
 
+        if (string.IsNullOrEmpty(input.CollectionId) ||
+            string.IsNullOrEmpty(input.ContentId))
+        {
+            input.CollectionId ??= doc.DocumentNode.SelectSingleNode($"//meta[@name='blackbird-collection-id']")
+                   ?.GetAttributeValue("content", null);
+            input.ContentId ??= doc.DocumentNode.SelectSingleNode($"//meta[@name='blackbird-collection-item-id']")
+                   ?.GetAttributeValue("content", null);
+            memoryStream.Position = 0;
+        }
+
         if (string.IsNullOrWhiteSpace(input.CollectionId))
             throw new PluginMisconfigurationException("Collection ID is missing. Provide it or include it in the HTML file");
+        if (string.IsNullOrWhiteSpace(input.ContentId))
+            throw new PluginMisconfigurationException("Collection item ID is missing. Provide it or include it in the HTML file");
 
         var itemEndpoint = $"collections/{input.CollectionId}/items/{input.ContentId}";
         if (input.CmsLocaleId != null)
