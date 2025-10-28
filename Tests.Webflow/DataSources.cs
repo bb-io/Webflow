@@ -44,7 +44,7 @@ public class DataSources : TestBase
     {
         foreach (var context in InvocationContext)
         {
-            var siteId = "6773fdfb5a841e3420ebc404";
+            var siteId = "68f8b336cbd1cac54f5b9d2c";
 
             var input = new GetPageAsHtmlRequest { SiteId = siteId };
 
@@ -97,7 +97,7 @@ public class DataSources : TestBase
         foreach (var context in InvocationContext)
         {
             //Arange
-            var siteId = "661d37f0bdd59efaf8124722";
+            var siteId = "68f8b336cbd1cac54f5b9d2c";
             var request = new UpdatePageContentRequest { SiteId = siteId };
             // Act
             var handler = new SiteLocaleDataSourceHandler(context, request);

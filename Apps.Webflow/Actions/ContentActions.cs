@@ -56,9 +56,7 @@ public class ContentActions(InvocationContext invocationContext, IFileManagement
         [ActionParameter] UploadContentRequest request,
         [ActionParameter] ContentFilter contentFilter)
     {
-        var file = await fileManagementClient.DownloadAsync(request.Content); string fileString;
-        using (var reader = new StreamReader(file, Encoding.UTF8))
-            fileString = await reader.ReadToEndAsync();
+        var file = await fileManagementClient.DownloadAsync(request.Content);
 
         var html = Encoding.UTF8.GetString(await file.GetByteData());
         if (Xliff2Serializer.IsXliff2(html))
@@ -67,7 +65,7 @@ public class ContentActions(InvocationContext invocationContext, IFileManagement
             if (html == null) throw new PluginMisconfigurationException("XLIFF did not contain files");
         }
 
-        using var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(fileString));
+        using var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(html));
         var service = _factory.GetContentService(contentFilter.ContentType);
         await service.UploadContent(memoryStream, siteRequest, request);
     }

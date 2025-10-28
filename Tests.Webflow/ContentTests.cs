@@ -3,6 +3,7 @@ using Apps.Webflow.Constants;
 using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Content;
 using Blackbird.Applications.Sdk.Common.Exceptions;
+using Blackbird.Applications.Sdk.Common.Files;
 using Tests.Webflow.Base;
 
 namespace Tests.Webflow;
@@ -41,7 +42,7 @@ public class ContentTests : TestBase
         {
             // Arrange
             var action = new ContentActions(context, FileManagementClient);
-            var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
+            var site = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
             var input = new SearchContentRequest 
             { 
                 /*NameContains = "Pay"*/ 
@@ -239,7 +240,7 @@ public class ContentTests : TestBase
         var context = GetInvocationContext(ConnectionTypes.OAuth2);
         var action = new ContentActions(context, FileManagementClient);
         var site = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
-        var request = new DownloadContentRequest { ContentId = "68f8b337cbd1cac54f5b9d84" };
+        var request = new DownloadContentRequest { ContentId = "68f8b337cbd1cac54f5b9d81" };
         var contentFilter = new ContentFilter { ContentType = ContentTypes.Page };
 
         // Act
@@ -310,5 +311,24 @@ public class ContentTests : TestBase
 
         // Assert
         Assert.Contains(ex.Message, "Collection ID is required");
+    }
+
+    [TestMethod]
+    public async Task UploadContent_PageType_IsSuccess()
+    {
+        // Arrange
+        var context = GetInvocationContext(ConnectionTypes.OAuth2);
+        var action = new ContentActions(context, FileManagementClient);
+        var site = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
+        var request = new UploadContentRequest
+        {
+            Content = new FileReference { Name = "404.html", ContentType = "text/html" },
+            ContentId = "68f8b337cbd1cac54f5b9d81",
+            Locale = "69007d6cf09bd27cf732e155"
+        };
+        var contentFilter = new ContentFilter { ContentType = ContentTypes.Page };
+
+        // Act
+        await action.UploadContent(site, request, contentFilter);
     }
 }
