@@ -70,7 +70,7 @@ public class DataSources : TestBase
     {
         foreach (var context in InvocationContext)
         {
-            var siteId = "661d37f0bdd59efaf8124722";
+            var siteId = "68f8b336cbd1cac54f5b9d2c";
 
             var request = new GetComponentContentRequest { SiteId = siteId };
 
@@ -112,7 +112,6 @@ public class DataSources : TestBase
                 Console.WriteLine($"Display name: {locale.DisplayName}, Locale ID: {locale.Value}");
         }
     }
-
 
     [TestMethod]
     public async Task CollectionItemCollectionDataSourceHandler_IsSuccess()

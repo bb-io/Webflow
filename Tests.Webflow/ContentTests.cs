@@ -258,7 +258,7 @@ public class ContentTests : TestBase
         var context = GetInvocationContext(ConnectionTypes.SiteToken);
         var action = new ContentActions(context, FileManagementClient);
         var site = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
-        var request = new DownloadContentRequest { ContentId = "2df3695a-ff87-37fa-7ac7-63d4f4891939" };
+        var request = new DownloadContentRequest { ContentId = "88a386dd-8f07-0c34-70f0-2d9f87e29718" };
         var contentFilter = new ContentFilter { ContentType = ContentTypes.Component };
 
         // Act
@@ -327,6 +327,25 @@ public class ContentTests : TestBase
             Locale = "69007d6cf09bd27cf732e155"
         };
         var contentFilter = new ContentFilter { ContentType = ContentTypes.Page };
+
+        // Act
+        await action.UploadContent(site, request, contentFilter);
+    }
+    
+    [TestMethod]
+    public async Task UploadContent_ComponentType_IsSuccess()
+    {
+        // Arrange
+        var context = GetInvocationContext(ConnectionTypes.OAuth2);
+        var action = new ContentActions(context, FileManagementClient);
+        var site = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
+        var request = new UploadContentRequest
+        {
+            Content = new FileReference { Name = "footer-se.html", ContentType = "text/html" },
+            ContentId = "88a386dd-8f07-0c34-70f0-2d9f87e29718",
+            Locale = "69007d6cf09bd27cf732e155"
+        };
+        var contentFilter = new ContentFilter { ContentType = ContentTypes.Component };
 
         // Act
         await action.UploadContent(site, request, contentFilter);
