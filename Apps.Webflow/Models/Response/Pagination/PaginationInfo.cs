@@ -1,4 +1,4 @@
-namespace Apps.Webflow.Models.Response;
+namespace Apps.Webflow.Models.Response.Pagination;
 
 public class PaginationInfo
 {

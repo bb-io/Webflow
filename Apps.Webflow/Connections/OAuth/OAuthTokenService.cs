@@ -1,18 +1,15 @@
 using Apps.Webflow.Constants;
-using Apps.Webflow.Invocables;
+using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Authentication.OAuth2;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using Newtonsoft.Json;
 using RestSharp;
 
 namespace Apps.Webflow.Connections.OAuth;
 
-public class OAuthTokenService : WebflowInvocable, IOAuth2TokenService
+public class OAuthTokenService(InvocationContext invocationContext) : BaseInvocable(invocationContext), IOAuth2TokenService
 {
-    public OAuthTokenService(InvocationContext invocationContext) : base(invocationContext)
-    {
-    }
-
-    public Task<Dictionary<string, string>> RequestToken(string state, string code, Dictionary<string, string> values,
+    public async Task<Dictionary<string, string>> RequestToken(string state, string code, Dictionary<string, string> values,
         CancellationToken cancellationToken)
     {
         var tempClientId = values[CredsNames.ClientId];
@@ -20,18 +17,25 @@ public class OAuthTokenService : WebflowInvocable, IOAuth2TokenService
 
         var parameters = new Dictionary<string, string>
         {
-            { "client_id", tempClientId},//ApplicationConstants.ClientId },
-            { "client_secret", tempClientSecret},//ApplicationConstants.ClientSecret },
+            { "client_id", tempClientId },
+            { "client_secret", tempClientSecret },
             { "redirect_uri", $"{InvocationContext.UriInfo.BridgeServiceUrl.ToString().TrimEnd('/')}/AuthorizationCode" },
             { "code", code },
             { "state", state },
             { "grant_type", "authorization_code" },
         };
 
-        var request = new RestRequest("https://api.webflow.com/oauth/access_token", Method.Post);
-        parameters.ToList().ForEach(x => request.AddParameter(x.Key, x.Value));
+        using var client = new HttpClient();
+        using var content = new FormUrlEncodedContent(parameters);
+        using var response = await client.PostAsync("https://api.webflow.com/oauth/access_token", content, cancellationToken);
 
-        return Client.ExecuteWithErrorHandling<Dictionary<string, string>>(request);
+        var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new Exception($"Error requesting token: {response.StatusCode} - {responseContent}");
+        }
+
+        return JsonConvert.DeserializeObject<Dictionary<string, string>>(responseContent!)!;
     }
 
     public Task RevokeToken(Dictionary<string, string> values)
@@ -46,7 +50,8 @@ public class OAuthTokenService : WebflowInvocable, IOAuth2TokenService
         var request = new RestRequest("https://api.webflow.com/oauth/revoke_authorization", Method.Post);
         parameters.ToList().ForEach(x => request.AddParameter(x.Key, x.Value));
 
-        return Client.ExecuteWithErrorHandling(request);
+        var restClient = new RestClient();
+        return restClient.ExecuteAsync(request);
     }
 
     public Task<Dictionary<string, string>> RefreshToken(Dictionary<string, string> values,

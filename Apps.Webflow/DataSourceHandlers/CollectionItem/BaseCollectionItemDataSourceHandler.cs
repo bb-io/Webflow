@@ -1,4 +1,3 @@
-using Apps.Webflow.Api;
 using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Entities;
 using Blackbird.Applications.Sdk.Common.Dynamic;
@@ -29,7 +28,7 @@ public class BaseCollectionItemDataSourceHandler : WebflowInvocable, IAsyncDataS
         endpoint = string.IsNullOrEmpty(_localeId)
             ? endpoint
             : endpoint.SetQueryParameter("cmsLocaleIds", _localeId);
-        var request = new WebflowRequest(endpoint, Method.Get, Creds);
+        var request = new RestRequest(endpoint, Method.Get);
         var response = await Client.Paginate<CollectionItemEntity>(request);
 
         return response

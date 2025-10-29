@@ -1,64 +1,70 @@
 ﻿using Apps.Webflow.Actions;
+using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Pages;
+using Blackbird.Applications.Sdk.Common.Files;
+using Tests.Webflow.Base;
 
-namespace Tests.Webflow
+namespace Tests.Webflow;
+
+[TestClass]
+public class PagesTests : TestBase
 {
-    [TestClass]
-    public class PagesTests : TestBase
+    [TestMethod]
+    public async Task SearchPages_ReturnsExpectedPages()
     {
-        [TestMethod]
-        public async Task SearchPages_ReturnsExpectedPages()
+        foreach (var context in InvocationContext)
         {
             // Arrange
+            var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
+            var request = new SearchPagesRequest { };
+            var dates = new DateFilter { };
 
-            var request = new SearchPagesRequest
-            {
-                SiteId = "6773fdfb5a841e3420ebc404",
-                //TitleContains = "Test",
-                //SlugContains = "project-4",
-                //CreatedBefore = DateTime.UtcNow.AddDays(-1200),
-                //CreatedAfter = DateTime.UtcNow.AddDays(-1200),
-                //LastUpdatedAfter = DateTime.UtcNow.AddDays(-200),
-                //LastUpdatedBefore = DateTime.UtcNow.AddDays(-200),
-                //Archived = true,
-                Draft = true
-            };
-
-            var actions = new PagesActions(InvocationContext, FileManager);
+            var actions = new PagesActions(context, FileManagementClient);
 
             // Act
-            var result = await actions.SearchPages(request);
-            var json = Newtonsoft.Json.JsonConvert.SerializeObject(result);
-            Console.WriteLine(json);
+            var result = await actions.SearchPages(site, request, dates);
+
             // Assert
+            PrintJsonResult(result);
             Assert.IsNotNull(result);
         }
+    }
 
+    [TestMethod]
+    public async Task GetPageAsHtml_ReturnsFileReference()
+    {
 
-        [TestMethod]
-        public async Task GetPageAsHtml_ReturnsFileReference()
+        foreach (var context in InvocationContext)
         {
             // Arrange
             var input = new GetPageAsHtmlRequest
             {
-                SiteId= "6773fdfb5a841e3420ebc404",
+                SiteId = "6773fdfb5a841e3420ebc404",
                 PageId = "6773fdfc5a841e3420ebc46d"
             };
 
-            var actions = new PagesActions(InvocationContext, FileManager);
+            var actions = new PagesActions(context, FileManagementClient);
 
             // Act
             var result = await actions.GetPageAsHtml(input);
 
             // Assert
+            PrintJsonResult(result);
             Assert.IsNotNull(result, "Result should not be null.");
         }
+    }
 
-        [TestMethod]
-        public async Task UploadPageFromHtml_SuccessOperation()
+    [TestMethod]
+    public async Task UploadPageFromHtml_SuccessOperation()
+    {
+        foreach (var context in InvocationContext)
         {
             // Arrange
-            var fileReference = await FileManager.UploadTestFileAsync("page_6773fdfc5a841e3420ebc46d.html");
+            var fileReference = new FileReference
+            {
+                Name = "page_6773fdfc5a841e3420ebc46d.html",
+                ContentType = "text/html",
+            };
 
             var input = new UpdatePageContentRequest
             {
@@ -67,7 +73,7 @@ namespace Tests.Webflow
                 File = fileReference
             };
 
-            var action = new PagesActions(InvocationContext, FileManager);
+            var action = new PagesActions(context, FileManagementClient);
 
             //Act 
             var result = await action.UpdatePageContentAsHtml(input);

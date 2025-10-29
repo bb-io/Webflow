@@ -1,15 +1,9 @@
-using Apps.Webflow.DataSourceHandlers;
 using Blackbird.Applications.Sdk.Common;
-using Blackbird.Applications.Sdk.Common.Dynamic;
 
 namespace Apps.Webflow.Models.Request.Components;
 
 public class SearchComponentsRequest
 {
-    [Display("Site ID")]
-    [DataSource(typeof(SiteDataSourceHandler))]
-    public string SiteId { get; set; } = string.Empty;
-
     [Display("Name contains")]
     public string? NameContains { get; set; }
 

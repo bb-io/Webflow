@@ -1,17 +1,18 @@
-﻿using System.Web;
-using Apps.Webflow.Api;
+﻿using Apps.Webflow.Helper;
 using Apps.Webflow.HtmlConversion;
 using Apps.Webflow.HtmlConversion.Constants;
 using Apps.Webflow.Invocables;
+using Apps.Webflow.Models.Entities;
+using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Pages;
-using Apps.Webflow.Models.Response;
 using Apps.Webflow.Models.Response.Pages;
+using Apps.Webflow.Models.Response.Pagination;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
-using Blackbird.Applications.Sdk.Common.Files;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using RestSharp;
+using System.Web;
 
 namespace Apps.Webflow.Actions;
 
@@ -20,36 +21,21 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
     : WebflowInvocable(invocationContext)
 {
     [Action("Search pages", Description = "Search pages using filters")]
-    public async Task<ListPagesResponse> SearchPages([ActionParameter] SearchPagesRequest input)
+    public async Task<SearchPagesResponse> SearchPages(
+        [ActionParameter] SiteRequest site,
+        [ActionParameter] SearchPagesRequest input,
+        [ActionParameter] DateFilter dateFilter)
     {
-        var allPages = new List<PageResponse>();
-        var offset = 0;
-        const int pageSize = 100;
-        int total = int.MaxValue;
+        ValidatorHelper.ValidateInputDates(dateFilter);
 
-        while (allPages.Count < total)
-        {
-            var endpoint = $"sites/{input.SiteId}/pages";
-            var request = new WebflowRequest(endpoint, Method.Get, Creds);
+        var endpoint = $"sites/{site.SiteId}/pages";
+        var request = new RestRequest(endpoint, Method.Get);
 
-            if (!string.IsNullOrEmpty(input.LocaleId))
-                request.AddQueryParameter("localeId", input.LocaleId);
+        var allPages = await Client.Paginate<PageEntity, PagesPaginationResponse>(request, r => r.Pages);
+        if (!allPages.Any())
+            return new SearchPagesResponse(new List<PageEntity>());
 
-            request.AddQueryParameter("offset", offset.ToString());
-            request.AddQueryParameter("limit", pageSize.ToString());
-
-            var batch = await Client.ExecuteWithErrorHandling<ListPagesResponse>(request);
-
-            var batchPages = batch.Pages?.ToList() ?? new List<PageResponse>();
-            total = batch.Pagination?.Total ?? batchPages.Count;
-
-            allPages.AddRange(batchPages);
-
-            if (batchPages.Count == 0) break;
-            offset += batchPages.Count;
-        }
-
-        IEnumerable<PageResponse> filtered = allPages;
+        IEnumerable<PageEntity> filtered = allPages;
 
         if (!string.IsNullOrWhiteSpace(input.TitleContains))
             filtered = filtered.Where(p => !string.IsNullOrEmpty(p.Title) &&
@@ -59,17 +45,7 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
             filtered = filtered.Where(p => !string.IsNullOrEmpty(p.Slug) &&
                                            p.Slug.Contains(input.SlugContains, StringComparison.OrdinalIgnoreCase));
 
-        if (input.CreatedAfter.HasValue)
-            filtered = filtered.Where(p => p.CreatedOn >= input.CreatedAfter.Value);
-
-        if (input.CreatedBefore.HasValue)
-            filtered = filtered.Where(p => p.CreatedOn <= input.CreatedBefore.Value);
-
-        if (input.LastUpdatedAfter.HasValue)
-            filtered = filtered.Where(p => p.LastUpdated >= input.LastUpdatedAfter.Value);
-
-        if (input.LastUpdatedBefore.HasValue)
-            filtered = filtered.Where(p => p.LastUpdated <= input.LastUpdatedBefore.Value);
+        filtered = FilterHelper.ApplyDateFilters(filtered, dateFilter);
 
         if (input.Archived.HasValue)
             filtered = filtered.Where(p => p.Archived.HasValue && p.Archived.Value == input.Archived.Value);
@@ -77,46 +53,41 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
         if (input.Draft.HasValue)
             filtered = filtered.Where(p => p.Draft.HasValue && p.Draft.Value == input.Draft.Value);
 
-        var resultPages = filtered.ToList();
-
-        return new ListPagesResponse
-        {
-            Pages = resultPages,
-            Pagination = new PaginationInfo
-            {
-                Total = resultPages.Count
-            }
-        };
+        return new SearchPagesResponse(filtered.ToList());
     }
 
     [Action("Get page content as HTML", Description = "Get the page content in HTML file")]
-    public async Task<FileReference> GetPageAsHtml([ActionParameter] GetPageAsHtmlRequest input)
+    public async Task<GetPageAsHtmlResponse> GetPageAsHtml([ActionParameter] GetPageAsHtmlRequest input)
     {
-        var endpoint = $"pages/{input.PageId}/dom";
-        var request = new WebflowRequest(endpoint, Method.Get, Creds);
+        var domEndpoint = $"pages/{input.PageId}/dom";
+        var domRequest = new RestRequest(domEndpoint, Method.Get);
 
         if (!string.IsNullOrEmpty(input.LocaleId))
-            request.AddQueryParameter("localeId", input.LocaleId);
+            domRequest.AddQueryParameter("localeId", input.LocaleId);
 
-        var pageDom = await Client.ExecuteWithErrorHandling<PageDomEntity>(request);
+        var pageDom = await Client.ExecuteWithErrorHandling<PageDomEntity>(domRequest);
 
         var htmlStream = PageHtmlConverter.ToHtml(pageDom, input.SiteId, input.PageId);
-
 
         var fileName = $"page_{input.PageId}.html";
         var contentType = "text/html";
 
-        var fileReference = await fileManagementClient.UploadAsync(
-            htmlStream,
-            contentType,
-            fileName);
+        var fileReference = await fileManagementClient.UploadAsync(htmlStream, contentType, fileName);
 
         fileReference.Name = fileName;
         fileReference.ContentType = contentType;
 
-        return fileReference;
-    }
+        PageEntity? metadata = null;
 
+        if (!input.IncludeMetadata.HasValue || input.IncludeMetadata == true)
+        {
+            var metadataEndpoint = $"pages/{input.PageId}";
+            var metadataRequest = new RestRequest(metadataEndpoint, Method.Get);
+            metadata = await Client.ExecuteWithErrorHandling<PageEntity>(metadataRequest);
+        }
+
+        return new GetPageAsHtmlResponse(fileReference, metadata);
+    }
 
     [Action("Update page content as HTML", Description = "Update page content using HTML file")]
     public async Task<UpdatePageContentResponse> UpdatePageContentAsHtml([ActionParameter] UpdatePageContentRequest input)
@@ -171,7 +142,7 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
         };
 
         var endpoint = $"pages/{input.PageId}/dom";
-        var request = new WebflowRequest(endpoint, Method.Post, Creds)
+        var request = new RestRequest(endpoint, Method.Post)
         {
             RequestFormat = DataFormat.Json
         };
@@ -189,5 +160,4 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
         };
 
     }
-
 }

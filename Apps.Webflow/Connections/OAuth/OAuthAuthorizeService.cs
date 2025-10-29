@@ -6,20 +6,16 @@ using Blackbird.Applications.Sdk.Utils.Extensions.String;
 
 namespace Apps.Webflow.Connections.OAuth;
 
-public class OAuthAuthorizeService : BaseInvocable, IOAuth2AuthorizeService
+public class OAuthAuthorizeService(InvocationContext invocationContext) : BaseInvocable(invocationContext), IOAuth2AuthorizeService
 {
-    public OAuthAuthorizeService(InvocationContext invocationContext) : base(invocationContext)
-    {
-    }
-
     public string GetAuthorizationUrl(Dictionary<string, string> values)
     {
         var bridgeOauthUrl = $"{InvocationContext.UriInfo.BridgeServiceUrl.ToString().TrimEnd('/')}/oauth";
-        
+
         var tempClientId = values[CredsNames.ClientId];
         var parameters = new Dictionary<string, string>
         {
-            { "client_id", tempClientId},//ApplicationConstants.ClientId },
+            { "client_id", tempClientId },
             { "redirect_uri", $"{InvocationContext.UriInfo.BridgeServiceUrl.ToString().TrimEnd('/')}/AuthorizationCode" },
             { "response_type", "code" },
             { "scope", ApplicationConstants.Scope },

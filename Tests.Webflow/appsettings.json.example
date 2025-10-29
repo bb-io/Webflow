@@ -1,6 +1,13 @@
 {
-    "ConnectionDefinition": {
-        "access_token": "YOUR_TOKEN"
+  "ConnectionDefinition": [
+    {
+      "Connection type": "OAuth2",
+      "access_token": ""
     },
-    "TestFolder": "TestFiles"
+    {
+      "Connection type": "Site token",
+      "access_token": ""
+    }
+  ],
+  "TestFolder": "TestFiles"
 }

@@ -1,4 +1,3 @@
-using Apps.Webflow.Api;
 using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Request.Components;
 using Apps.Webflow.Models.Response.Components;
@@ -7,35 +6,34 @@ using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using RestSharp;
 
-namespace Apps.Webflow.DataSourceHandlers
+namespace Apps.Webflow.DataSourceHandlers;
+
+public class ComponentDataSourceHandler : WebflowInvocable, IAsyncDataSourceItemHandler
 {
-    public class ComponentDataSourceHandler : WebflowInvocable, IAsyncDataSourceItemHandler
+    private readonly GetComponentContentRequest _input;
+
+    public ComponentDataSourceHandler(InvocationContext invocationContext, [ActionParameter] GetComponentContentRequest input) : base(invocationContext)
     {
-        private readonly GetComponentContentRequest _input;
+        _input = input;
+    }
 
-        public ComponentDataSourceHandler(InvocationContext invocationContext, [ActionParameter] GetComponentContentRequest input) : base(invocationContext)
-        {
-            _input = input;
-        }
+    public async Task<IEnumerable<DataSourceItem>> GetDataAsync(DataSourceContext context, CancellationToken cancellationToken)
+    {
+        var siteId = _input.SiteId;
 
-        public async Task<IEnumerable<DataSourceItem>> GetDataAsync(DataSourceContext context, CancellationToken cancellationToken)
-        {
-            var siteId = _input.SiteId;
+        var endpoint = $"sites/{siteId}/components";
+        var request = new RestRequest(endpoint, Method.Get);
 
-            var endpoint = $"sites/{siteId}/components";
-            var request = new WebflowRequest(endpoint, Method.Get, Creds);
+        var response = await Client.ExecuteWithErrorHandling<SearchComponentsResponse>(request);
 
-            var response = await Client.ExecuteWithErrorHandling<ListComponentsResponse>(request);
+        var dataSourceItems = response.Components?
+            .Select(component => new DataSourceItem
+            {
+                Value = component.Id,
+                DisplayName = component.Name
+            })
+            .ToList() ?? new List<DataSourceItem>();
 
-            var dataSourceItems = response.Components?
-                .Select(component => new DataSourceItem
-                {
-                    Value = component.Id,
-                    DisplayName = component.Name
-                })
-                .ToList() ?? new List<DataSourceItem>();
-
-            return dataSourceItems;
-        }
+        return dataSourceItems;
     }
 }

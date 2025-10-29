@@ -1,4 +1,3 @@
-using Apps.Webflow.Api;
 using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Response.Webhooks;
 using Blackbird.Applications.Sdk.Common.Authentication;
@@ -22,7 +21,7 @@ public abstract class WebflowWebhookHandler : WebflowInvocable, IWebhookEventHan
     public Task SubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProvider,
         Dictionary<string, string> values)
     {
-        var request = new WebflowRequest($"sites/{_siteId}/webhooks", Method.Post, Creds)
+        var request = new RestRequest($"sites/{_siteId}/webhooks", Method.Post)
             .WithJsonBody(new
             {
                 triggerType = EventType,
@@ -42,13 +41,13 @@ public abstract class WebflowWebhookHandler : WebflowInvocable, IWebhookEventHan
         if (webhookToDelete is null)
             return;
 
-        var request = new WebflowRequest($"webhooks/{webhookToDelete.Id}", Method.Delete, Creds);
+        var request = new RestRequest($"webhooks/{webhookToDelete.Id}", Method.Delete);
         await Client.ExecuteWithErrorHandling(request);
     }
 
     private Task<ListWebhooksResponse> GetAllWebhooks()
     {
-        var request = new WebflowRequest($"sites/{_siteId}/webhooks", Method.Get, Creds);
+        var request = new RestRequest($"sites/{_siteId}/webhooks", Method.Get);
         return Client.ExecuteWithErrorHandling<ListWebhooksResponse>(request);
     }
 }
