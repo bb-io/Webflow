@@ -56,7 +56,7 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
         return new SearchPagesResponse(filtered.ToList());
     }
 
-    [Action("Get page content as HTML", Description = "Get the page content in HTML file")]
+    [Action("Download page", Description = "Get the page content in HTML file")]
     public async Task<GetPageAsHtmlResponse> GetPageAsHtml([ActionParameter] GetPageAsHtmlRequest input)
     {
         var domEndpoint = $"pages/{input.PageId}/dom";
@@ -89,7 +89,7 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
         return new GetPageAsHtmlResponse(fileReference, metadata);
     }
 
-    [Action("Update page content as HTML", Description = "Update page content using HTML file")]
+    [Action("Upload page", Description = "Update page content using HTML file")]
     public async Task<UpdatePageContentResponse> UpdatePageContentAsHtml([ActionParameter] UpdatePageContentRequest input)
     {
         var fileStream = await fileManagementClient.DownloadAsync(input.File);

@@ -70,21 +70,21 @@ Navigate to Apps, and identify the **Webflow** app. You can use search to find i
 
 ### Collection items
 
-- **Get collection item content as HTML** returns content of a specific collection item in HTML format.
+- **Download collection item** returns content of a specific collection item in HTML format.
 - **Publish collection item** publishes a specific collection item. This actions can only publish an item of the default locale, because of the Webflow API limitation.
-- **Update collection item content from HTML** updates content of a specific collection item from HTML file.
+- **Upload collection item** updates content of a specific collection item from HTML file.
 
 ### Pages
 
 - **Search pages** searches pages using filters.
-- **Get page content as HTML** gets the page content in HTML file.
-- **Update page content as HTML** updates page content using HTML file.
+- **Download page** gets the page content in HTML file.
+- **Upload page** updates page content using HTML file.
 
 ### Components
 
-- **List components** List all components for a site. Supports filtering by name, group, and read-only status.
-- **Get component content as HTML** Get the component content in HTML file.
-- **Update component content as HTML** Update component content using HTML file.
+- **Search components** searches all components for a site.
+- **Download component** gets the component content in HTML file.
+- **Upload component** updates component content using HTML file.
 
 ### Sites
 
