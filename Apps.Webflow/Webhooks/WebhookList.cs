@@ -6,6 +6,7 @@ using Apps.Webflow.Webhooks.Models.Response;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common.Webhooks;
 using Blackbird.Applications.SDK.Blueprints;
+using Newtonsoft.Json.Linq;
 using System.Net;
 
 namespace Apps.Webflow.Webhooks;
@@ -91,7 +92,6 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
         Description = "Triggers when specific collection item was changed")]
     public Task<WebhookResponse<CollectionItemResponse>> OnCollectionItemChanged(WebhookRequest webhookRequest,
         [WebhookParameter] SiteCmsLocaleRequest input)
-
     {
         var data = webhookRequest.GetPayload<CollectionCreatedWebhookResponse>();
 
@@ -127,9 +127,9 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
     public Task<WebhookResponse<CollectionItemResponse>> OnCollectionItemPublished(WebhookRequest webhookRequest,
         [WebhookParameter] SiteCmsLocaleRequest input)
     {
-        var data = webhookRequest.GetPayload<CollectionCreatedWebhookResponse>();
+        var data = webhookRequest.GetPayload<CollectionItemPublishedResponse>();
 
-        if (input.LocaleId != null && data.FieldData["_locale"]!.ToString() != input.LocaleId)
+        if (input.LocaleId != null && data.Items.First().FieldData["_locale"]!.ToString() != input.LocaleId)
             return Task.FromResult(new WebhookResponse<CollectionItemResponse>
             {
                 HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
@@ -139,7 +139,7 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
         return Task.FromResult<WebhookResponse<CollectionItemResponse>>(new()
         {
             HttpResponseMessage = null,
-            Result = data
+            Result = data.Items.First()
         });
     }
 
