@@ -4,15 +4,15 @@ namespace Apps.Webflow.Models.Request;
 
 public class DateFilter
 {
-    [Display("Created after")]
+    [Display("Created after (for collection items and pages)")]
     public DateTime? CreatedAfter { get; set; }
 
-    [Display("Created before")]
+    [Display("Created before (for collection items and pages)")]
     public DateTime? CreatedBefore { get; set; }
 
-    [Display("Last updated after")]
+    [Display("Last updated after (for collection items and pages)")]
     public DateTime? LastUpdatedAfter { get; set; }
 
-    [Display("Last updated before")]
+    [Display("Last updated before (for collection items and pages)")]
     public DateTime? LastUpdatedBefore { get; set; }
 }

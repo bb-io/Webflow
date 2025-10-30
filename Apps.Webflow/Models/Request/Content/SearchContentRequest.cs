@@ -15,10 +15,10 @@ public class SearchContentRequest
     [Display("Name or title contains")]
     public string? NameContains { get; set; }
 
-    [Display("Last published before")]
+    [Display("Last published before (for collection items)")]
     public DateTime? LastPublishedBefore { get; set; }
 
-    [Display("Last published after")]
+    [Display("Last published after (for collection items)")]
     public DateTime? LastPublishedAfter { get; set; }
 
     [Display("Collection ID")]
