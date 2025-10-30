@@ -22,7 +22,6 @@ public class ContentTests : TestBase
             var input = new SearchContentRequest 
             { 
                 CollectionId = "68f8b337cbd1cac54f5b9d9c",
-                ContentTypes = [ContentTypes.Page, ContentTypes.Component, ContentTypes.CollectionItem] 
             };
             var dates = new DateFilter { };
 

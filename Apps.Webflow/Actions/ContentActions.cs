@@ -33,6 +33,7 @@ public class ContentActions(InvocationContext invocationContext, IFileManagement
         [ActionParameter] SearchContentRequest request,
         [ActionParameter] DateFilter dateFilter)
     {
+        request.ContentTypes ??= ContentTypes.SupportedContentTypes;
         var contentServices = _factory.GetContentServices(request.ContentTypes);
         return await contentServices.ExecuteMany(siteRequest, request, dateFilter);
     }

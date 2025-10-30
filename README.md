@@ -94,7 +94,7 @@ Navigate to Apps, and identify the **Webflow** app. You can use search to find i
 
 ### Content
 
-- **Search content** searches for any type of content.
+- **Search content** searches for any type of content. If the 'Content type' value is not specified, all supported content types will be fetched.
 - **Download content** downloads content as HTML for a specific content type based on its ID.
 - **Upload content** updates content from an HTML file.
 	
