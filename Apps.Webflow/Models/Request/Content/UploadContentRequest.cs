@@ -18,17 +18,13 @@ public class UploadContentRequest : IUploadContentInput
     [StaticDataSource(typeof(ContentTypeStaticDataHandler))]
     public string? ContentType { get; set; }
 
-    [Display("Locale")]
+    [Display("Locale ID")]
     [DataSource(typeof(SiteLocaleDataSourceHandler))]
-    public string? Locale { get; set; }
+    public string Locale { get; set; }
 
     [Display("Content ID")]
     [DataSource(typeof(ContentDataHandler))]
     public string? ContentId { get; set; }
-
-    [Display("Collection item locale ID")]
-    [DataSource(typeof(UpdateCollectionItemLocaleDataSourceHandler))]
-    public string? CmsLocaleId { get; set; }
 
     [Display("Collection ID")]
     [DataSource(typeof(UpdateCollectionItemCollectionDataSourceHandler))]

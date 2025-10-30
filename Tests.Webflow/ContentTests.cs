@@ -277,9 +277,9 @@ public class ContentTests : TestBase
         var action = new ContentActions(context, FileManagementClient);
         var site = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
         var request = new DownloadContentRequest 
-        { 
-            CollectionId = "68f8b337cbd1cac54f5b9d9b", 
-            ContentId = "68f8b337cbd1cac54f5b9df8"
+        {
+            CollectionId = "68f8b337cbd1cac54f5b9d9c",
+            ContentId = "68f8b337cbd1cac54f5b9dee",
         };
         var contentFilter = new ContentFilter { ContentType = ContentTypes.CollectionItem };
 
@@ -358,10 +358,9 @@ public class ContentTests : TestBase
         var site = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
         var request = new UploadContentRequest
         {
-            Content = new FileReference { Name = "col-item-se.html", ContentType = "text/html" },
-            ContentId = "68f8b337cbd1cac54f5b9df8",
-            CollectionId = "68f8b337cbd1cac54f5b9d9b",
-            CmsLocaleId = "69007d6cf09bd27cf732e15a"
+            Content = new FileReference { Name = "swedish-smth.html", ContentType = "text/html" },
+            Locale = "69007d6cf09bd27cf732e155",
+            CollectionId = "68f8b337cbd1cac54f5b9d9c",
         };
 
         // Act

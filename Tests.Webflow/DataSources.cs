@@ -95,23 +95,21 @@ public class DataSources : TestBase
     [TestMethod]
     public async Task SiteLocaleDataSourceHandler_SearchString_FiltersLocales()
     {
-        foreach (var context in InvocationContext)
-        {
-            //Arange
-            var siteId = "68f8b336cbd1cac54f5b9d2c";
-            var request = new UpdatePageContentRequest { SiteId = siteId };
-            // Act
-            var handler = new SiteLocaleDataSourceHandler(context, request);
+        //Arange
+        var context = GetInvocationContext(ConnectionTypes.OAuth2);
+        var siteId = "68f8b336cbd1cac54f5b9d2c";
+        var request = new UpdatePageContentRequest { SiteId = siteId };
+        // Act
+        var handler = new SiteLocaleDataSourceHandler(context, request);
 
-            // Assert
-            var data = await handler.GetDataAsync(
-                new DataSourceContext { SearchString = "" },
-                CancellationToken.None
-            );
+        // Assert
+        var data = await handler.GetDataAsync(
+            new DataSourceContext { SearchString = "" },
+            CancellationToken.None
+        );
 
-            foreach (var locale in data)
-                Console.WriteLine($"Display name: {locale.DisplayName}, Locale ID: {locale.Value}");
-        }
+        foreach (var locale in data)
+            Console.WriteLine($"Display name: {locale.DisplayName}, Locale ID: {locale.Value}");
     }
 
     [TestMethod]
@@ -145,7 +143,7 @@ public class DataSources : TestBase
         var request = new Apps.Webflow.Models.Request.CollectionItem.CollectionItemRequest
         {
             SiteId = siteId,
-            CollectionId = "68f8b337cbd1cac54f5b9d9b"
+            CollectionId = "68f8b337cbd1cac54f5b9d9c"
         };
         // Act
         var handler = new CollectionItemDataSourceHandler(context, request);
