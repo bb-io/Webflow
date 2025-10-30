@@ -100,15 +100,15 @@ Navigate to Apps, and identify the **Webflow** app. You can use search to find i
 	
 ## Events
 
-- **On collection item changed** is triggered when a specific collection item is changed.
+- **On collection item updated** is triggered when a specific collection item is changed.
 - **On collection item created** is triggered when a specific collection item is created.
 - **On collection item deleted** is triggered when a specific collection item is deleted.
 - **On collection item unpublished** is triggered when a specific collection item is unpublished.
 - **On page created** is triggered when a specific page is created.
+- **On page updated** is triggered when page update was made.
 - **On page deleted** is triggered when a specific page is deleted.
 - **On page metadata updated** is triggered when specific page metadata is updated.
 - **On site published** is triggered when a specific site is published.
-- **On page update** is triggered when page update was made.
 
 ## Example
 

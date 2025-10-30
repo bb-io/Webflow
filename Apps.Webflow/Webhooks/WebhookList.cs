@@ -88,7 +88,7 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
         });
     }
 
-    [Webhook("On collection item changed", typeof(CollectionItemChangedWebhookHandler),
+    [Webhook("On collection item updated", typeof(CollectionItemChangedWebhookHandler),
         Description = "Triggers when specific collection item was changed")]
     public Task<WebhookResponse<CollectionItemResponse>> OnCollectionItemChanged(WebhookRequest webhookRequest,
         [WebhookParameter] SiteCmsLocaleRequest input)
