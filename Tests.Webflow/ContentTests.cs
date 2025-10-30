@@ -326,10 +326,9 @@ public class ContentTests : TestBase
             ContentId = "68f8b337cbd1cac54f5b9d81",
             Locale = "69007d6cf09bd27cf732e155"
         };
-        var contentFilter = new ContentFilter { ContentType = ContentTypes.Page };
 
         // Act
-        await action.UploadContent(site, request, contentFilter);
+        await action.UploadContent(site, request);
     }
     
     [TestMethod]
@@ -345,10 +344,9 @@ public class ContentTests : TestBase
             ContentId = "88a386dd-8f07-0c34-70f0-2d9f87e29718",
             Locale = "69007d6cf09bd27cf732e155"
         };
-        var contentFilter = new ContentFilter { ContentType = ContentTypes.Component };
 
         // Act
-        await action.UploadContent(site, request, contentFilter);
+        await action.UploadContent(site, request);
     }
 
     [TestMethod]
@@ -365,9 +363,8 @@ public class ContentTests : TestBase
             CollectionId = "68f8b337cbd1cac54f5b9d9b",
             CmsLocaleId = "69007d6cf09bd27cf732e15a"
         };
-        var contentFilter = new ContentFilter { ContentType = ContentTypes.CollectionItem };
 
         // Act
-        await action.UploadContent(site, request, contentFilter);
+        await action.UploadContent(site, request);
     }
 }

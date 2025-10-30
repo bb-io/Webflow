@@ -1,4 +1,5 @@
-﻿using Apps.Webflow.Extensions;
+﻿using Apps.Webflow.Constants;
+using Apps.Webflow.Extensions;
 using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Content;
@@ -13,6 +14,7 @@ using Blackbird.Applications.SDK.Blueprints;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Filters.Transformations;
 using Blackbird.Filters.Xliff.Xliff2;
+using HtmlAgilityPack;
 using System.Net.Mime;
 using System.Text;
 
@@ -53,8 +55,7 @@ public class ContentActions(InvocationContext invocationContext, IFileManagement
     [Action("Upload content", Description = "Update content from an HTML file")]
     public async Task UploadContent(
         [ActionParameter] SiteRequest siteRequest,
-        [ActionParameter] UploadContentRequest request,
-        [ActionParameter] ContentFilter contentFilter)
+        [ActionParameter] UploadContentRequest request)
     {
         var file = await fileManagementClient.DownloadAsync(request.Content);
 
@@ -65,8 +66,40 @@ public class ContentActions(InvocationContext invocationContext, IFileManagement
             if (html == null) throw new PluginMisconfigurationException("XLIFF did not contain files");
         }
 
+        if (string.IsNullOrEmpty(request.ContentType))
+            request.ContentType = GetContentType(html);
+
         using var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(html));
-        var service = _factory.GetContentService(contentFilter.ContentType);
+        var service = _factory.GetContentService(request.ContentType);
         await service.UploadContent(memoryStream, siteRequest, request);
+    }
+
+    private static string GetContentType(string html)
+    {
+        var doc = new HtmlDocument();
+        doc.LoadHtml(html);
+
+        var head = doc.DocumentNode.SelectSingleNode("//head") 
+            ?? throw new PluginMisconfigurationException(
+                "HTML file does not have the 'head' attribute to recognize the content type. Please provide in the input"
+            );
+
+        var metaTags = head.SelectNodes("meta") 
+            ?? throw new PluginMisconfigurationException(
+                "HTML file does not have 'meta' attributes in the 'head' part to recognize the content type. Please provide in the input"
+            );
+
+        foreach (var meta in metaTags)
+        {
+            var nameAttr = meta.GetAttributeValue("name", "").Trim();
+
+            if (nameAttr == "blackbird-page-id") return ContentTypes.Page;
+            if (nameAttr == "blackbird-component-id") return ContentTypes.Component;
+            if (nameAttr == "blackbird-collection-item-id") return ContentTypes.CollectionItem;
+        }
+
+        throw new PluginMisconfigurationException(
+                "Unable to recognize the content type. Please provide in the input"
+            );
     }
 }
