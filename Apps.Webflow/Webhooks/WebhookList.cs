@@ -124,9 +124,17 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
 
     [Webhook("On collection item published", typeof(CollectionItemPublishedWebhookHandler),
         Description = "Triggers when specific collection item was published")]
-    public Task<WebhookResponse<CollectionItemResponse>> OnCollectionItemPublished(WebhookRequest webhookRequest)
+    public Task<WebhookResponse<CollectionItemResponse>> OnCollectionItemPublished(WebhookRequest webhookRequest,
+        [WebhookParameter] SiteCmsLocaleRequest input)
     {
-        var data = webhookRequest.GetPayload<CollectionItemResponse>();
+        var data = webhookRequest.GetPayload<CollectionCreatedWebhookResponse>();
+
+        if (input.LocaleId != null && data.FieldData["_locale"]!.ToString() != input.LocaleId)
+            return Task.FromResult(new WebhookResponse<CollectionItemResponse>
+            {
+                HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
+                ReceivedWebhookRequestType = WebhookRequestType.Preflight
+            });
 
         return Task.FromResult<WebhookResponse<CollectionItemResponse>>(new()
         {
