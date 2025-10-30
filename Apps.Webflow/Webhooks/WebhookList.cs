@@ -6,7 +6,6 @@ using Apps.Webflow.Webhooks.Models.Response;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common.Webhooks;
 using Blackbird.Applications.SDK.Blueprints;
-using Newtonsoft.Json.Linq;
 using System.Net;
 
 namespace Apps.Webflow.Webhooks;
@@ -123,10 +122,22 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
         });
     }
 
+    [Webhook("On collection item published", typeof(CollectionItemPublishedWebhookHandler),
+        Description = "Triggers when specific collection item was published")]
+    public Task<WebhookResponse<CollectionItemResponse>> OnCollectionItemPublished(WebhookRequest webhookRequest)
+    {
+        var data = webhookRequest.GetPayload<CollectionItemResponse>();
+
+        return Task.FromResult<WebhookResponse<CollectionItemResponse>>(new()
+        {
+            HttpResponseMessage = null,
+            Result = data
+        });
+    }
+
     [Webhook("On collection item unpublished", typeof(CollectionItemUnpublishedWebhookHandler),
         Description = "Triggers when specific collection item was unpublished")]
-    public Task<WebhookResponse<CollectionItemResponse>> OnCollectionItemUnpublished(
-        WebhookRequest webhookRequest)
+    public Task<WebhookResponse<CollectionItemResponse>> OnCollectionItemUnpublished(WebhookRequest webhookRequest)
     {
         var data = webhookRequest.GetPayload<CollectionItemResponse>();
 
