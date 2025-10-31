@@ -71,7 +71,7 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
     public Task<WebhookResponse<CollectionItemResponse>> OnCollectionItemCreated(WebhookRequest webhookRequest,
         [WebhookParameter] CollectionItemWebhookRequest input)
     {
-        var data = webhookRequest.GetPayload<CollectionCreatedWebhookResponse>();
+        var data = webhookRequest.GetPayload<CollectionWebhookResponse>();
 
         if (input.LocaleId != null && data.FieldData["_locale"]!.ToString() != input.LocaleId)
             return Task.FromResult(new WebhookResponse<CollectionItemResponse>
@@ -99,7 +99,7 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
     public Task<WebhookResponse<CollectionItemResponse>> OnCollectionItemChanged(WebhookRequest webhookRequest,
         [WebhookParameter] CollectionItemWebhookRequest input)
     {
-        var data = webhookRequest.GetPayload<CollectionCreatedWebhookResponse>();
+        var data = webhookRequest.GetPayload<CollectionWebhookResponse>();
 
         if (input.LocaleId != null && data.FieldData["_locale"]!.ToString() != input.LocaleId)
             return Task.FromResult(new WebhookResponse<CollectionItemResponse>
@@ -127,9 +127,16 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
     public Task<WebhookResponse<CollectionItemResponse>> OnCollectionItemDeleted(WebhookRequest webhookRequest,
         [WebhookParameter] CollectionItemWebhookRequest input)
     {
-        var data = webhookRequest.GetPayload<CollectionItemResponse>();
+        var data = webhookRequest.GetPayload<CollectionWebhookResponse>();
 
         if (input.CollectionId != null && data.CollectionId != input.CollectionId)
+            return Task.FromResult(new WebhookResponse<CollectionItemResponse>
+            {
+                HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
+                ReceivedWebhookRequestType = WebhookRequestType.Preflight
+            });
+
+        if (input.LocaleId != null && data.FieldData["_locale"]!.ToString() != input.LocaleId)
             return Task.FromResult(new WebhookResponse<CollectionItemResponse>
             {
                 HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
@@ -176,7 +183,7 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
     public Task<WebhookResponse<CollectionItemResponse>> OnCollectionItemUnpublished(WebhookRequest webhookRequest,
         [WebhookParameter] CollectionItemWebhookRequest input)
     {
-        var data = webhookRequest.GetPayload<CollectionCreatedWebhookResponse>();
+        var data = webhookRequest.GetPayload<CollectionWebhookResponse>();
 
         if (input.LocaleId != null && data.FieldData["_locale"]!.ToString() != input.LocaleId)
             return Task.FromResult(new WebhookResponse<CollectionItemResponse>
