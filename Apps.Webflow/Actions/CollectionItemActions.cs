@@ -21,7 +21,7 @@ namespace Apps.Webflow.Actions;
 public class CollectionItemActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
     : WebflowInvocable(invocationContext)
 {
-    [Action("Get collection item content as HTML", Description = "Get content of a specific collection item in HTML format")]
+    [Action("Download collection item", Description = "Get content of a specific collection item in HTML format")]
     public async Task<FileModel> GetCollectionItemContent([ActionParameter] CollectionItemRequest input)
     {
         if (string.IsNullOrWhiteSpace(input.SiteId))
@@ -42,7 +42,7 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         };
     }
 
-    [Action("Update collection item content from HTML", Description = "Update content of a specific collection item from HTML file")]
+    [Action("Upload collection item", Description = "Update content of a specific collection item from HTML file")]
     public async Task<CollectionItemEntity> UpdateCollectionItemContent(
         [ActionParameter] UpdateCollectionItemRequest input,
         [ActionParameter] FileModel file)

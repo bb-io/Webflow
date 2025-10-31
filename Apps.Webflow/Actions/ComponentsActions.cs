@@ -50,7 +50,7 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
         return new SearchComponentsResponse(pages.ToList());
     }
 
-    [Action("Get component content as HTML", Description = "Get the component content in HTML file")]
+    [Action("Download component", Description = "Get the component content in HTML file")]
     public async Task<FileReference> GetComponentAsHtml([ActionParameter] GetComponentContentRequest input)
     {
         var endpoint = $"sites/{input.SiteId}/components/{input.ComponentId}/dom";
@@ -69,7 +69,7 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
             $"component_{input.ComponentId}.html");
     }
 
-    [Action("Update component content as HTML", Description = "Update component content using HTML file")]
+    [Action("Upload component", Description = "Update component content using HTML file")]
     public async Task<UpdateComponentContentResponse> UpdateComponentContentAsHtml([ActionParameter] UpdateComponentContentRequest input)
     {
         var fileStream = await fileManagementClient.DownloadAsync(input.File);

@@ -101,8 +101,10 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
             throw new PluginMisconfigurationException("Collection item ID is missing. Provide it or include it in the HTML file");
 
         var itemEndpoint = $"collections/{input.CollectionId}/items/{input.ContentId}";
-        if (input.CmsLocaleId != null)
-            itemEndpoint = itemEndpoint.SetQueryParameter("cmsLocaleId", input.CmsLocaleId);
+
+        string fetchedCmsLocaleId = await GetCmsLocale(site.SiteId, input.Locale);
+        itemEndpoint = itemEndpoint.SetQueryParameter("cmsLocaleId", fetchedCmsLocaleId);
+
         var itemRequest = new RestRequest(itemEndpoint, Method.Get);
         var item = await Client.ExecuteWithErrorHandling<CollectionItemEntity>(itemRequest);
 
@@ -113,8 +115,26 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
 
         var endpoint = $"collections/{input.CollectionId}/items/{input.ContentId}";
         var request = new RestRequest(endpoint, Method.Patch)
-            .WithJsonBody(new { fieldData, cmsLocaleId = input.CmsLocaleId }, JsonConfig.Settings);
+            .WithJsonBody(new { fieldData, cmsLocaleId = fetchedCmsLocaleId }, JsonConfig.Settings);
 
         await Client.ExecuteWithErrorHandling<CollectionItemEntity>(request);
+    }
+
+    private async Task<string> GetCmsLocale(string siteId, string siteLocaleId)
+    {
+        var siteRequest = new RestRequest($"/sites/{siteId}", Method.Get);
+        var siteEntity = await Client.ExecuteWithErrorHandling<SiteEntity>(siteRequest);
+
+        if (siteEntity.Locales == null)
+            throw new PluginApplicationException("Site locales are not available");
+        
+        if (siteEntity.Locales.Primary?.Id == siteLocaleId)
+            return siteEntity.Locales.Primary.CmsLocaleId;
+
+        var secondaryLocale = siteEntity.Locales.Secondary?.FirstOrDefault(x => x.Id == siteLocaleId);
+        if (secondaryLocale != null)
+            return secondaryLocale.CmsLocaleId;
+
+        throw new PluginApplicationException("Can't match the input locale with available collection item locale ID");
     }
 }

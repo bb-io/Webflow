@@ -11,7 +11,7 @@ public class SiteCmsLocaleRequest
     [DataSource(typeof(SiteDataSourceHandler))]
     public string SiteId { get; set; }
     
-    [Display("Locale")]
+    [Display("Locale ID")]
     [DataSource(typeof(SiteCmsLocaleDataSourceHandler))]
     public string? LocaleId { get; set; }
 }

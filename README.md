@@ -70,21 +70,21 @@ Navigate to Apps, and identify the **Webflow** app. You can use search to find i
 
 ### Collection items
 
-- **Get collection item content as HTML** returns content of a specific collection item in HTML format.
+- **Download collection item** returns content of a specific collection item in HTML format.
 - **Publish collection item** publishes a specific collection item. This actions can only publish an item of the default locale, because of the Webflow API limitation.
-- **Update collection item content from HTML** updates content of a specific collection item from HTML file.
+- **Upload collection item** updates content of a specific collection item from HTML file.
 
 ### Pages
 
 - **Search pages** searches pages using filters.
-- **Get page content as HTML** gets the page content in HTML file.
-- **Update page content as HTML** updates page content using HTML file.
+- **Download page** gets the page content in HTML file.
+- **Upload page** updates page content using HTML file.
 
 ### Components
 
-- **List components** List all components for a site. Supports filtering by name, group, and read-only status.
-- **Get component content as HTML** Get the component content in HTML file.
-- **Update component content as HTML** Update component content using HTML file.
+- **Search components** searches all components for a site.
+- **Download component** gets the component content in HTML file.
+- **Upload component** updates component content using HTML file.
 
 ### Sites
 
@@ -94,21 +94,21 @@ Navigate to Apps, and identify the **Webflow** app. You can use search to find i
 
 ### Content
 
-- **Search content** searches for any type of content.
+- **Search content** searches for any type of content. If the 'Content type' value is not specified, all supported content types will be fetched.
 - **Download content** downloads content as HTML for a specific content type based on its ID.
 - **Upload content** updates content from an HTML file.
 	
 ## Events
 
-- **On collection item changed** is triggered when a specific collection item is changed.
+- **On collection item updated** is triggered when a specific collection item is changed.
 - **On collection item created** is triggered when a specific collection item is created.
 - **On collection item deleted** is triggered when a specific collection item is deleted.
 - **On collection item unpublished** is triggered when a specific collection item is unpublished.
 - **On page created** is triggered when a specific page is created.
+- **On page updated** is triggered when page update was made.
 - **On page deleted** is triggered when a specific page is deleted.
 - **On page metadata updated** is triggered when specific page metadata is updated.
 - **On site published** is triggered when a specific site is published.
-- **On page update** is triggered when page update was made.
 
 ## Example
 

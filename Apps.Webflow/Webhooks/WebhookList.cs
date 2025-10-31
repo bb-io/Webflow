@@ -88,11 +88,10 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
         });
     }
 
-    [Webhook("On collection item changed", typeof(CollectionItemChangedWebhookHandler),
+    [Webhook("On collection item updated", typeof(CollectionItemChangedWebhookHandler),
         Description = "Triggers when specific collection item was changed")]
     public Task<WebhookResponse<CollectionItemResponse>> OnCollectionItemChanged(WebhookRequest webhookRequest,
         [WebhookParameter] SiteCmsLocaleRequest input)
-
     {
         var data = webhookRequest.GetPayload<CollectionCreatedWebhookResponse>();
 
@@ -123,10 +122,30 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
         });
     }
 
+    [Webhook("On collection item published", typeof(CollectionItemPublishedWebhookHandler),
+        Description = "Triggers when specific collection item was published")]
+    public Task<WebhookResponse<CollectionItemResponse>> OnCollectionItemPublished(WebhookRequest webhookRequest,
+        [WebhookParameter] SiteCmsLocaleRequest input)
+    {
+        var data = webhookRequest.GetPayload<CollectionItemPublishedResponse>();
+
+        if (input.LocaleId != null && data.Items.First().FieldData["_locale"]!.ToString() != input.LocaleId)
+            return Task.FromResult(new WebhookResponse<CollectionItemResponse>
+            {
+                HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
+                ReceivedWebhookRequestType = WebhookRequestType.Preflight
+            });
+
+        return Task.FromResult<WebhookResponse<CollectionItemResponse>>(new()
+        {
+            HttpResponseMessage = null,
+            Result = data.Items.First()
+        });
+    }
+
     [Webhook("On collection item unpublished", typeof(CollectionItemUnpublishedWebhookHandler),
         Description = "Triggers when specific collection item was unpublished")]
-    public Task<WebhookResponse<CollectionItemResponse>> OnCollectionItemUnpublished(
-        WebhookRequest webhookRequest)
+    public Task<WebhookResponse<CollectionItemResponse>> OnCollectionItemUnpublished(WebhookRequest webhookRequest)
     {
         var data = webhookRequest.GetPayload<CollectionItemResponse>();
 

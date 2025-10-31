@@ -10,12 +10,15 @@ public class CollectionItemResponse : IDownloadContentInput
     [Display("Collection item ID")] 
     public string ContentId { get; set; }
     
-    [Display("Site ID")] 
+    [JsonProperty("siteId")]
+    [Display("Site ID")]
     public string SiteId { get; set; }
     
-    [Display("Collection ID")] 
+    [JsonProperty("collectionId")]
+    [Display("Collection ID")]
     public string CollectionId { get; set; }
     
-    [Display("Workspace ID")] 
+    [JsonProperty("workspaceId")]
+    [Display("Workspace ID")]
     public string WorkspaceId { get; set; }
 }
