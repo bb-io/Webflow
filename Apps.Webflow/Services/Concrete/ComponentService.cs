@@ -49,8 +49,8 @@ public class ComponentService(InvocationContext invocationContext) : BaseContent
         var endpoint = $"sites/{siteId}/components/{input.ContentId}/dom";
         var request = new RestRequest(endpoint, Method.Get);
 
-        if (!string.IsNullOrEmpty(input.LocaleId))
-            request.AddQueryParameter("localeId", input.LocaleId);
+        if (!string.IsNullOrEmpty(input.Locale))
+            request.AddQueryParameter("localeId", input.Locale);
 
         var componentDom = await Client.ExecuteWithErrorHandling<ComponentDomEntity>(request);
 

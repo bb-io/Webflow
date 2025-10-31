@@ -15,13 +15,9 @@ public class DownloadContentRequest : IDownloadContentInput
 
     [Display("Locale ID")]
     [DataSource(typeof(SiteLocaleDataSourceHandler))]
-    public string? LocaleId { get; set; }
+    public string? Locale { get; set; }
 
     [Display("Collection ID")]
     [DataSource(typeof(CollectionItemCollectionDataSourceHandler))]
     public string? CollectionId { get; set; }
-
-    [Display("Collection item locale ID")]
-    [DataSource(typeof(CollectionItemLocaleDataSourceHandler))]
-    public string? CmsLocaleId { get; set; }
 }

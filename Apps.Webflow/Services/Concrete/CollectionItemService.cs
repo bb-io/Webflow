@@ -61,8 +61,12 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
         var collection = await Client.ExecuteWithErrorHandling<CollectionEntity>(collectionRequest);
 
         var itemEndpoint = $"collections/{input.CollectionId}/items/{input.ContentId}";
-        if (!string.IsNullOrWhiteSpace(input.CmsLocaleId))
-            itemEndpoint = itemEndpoint.SetQueryParameter("cmsLocaleId", input.CmsLocaleId);
+
+        if (!string.IsNullOrEmpty(input.Locale))
+        {
+            string fetchedCmsLocaleId = await GetCmsLocale(siteId, input.Locale);
+            itemEndpoint = itemEndpoint.SetQueryParameter("cmsLocaleId", fetchedCmsLocaleId);
+        }
 
         var itemRequest = new RestRequest(itemEndpoint, Method.Get);
         var item = await Client.ExecuteWithErrorHandling<CollectionItemEntity>(itemRequest);

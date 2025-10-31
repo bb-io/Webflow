@@ -52,8 +52,8 @@ public class PageService(InvocationContext invocationContext) : BaseContentServi
         var domEndpoint = $"pages/{input.ContentId}/dom";
         var domRequest = new RestRequest(domEndpoint, Method.Get);
 
-        if (!string.IsNullOrEmpty(input.LocaleId))
-            domRequest.AddQueryParameter("localeId", input.LocaleId);
+        if (!string.IsNullOrEmpty(input.Locale))
+            domRequest.AddQueryParameter("localeId", input.Locale);
 
         var pageDom = await Client.ExecuteWithErrorHandling<PageDomEntity>(domRequest);
 
