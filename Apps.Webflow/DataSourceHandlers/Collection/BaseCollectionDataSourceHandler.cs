@@ -12,7 +12,7 @@ public class BaseCollectionDataSourceHandler(InvocationContext invocationContext
     public async Task<Dictionary<string, string>> GetDataAsync(DataSourceContext context,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(siteId))
+        if (string.IsNullOrWhiteSpace(Client.GetSiteId(siteId)))
             throw new("You need to specify Site ID first");
 
         var request = new RestRequest($"sites/{Client.GetSiteId(siteId)}/collections", Method.Get);
