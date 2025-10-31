@@ -125,7 +125,7 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
     [Webhook("On collection item deleted", typeof(CollectionItemDeletedWebhookHandler),
         Description = "Triggers when specific collection item was deleted")]
     public Task<WebhookResponse<CollectionItemResponse>> OnCollectionItemDeleted(WebhookRequest webhookRequest,
-        [WebhookParameter] CollectionItemDeletedWebhookRequest input)
+        [WebhookParameter] CollectionItemWebhookRequest input)
     {
         var data = webhookRequest.GetPayload<CollectionItemResponse>();
 
