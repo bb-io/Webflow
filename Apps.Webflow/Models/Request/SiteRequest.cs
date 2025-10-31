@@ -8,5 +8,5 @@ public class SiteRequest
 {
     [Display("Site ID")]
     [DataSource(typeof(SiteDataSourceHandler))]
-    public string SiteId { get; set; }
+    public string? SiteId { get; set; }
 }

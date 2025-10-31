@@ -58,16 +58,13 @@ public class ComponentsTests : TestBase
         foreach (var context in InvocationContext)
         {
             // Arrange
-            var input = new GetComponentContentRequest
-            {
-                SiteId = SampleSiteId,
-                ComponentId = SampleComponentId
-            };
+            var input = new GetComponentContentRequest { ComponentId = SampleComponentId };
 
             var actions = new ComponentsActions(context, FileManagementClient);
+            var site = new SiteRequest { SiteId = SampleSiteId };
 
             // Act
-            var result = await actions.GetComponentAsHtml(input);
+            var result = await actions.GetComponentAsHtml(site, input);
 
             // Assert
             Assert.IsNotNull(result, "Result should not be null.");
@@ -93,10 +90,11 @@ public class ComponentsTests : TestBase
                 File = fileReference
             };
 
+            var site = new SiteRequest { };
             var action = new ComponentsActions(context, FileManagementClient);
 
             // Act
-            var result = await action.UpdateComponentContentAsHtml(input);
+            var result = await action.UpdateComponentContentAsHtml(input, site);
 
             // Assert
             Assert.IsTrue(result.Success, "Result should be successful.");
@@ -112,15 +110,14 @@ public class ComponentsTests : TestBase
             // Arrange
             var input = new GetComponentContentRequest
             {
-                SiteId = SampleSiteId,
                 ComponentId = SampleComponentId,
                 LocaleId = SampleTargetLocaleId,
             };
-
+            var site = new SiteRequest { SiteId = SampleSiteId };
             var actions = new ComponentsActions(context, FileManagementClient);
 
             // Act
-            var result = await actions.GetComponentAsHtml(input);
+            var result = await actions.GetComponentAsHtml(site, input);
 
             // Assert
             Assert.IsNotNull(result, "Result should not be null.");

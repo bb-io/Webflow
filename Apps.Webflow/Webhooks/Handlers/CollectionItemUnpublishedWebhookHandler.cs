@@ -4,12 +4,8 @@ using Blackbird.Applications.Sdk.Common.Webhooks;
 
 namespace Apps.Webflow.Webhooks.Handlers;
 
-public class CollectionItemUnpublishedWebhookHandler : WebflowWebhookHandler
+public class CollectionItemUnpublishedWebhookHandler(InvocationContext invocationContext, [WebhookParameter(true)] SiteRequest siteRequest) 
+    : WebflowWebhookHandler(invocationContext, siteRequest.SiteId)
 {
     protected override string EventType => "collection_item_unpublished";
-
-    public CollectionItemUnpublishedWebhookHandler(InvocationContext invocationContext, [WebhookParameter(true)] SiteRequest siteRequest) : base(invocationContext,
-        siteRequest.SiteId)
-    {
-    }
 }

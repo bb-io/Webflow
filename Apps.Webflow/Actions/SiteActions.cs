@@ -30,19 +30,19 @@ public class SiteActions(InvocationContext invocationContext) : WebflowInvocable
     }
 
     [Action("Get site", Description = "Get details of a site")]
-    public async Task<GetSiteResponse> GetSite([ActionParameter] SiteRequest input)
+    public async Task<GetSiteResponse> GetSite([ActionParameter] SiteRequest site)
     {
-        var request = new RestRequest($"sites/{input.SiteId}", Method.Get);
+        var request = new RestRequest($"sites/{Client.GetSiteId(site.SiteId)}", Method.Get);
         var result = await Client.ExecuteWithErrorHandling<SiteEntity>(request);
         return new GetSiteResponse(result);
     }
 
     [Action("Publish site", Description = "Publishes a site to one or more more domains")]
     public async Task<CustomDomainsResponse> PublishSite(
-        [ActionParameter] SiteRequest siteInput,
+        [ActionParameter] SiteRequest site,
         [ActionParameter] PublishSiteRequest publishInput)
     {
-        var request = new RestRequest($"sites/{siteInput.SiteId}/publish", Method.Post);
+        var request = new RestRequest($"sites/{Client.GetSiteId(site.SiteId)}/publish", Method.Post);
 
         if (publishInput.CustomDomains != null)
             request.AddJsonBody(new { customDomains = publishInput.CustomDomains });

@@ -20,12 +20,12 @@ public class ComponentService(InvocationContext invocationContext) : BaseContent
 {
     private const string ContentType = ContentTypes.Component;
 
-    public async override Task<SearchContentResponse> SearchContent(SiteRequest site, SearchContentRequest input, DateFilter dateFilter)
+    public async override Task<SearchContentResponse> SearchContent(string siteId, SearchContentRequest input, DateFilter dateFilter)
     {
         ThrowForDateInputs(dateFilter, ContentType);
         ThrowForPublishedDateInputs(input, ContentType);
 
-        var endpoint = $"sites/{site.SiteId}/components";
+        var endpoint = $"sites/{siteId}/components";
         var request = new RestRequest(endpoint, Method.Get);
 
         IEnumerable<ComponentEntity> pages = await Client.Paginate<ComponentEntity, ComponentsPaginationResponse>(request, r => r.Components);
@@ -44,17 +44,17 @@ public class ComponentService(InvocationContext invocationContext) : BaseContent
         return new SearchContentResponse(result);
     }
 
-    public override async Task<Stream> DownloadContent(SiteRequest site, DownloadContentRequest input)
+    public override async Task<Stream> DownloadContent(string siteId, DownloadContentRequest input)
     {
-        var endpoint = $"sites/{site.SiteId}/components/{input.ContentId}/dom";
+        var endpoint = $"sites/{siteId}/components/{input.ContentId}/dom";
         var request = new RestRequest(endpoint, Method.Get);
 
-        if (!string.IsNullOrEmpty(input.LocaleId))
-            request.AddQueryParameter("localeId", input.LocaleId);
+        if (!string.IsNullOrEmpty(input.Locale))
+            request.AddQueryParameter("localeId", input.Locale);
 
         var componentDom = await Client.ExecuteWithErrorHandling<ComponentDomEntity>(request);
 
-        var stream = ComponentHtmlConverter.ToHtml(componentDom, site.SiteId, input.ContentId);
+        var stream = ComponentHtmlConverter.ToHtml(componentDom, siteId, input.ContentId);
         var memoryStream = new MemoryStream();
         await stream.CopyToAsync(memoryStream);
         memoryStream.Position = 0;
@@ -62,7 +62,7 @@ public class ComponentService(InvocationContext invocationContext) : BaseContent
         return memoryStream;
     }
 
-    public override async Task UploadContent(Stream content, SiteRequest site, UploadContentRequest input)
+    public override async Task UploadContent(Stream content, string siteId, UploadContentRequest input)
     {
         if (string.IsNullOrEmpty(input.Locale))
             throw new PluginMisconfigurationException("Please specify the 'Locale' input");
@@ -130,7 +130,7 @@ public class ComponentService(InvocationContext invocationContext) : BaseContent
 
         var body = new UpdateComponentDomRequest { Nodes = updateNodes };
 
-        var endpoint = $"sites/{site.SiteId}/components/{input.ContentId}/dom";
+        var endpoint = $"sites/{siteId}/components/{input.ContentId}/dom";
         var apiRequest = new RestRequest(endpoint, Method.Post).WithJsonBody(body);
 
         apiRequest.RequestFormat = DataFormat.Json;

@@ -1,13 +1,10 @@
-﻿using Apps.Webflow.Models.Request.Collection;
+﻿using Apps.Webflow.Models.Request;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Invocation;
 
 namespace Apps.Webflow.DataSourceHandlers.Locale;
 
-public class UpdateCollectionItemLocaleDataSourceHandler : CmsLocaleDataSourceHandler
+public class UpdateCollectionItemLocaleDataSourceHandler(InvocationContext invocationContext, [ActionParameter] SiteRequest site) 
+    : CmsLocaleDataSourceHandler(invocationContext, site.SiteId)
 {
-    public UpdateCollectionItemLocaleDataSourceHandler(InvocationContext invocationContext,
-        [ActionParameter] UpdateCollectionItemRequest request) : base(invocationContext, request.SiteId)
-    {
-    }
 }

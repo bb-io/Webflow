@@ -37,16 +37,13 @@ public class PagesTests : TestBase
         foreach (var context in InvocationContext)
         {
             // Arrange
-            var input = new GetPageAsHtmlRequest
-            {
-                SiteId = "6773fdfb5a841e3420ebc404",
-                PageId = "6773fdfc5a841e3420ebc46d"
-            };
+            var site = new SiteRequest { SiteId = "6773fdfb5a841e3420ebc404" };
+            var input = new GetPageAsHtmlRequest { PageId = "6773fdfc5a841e3420ebc46d" };
 
             var actions = new PagesActions(context, FileManagementClient);
 
             // Act
-            var result = await actions.GetPageAsHtml(input);
+            var result = await actions.GetPageAsHtml(site, input);
 
             // Assert
             PrintJsonResult(result);
@@ -66,9 +63,10 @@ public class PagesTests : TestBase
                 ContentType = "text/html",
             };
 
+            var site = new SiteRequest { };
+
             var input = new UpdatePageContentRequest
             {
-                //PageId = "6773fdfc5a841e3420ebc46b",
                 LocaleId = "67765e8a8235a4578faed52a",
                 File = fileReference
             };
@@ -76,7 +74,7 @@ public class PagesTests : TestBase
             var action = new PagesActions(context, FileManagementClient);
 
             //Act 
-            var result = await action.UpdatePageContentAsHtml(input);
+            var result = await action.UpdatePageContentAsHtml(site, input);
 
             //Assert
             Assert.IsTrue(result.Success, "Result should not be null.");

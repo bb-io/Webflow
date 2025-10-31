@@ -22,14 +22,14 @@ public class ContentDataHandler(InvocationContext invocationContext,
         if (string.IsNullOrEmpty(contentFilter.ContentType))
             throw new PluginMisconfigurationException("Please specify the 'Content type' input");
 
-        if (string.IsNullOrEmpty(site.SiteId))
+        if (string.IsNullOrEmpty(Client.GetSiteId(site.SiteId)))
             throw new PluginMisconfigurationException("Please specify the 'Site ID' input");
 
         var service = _factory.GetContentService(contentFilter.ContentType);
         var input = new SearchContentRequest { ContentTypes = [contentFilter.ContentType], CollectionId = CollectionId };
         var dateFilter = new DateFilter { };
 
-        var result = await service.SearchContent(site, input, dateFilter);
+        var result = await service.SearchContent(Client.GetSiteId(site.SiteId), input, dateFilter);
         return result.Items.Select(x => new DataSourceItem(x.ContentId, x.Name));
     }
 }

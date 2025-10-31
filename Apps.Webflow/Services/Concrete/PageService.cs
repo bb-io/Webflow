@@ -20,13 +20,13 @@ public class PageService(InvocationContext invocationContext) : BaseContentServi
 {
     private const string ContentType = ContentTypes.Page;
 
-    public override async Task<SearchContentResponse> SearchContent(SiteRequest site, SearchContentRequest input, DateFilter dateFilter)
+    public override async Task<SearchContentResponse> SearchContent(string siteId, SearchContentRequest input, DateFilter dateFilter)
     {
         ThrowForPublishedDateInputs(input, ContentType);
 
         ValidatorHelper.ValidateInputDates(dateFilter);
 
-        var endpoint = $"sites/{site.SiteId}/pages";
+        var endpoint = $"sites/{siteId}/pages";
         var request = new RestRequest(endpoint, Method.Get);
 
         var pages = await Client.Paginate<PageEntity, PagesPaginationResponse>(request, r => r.Pages);
@@ -47,17 +47,17 @@ public class PageService(InvocationContext invocationContext) : BaseContentServi
         return new SearchContentResponse(result);
     }
 
-    public override async Task<Stream> DownloadContent(SiteRequest site, DownloadContentRequest input)
+    public override async Task<Stream> DownloadContent(string siteId, DownloadContentRequest input)
     {
         var domEndpoint = $"pages/{input.ContentId}/dom";
         var domRequest = new RestRequest(domEndpoint, Method.Get);
 
-        if (!string.IsNullOrEmpty(input.LocaleId))
-            domRequest.AddQueryParameter("localeId", input.LocaleId);
+        if (!string.IsNullOrEmpty(input.Locale))
+            domRequest.AddQueryParameter("localeId", input.Locale);
 
         var pageDom = await Client.ExecuteWithErrorHandling<PageDomEntity>(domRequest);
 
-        var stream = PageHtmlConverter.ToHtml(pageDom, site.SiteId, input.ContentId);
+        var stream = PageHtmlConverter.ToHtml(pageDom, siteId, input.ContentId);
         var memoryStream = new MemoryStream();
         await stream.CopyToAsync(memoryStream);
         memoryStream.Position = 0;
@@ -65,7 +65,7 @@ public class PageService(InvocationContext invocationContext) : BaseContentServi
         return memoryStream;
     }
     
-    public override async Task UploadContent(Stream content, SiteRequest site, UploadContentRequest input)
+    public override async Task UploadContent(Stream content, string siteId, UploadContentRequest input)
     {
         if (string.IsNullOrEmpty(input.Locale))
             throw new PluginMisconfigurationException("Please specify the 'Locale' input");
@@ -77,14 +77,14 @@ public class PageService(InvocationContext invocationContext) : BaseContentServi
         var doc = new HtmlAgilityPack.HtmlDocument();
         doc.Load(memoryStream);
 
-        if (string.IsNullOrEmpty(input.ContentId) || string.IsNullOrEmpty(site.SiteId))
+        if (string.IsNullOrEmpty(input.ContentId) || string.IsNullOrEmpty(siteId))
         {
             var metaPageIdNode = doc.DocumentNode.SelectSingleNode("//meta[@name='blackbird-page-id']");
             var metaSiteIdNode = doc.DocumentNode.SelectSingleNode("//meta[@name='blackbird-site-id']");
             if (metaPageIdNode != null && string.IsNullOrEmpty(input.ContentId))
                 input.ContentId = metaPageIdNode.GetAttributeValue("content", string.Empty);
-            if (metaSiteIdNode != null && string.IsNullOrEmpty(site.SiteId))
-                site.SiteId = metaSiteIdNode.GetAttributeValue("content", string.Empty);
+            if (metaSiteIdNode != null && string.IsNullOrEmpty(siteId))
+                siteId = metaSiteIdNode.GetAttributeValue("content", string.Empty);
         }
 
         if (string.IsNullOrEmpty(input.ContentId))

@@ -1,4 +1,5 @@
 ﻿using Apps.Webflow.Invocables;
+using Apps.Webflow.Models.Request;
 using Apps.Webflow.Polling.Models;
 using Apps.Webflow.Polling.Models.Requests;
 using Blackbird.Applications.Sdk.Common.Invocation;
@@ -13,6 +14,7 @@ public class PagePollingList(InvocationContext invocationContext) : WebflowInvoc
     [PollingEvent("On page updated", "Triggers when page update was made")]
     public async Task<PollingEventResponse<PageMemory, ListPagesPollingResponse>> OnPageUpdated(
         PollingEventRequest<PageMemory> request,
+        [PollingEventParameter] SiteRequest site,
         [PollingEventParameter] PageUpdatedRequest input)
     {
         if (request.Memory is null)
@@ -29,7 +31,7 @@ public class PagePollingList(InvocationContext invocationContext) : WebflowInvoc
             };
         }
 
-        var pagesRequest = new RestRequest($"sites/{input.SiteId}/pages", Method.Get);
+        var pagesRequest = new RestRequest($"sites/{Client.GetSiteId(site.SiteId)}/pages", Method.Get);
         var pagesResponse = await Client.ExecuteWithErrorHandling<ListPagesPollingResponse>(pagesRequest);
 
         var lastPollingTime = request.Memory.LastPollingTime ?? DateTime.MinValue;

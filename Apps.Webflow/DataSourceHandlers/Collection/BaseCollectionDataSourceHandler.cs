@@ -6,22 +6,16 @@ using RestSharp;
 
 namespace Apps.Webflow.DataSourceHandlers.Collection;
 
-public class BaseCollectionDataSourceHandler: WebflowInvocable, IAsyncDataSourceHandler
+public class BaseCollectionDataSourceHandler(InvocationContext invocationContext, string siteId) 
+    : WebflowInvocable(invocationContext), IAsyncDataSourceHandler
 {
-    private string SiteId { get; }
-
-    public BaseCollectionDataSourceHandler(InvocationContext invocationContext, string siteId) : base(invocationContext)
-    {
-        SiteId = siteId;
-    }
-
     public async Task<Dictionary<string, string>> GetDataAsync(DataSourceContext context,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(SiteId))
+        if (string.IsNullOrWhiteSpace(Client.GetSiteId(siteId)))
             throw new("You need to specify Site ID first");
 
-        var request = new RestRequest($"sites/{SiteId}/collections", Method.Get);
+        var request = new RestRequest($"sites/{Client.GetSiteId(siteId)}/collections", Method.Get);
         var response = await Client.ExecuteWithErrorHandling<ListCollectionsResponse>(request);
 
         return response.Collections

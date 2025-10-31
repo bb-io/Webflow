@@ -10,7 +10,7 @@ public class CollectionItemWebhookRequest
 {
     [Display("Site ID")]
     [DataSource(typeof(SiteDataSourceHandler))]
-    public string SiteId { get; set; }
+    public string? SiteId { get; set; }
 
     [Display("Locale ID")]
     [DataSource(typeof(SiteCmsLocaleDataSourceHandler))]

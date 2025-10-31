@@ -8,20 +8,15 @@ using RestSharp;
 
 namespace Apps.Webflow.Webhooks.Handlers;
 
-public abstract class WebflowWebhookHandler : WebflowInvocable, IWebhookEventHandler
+public abstract class WebflowWebhookHandler(InvocationContext invocationContext, string siteId) 
+    : WebflowInvocable(invocationContext), IWebhookEventHandler
 {
-    private readonly string _siteId;
     protected abstract string EventType { get; }
-
-    public WebflowWebhookHandler(InvocationContext invocationContext, string siteId) : base(invocationContext)
-    {
-        _siteId = siteId;
-    }
 
     public Task SubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProvider,
         Dictionary<string, string> values)
     {
-        var request = new RestRequest($"sites/{_siteId}/webhooks", Method.Post)
+        var request = new RestRequest($"sites/{Client.GetSiteId(siteId)}/webhooks", Method.Post)
             .WithJsonBody(new
             {
                 triggerType = EventType,
@@ -47,7 +42,7 @@ public abstract class WebflowWebhookHandler : WebflowInvocable, IWebhookEventHan
 
     private Task<ListWebhooksResponse> GetAllWebhooks()
     {
-        var request = new RestRequest($"sites/{_siteId}/webhooks", Method.Get);
+        var request = new RestRequest($"sites/{Client.GetSiteId(siteId)}/webhooks", Method.Get);
         return Client.ExecuteWithErrorHandling<ListWebhooksResponse>(request);
     }
 }

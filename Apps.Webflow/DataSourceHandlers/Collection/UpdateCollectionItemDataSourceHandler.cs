@@ -9,15 +9,10 @@ using RestSharp;
 
 namespace Apps.Webflow.DataSourceHandlers.Collection;
 
-public class UpdateCollectionItemDataSourceHandler : WebflowInvocable, IAsyncDataSourceHandler
+public class UpdateCollectionItemDataSourceHandler(InvocationContext invocationContext,
+    [ActionParameter] UpdateCollectionItemRequest request) : WebflowInvocable(invocationContext), IAsyncDataSourceHandler
 {
-    private UpdateCollectionItemRequest Request { get; }
-
-    public UpdateCollectionItemDataSourceHandler(InvocationContext invocationContext,
-        [ActionParameter] UpdateCollectionItemRequest request) : base(invocationContext)
-    {
-        Request = request;
-    }
+    private UpdateCollectionItemRequest Request { get; } = request;
 
     public async Task<Dictionary<string, string>> GetDataAsync(DataSourceContext context, CancellationToken cancellationToken)
     {

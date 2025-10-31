@@ -9,15 +9,15 @@ using Blackbird.Applications.Sdk.Common.Exceptions;
 
 namespace Apps.Webflow.DataSourceHandlers.Site;
 
-public class CustomDomainDataSourceHandler(InvocationContext invocationContext, [ActionParameter] SiteRequest input)
+public class CustomDomainDataSourceHandler(InvocationContext invocationContext, [ActionParameter] SiteRequest site)
     : WebflowInvocable(invocationContext), IAsyncDataSourceItemHandler
 {
     public async Task<IEnumerable<DataSourceItem>> GetDataAsync(DataSourceContext context, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(input.SiteId))
+        if (string.IsNullOrWhiteSpace(Client.GetSiteId(site.SiteId)))
             throw new PluginMisconfigurationException("Site ID cannot be null or empty");
 
-        var request = new RestRequest($"sites/{input.SiteId}", Method.Get);
+        var request = new RestRequest($"sites/{Client.GetSiteId(site.SiteId)}", Method.Get);
         var result = await Client.ExecuteWithErrorHandling<CustomDomainsResponse>(request);
         return result.CustomDomains.Select(x => new DataSourceItem(x.Id, x.Url));
     }

@@ -45,9 +45,7 @@ public class DataSources : TestBase
     {
         foreach (var context in InvocationContext)
         {
-            var siteId = "68f8b336cbd1cac54f5b9d2c";
-
-            var input = new GetPageAsHtmlRequest { SiteId = siteId };
+            var input = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
 
             //Arange
             var handler = new PageDataSourceHandler(context, input);
@@ -71,9 +69,7 @@ public class DataSources : TestBase
     {
         foreach (var context in InvocationContext)
         {
-            var siteId = "68f8b336cbd1cac54f5b9d2c";
-
-            var request = new GetComponentContentRequest { SiteId = siteId };
+            var request = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
 
             // Arrange
             var handler = new ComponentDataSourceHandler(context, request);
@@ -98,7 +94,7 @@ public class DataSources : TestBase
         //Arange
         var context = GetInvocationContext(ConnectionTypes.OAuth2);
         var siteId = "68f8b336cbd1cac54f5b9d2c";
-        var request = new UpdatePageContentRequest { SiteId = siteId };
+        var request = new SiteRequest { SiteId = siteId };
         // Act
         var handler = new SiteLocaleDataSourceHandler(context, request);
 
@@ -115,23 +111,23 @@ public class DataSources : TestBase
     [TestMethod]
     public async Task CollectionItemCollectionDataSourceHandler_IsSuccess()
     {
-        foreach (var context in InvocationContext)
-        {
-            //Arange
-            var siteId = "68f8b336cbd1cac54f5b9d2c";
-            var request = new Apps.Webflow.Models.Request.CollectionItem.CollectionItemRequest { SiteId = siteId };
-            // Act
-            var handler = new CollectionItemCollectionDataSourceHandler(context, request);
+        // Arrange
+        var context = GetInvocationContext(ConnectionTypes.OAuth2);
+        var siteId = "";
+        var request = new Apps.Webflow.Models.Request.CollectionItem.CollectionItemRequest { };
+        var site = new SiteRequest { };
 
-            // Assert
-            var data = await handler.GetDataAsync(
-                new DataSourceContext { SearchString = "" },
-                CancellationToken.None
-            );
+        // Act
+        var handler = new CollectionItemCollectionDataSourceHandler(context, site);
 
-            foreach (var locale in data)
-                Console.WriteLine($"Display name: {locale.Key}, Locale ID: {locale.Value}");
-        }
+        // Assert
+        var data = await handler.GetDataAsync(
+            new DataSourceContext { SearchString = "" },
+            CancellationToken.None
+        );
+
+        foreach (var locale in data)
+            Console.WriteLine($"Display name: {locale.Key}, Locale ID: {locale.Value}");
     }
 
     [TestMethod]
@@ -139,12 +135,11 @@ public class DataSources : TestBase
     {
         //Arange
         var context = GetInvocationContext(ConnectionTypes.OAuth2);
-        var siteId = "68f8b336cbd1cac54f5b9d2c";
         var request = new Apps.Webflow.Models.Request.CollectionItem.CollectionItemRequest
         {
-            SiteId = siteId,
             CollectionId = "68f8b337cbd1cac54f5b9d9c"
         };
+
         // Act
         var handler = new CollectionItemDataSourceHandler(context, request);
 
@@ -155,7 +150,7 @@ public class DataSources : TestBase
         );
 
         foreach (var locale in data)
-            Console.WriteLine($"Display name: {locale.Key}, Locale ID: {locale.Value}");        
+            Console.WriteLine($"Display name: {locale.Key}, Locale ID: {locale.Value}");
     }
 
     [TestMethod]
@@ -163,14 +158,10 @@ public class DataSources : TestBase
     {
         //Arange
         var context = GetInvocationContext(ConnectionTypes.OAuth2);
-        var siteId = "68f8b336cbd1cac54f5b9d2c";
-        var request = new UpdateCollectionItemRequest
-        {
-            SiteId = siteId,
-            CollectionId = "68f8b337cbd1cac54f5b9d9b"
-        };
+        var site = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
+
         // Act
-        var handler = new UpdateCollectionItemLocaleDataSourceHandler(context, request);
+        var handler = new UpdateCollectionItemLocaleDataSourceHandler(context, site);
 
         // Assert
         var data = await handler.GetDataAsync(

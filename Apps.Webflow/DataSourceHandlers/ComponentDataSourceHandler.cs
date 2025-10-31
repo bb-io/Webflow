@@ -1,5 +1,5 @@
 using Apps.Webflow.Invocables;
-using Apps.Webflow.Models.Request.Components;
+using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Response.Components;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Dynamic;
@@ -8,20 +8,14 @@ using RestSharp;
 
 namespace Apps.Webflow.DataSourceHandlers;
 
-public class ComponentDataSourceHandler : WebflowInvocable, IAsyncDataSourceItemHandler
+public class ComponentDataSourceHandler(
+    InvocationContext invocationContext,
+    [ActionParameter] SiteRequest site) 
+    : WebflowInvocable(invocationContext), IAsyncDataSourceItemHandler
 {
-    private readonly GetComponentContentRequest _input;
-
-    public ComponentDataSourceHandler(InvocationContext invocationContext, [ActionParameter] GetComponentContentRequest input) : base(invocationContext)
-    {
-        _input = input;
-    }
-
     public async Task<IEnumerable<DataSourceItem>> GetDataAsync(DataSourceContext context, CancellationToken cancellationToken)
     {
-        var siteId = _input.SiteId;
-
-        var endpoint = $"sites/{siteId}/components";
+        var endpoint = $"sites/{Client.GetSiteId(site.SiteId)}/components";
         var request = new RestRequest(endpoint, Method.Get);
 
         var response = await Client.ExecuteWithErrorHandling<SearchComponentsResponse>(request);

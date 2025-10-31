@@ -10,7 +10,7 @@ public static class ContentServiceExtensions
 {
     public static async Task<SearchContentResponse> ExecuteMany(
         this List<IContentService> contentServices,
-        SiteRequest site,
+        string siteId,
         SearchContentRequest request,
         DateFilter dateFilter)
     {
@@ -18,7 +18,7 @@ public static class ContentServiceExtensions
 
         foreach (var contentService in contentServices)
         {
-            var response = (await contentService.SearchContent(site, request, dateFilter)).Items;
+            var response = (await contentService.SearchContent(siteId, request, dateFilter)).Items;
             result.AddRange(response);
         }
 

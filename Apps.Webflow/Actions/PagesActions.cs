@@ -28,7 +28,7 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
     {
         ValidatorHelper.ValidateInputDates(dateFilter);
 
-        var endpoint = $"sites/{site.SiteId}/pages";
+        var endpoint = $"sites/{Client.GetSiteId(site.SiteId)}/pages";
         var request = new RestRequest(endpoint, Method.Get);
 
         var allPages = await Client.Paginate<PageEntity, PagesPaginationResponse>(request, r => r.Pages);
@@ -57,7 +57,9 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
     }
 
     [Action("Download page", Description = "Get the page content in HTML file")]
-    public async Task<GetPageAsHtmlResponse> GetPageAsHtml([ActionParameter] GetPageAsHtmlRequest input)
+    public async Task<GetPageAsHtmlResponse> GetPageAsHtml(
+        [ActionParameter] SiteRequest site,
+        [ActionParameter] GetPageAsHtmlRequest input)
     {
         var domEndpoint = $"pages/{input.PageId}/dom";
         var domRequest = new RestRequest(domEndpoint, Method.Get);
@@ -67,7 +69,7 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
 
         var pageDom = await Client.ExecuteWithErrorHandling<PageDomEntity>(domRequest);
 
-        var htmlStream = PageHtmlConverter.ToHtml(pageDom, input.SiteId, input.PageId);
+        var htmlStream = PageHtmlConverter.ToHtml(pageDom, Client.GetSiteId(site.SiteId), input.PageId);
 
         var fileName = $"page_{input.PageId}.html";
         var contentType = "text/html";
@@ -90,7 +92,9 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
     }
 
     [Action("Upload page", Description = "Update page content using HTML file")]
-    public async Task<UpdatePageContentResponse> UpdatePageContentAsHtml([ActionParameter] UpdatePageContentRequest input)
+    public async Task<UpdatePageContentResponse> UpdatePageContentAsHtml(
+        [ActionParameter] SiteRequest site,
+        [ActionParameter] UpdatePageContentRequest input)
     {
         var fileStream = await fileManagementClient.DownloadAsync(input.File);
 
@@ -101,7 +105,7 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
         var doc = new HtmlAgilityPack.HtmlDocument();
         doc.Load(memoryStream);
 
-        if (string.IsNullOrEmpty(input.PageId) || string.IsNullOrEmpty(input.SiteId))
+        if (string.IsNullOrEmpty(input.PageId) || string.IsNullOrEmpty(site.SiteId))
         {
             var metaPageIdNode = doc.DocumentNode.SelectSingleNode("//meta[@name='blackbird-page-id']");
             var metaSiteIdNode = doc.DocumentNode.SelectSingleNode("//meta[@name='blackbird-site-id']");
@@ -109,9 +113,9 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
             {
                 input.PageId = metaPageIdNode.GetAttributeValue("content", string.Empty);
             }
-            if (metaSiteIdNode != null && string.IsNullOrEmpty(input.SiteId))
+            if (metaSiteIdNode != null && string.IsNullOrEmpty(site.SiteId))
             {
-                input.SiteId = metaSiteIdNode.GetAttributeValue("content", string.Empty);
+                site.SiteId = metaSiteIdNode.GetAttributeValue("content", string.Empty);
             }
         }
 
