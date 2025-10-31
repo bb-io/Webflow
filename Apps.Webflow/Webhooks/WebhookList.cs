@@ -1,12 +1,11 @@
 using Apps.Webflow.Extensions;
 using Apps.Webflow.Invocables;
-using Apps.Webflow.Models.Request;
 using Apps.Webflow.Webhooks.Handlers;
+using Apps.Webflow.Webhooks.Models.Request;
 using Apps.Webflow.Webhooks.Models.Response;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common.Webhooks;
 using Blackbird.Applications.SDK.Blueprints;
-using Newtonsoft.Json.Linq;
 using System.Net;
 
 namespace Apps.Webflow.Webhooks;
@@ -70,11 +69,18 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
     [Webhook("On collection item created", typeof(CollectionItemCreatedWebhookHandler),
         Description = "Triggers when specific collection item was created")]
     public Task<WebhookResponse<CollectionItemResponse>> OnCollectionItemCreated(WebhookRequest webhookRequest,
-        [WebhookParameter] SiteCmsLocaleRequest input)
+        [WebhookParameter] CollectionItemWebhookRequest input)
     {
         var data = webhookRequest.GetPayload<CollectionCreatedWebhookResponse>();
 
         if (input.LocaleId != null && data.FieldData["_locale"]!.ToString() != input.LocaleId)
+            return Task.FromResult(new WebhookResponse<CollectionItemResponse>
+            {
+                HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
+                ReceivedWebhookRequestType = WebhookRequestType.Preflight
+            });
+
+        if (input.CollectionId != null && data.CollectionId != input.CollectionId)
             return Task.FromResult(new WebhookResponse<CollectionItemResponse>
             {
                 HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
@@ -91,11 +97,18 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
     [Webhook("On collection item updated", typeof(CollectionItemChangedWebhookHandler),
         Description = "Triggers when specific collection item was changed")]
     public Task<WebhookResponse<CollectionItemResponse>> OnCollectionItemChanged(WebhookRequest webhookRequest,
-        [WebhookParameter] SiteCmsLocaleRequest input)
+        [WebhookParameter] CollectionItemWebhookRequest input)
     {
         var data = webhookRequest.GetPayload<CollectionCreatedWebhookResponse>();
 
         if (input.LocaleId != null && data.FieldData["_locale"]!.ToString() != input.LocaleId)
+            return Task.FromResult(new WebhookResponse<CollectionItemResponse>
+            {
+                HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
+                ReceivedWebhookRequestType = WebhookRequestType.Preflight
+            });
+
+        if (input.CollectionId != null && data.CollectionId != input.CollectionId)
             return Task.FromResult(new WebhookResponse<CollectionItemResponse>
             {
                 HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
@@ -111,9 +124,17 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
 
     [Webhook("On collection item deleted", typeof(CollectionItemDeletedWebhookHandler),
         Description = "Triggers when specific collection item was deleted")]
-    public Task<WebhookResponse<CollectionItemResponse>> OnCollectionItemDeleted(WebhookRequest webhookRequest)
+    public Task<WebhookResponse<CollectionItemResponse>> OnCollectionItemDeleted(WebhookRequest webhookRequest,
+        [WebhookParameter] CollectionItemDeletedWebhookRequest input)
     {
         var data = webhookRequest.GetPayload<CollectionItemResponse>();
+
+        if (input.CollectionId != null && data.CollectionId != input.CollectionId)
+            return Task.FromResult(new WebhookResponse<CollectionItemResponse>
+            {
+                HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
+                ReceivedWebhookRequestType = WebhookRequestType.Preflight
+            });
 
         return Task.FromResult<WebhookResponse<CollectionItemResponse>>(new()
         {
@@ -125,11 +146,18 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
     [Webhook("On collection item published", typeof(CollectionItemPublishedWebhookHandler),
         Description = "Triggers when specific collection item was published")]
     public Task<WebhookResponse<CollectionItemResponse>> OnCollectionItemPublished(WebhookRequest webhookRequest,
-        [WebhookParameter] SiteCmsLocaleRequest input)
+        [WebhookParameter] CollectionItemWebhookRequest input)
     {
         var data = webhookRequest.GetPayload<CollectionItemPublishedResponse>();
 
         if (input.LocaleId != null && data.Items.First().FieldData["_locale"]!.ToString() != input.LocaleId)
+            return Task.FromResult(new WebhookResponse<CollectionItemResponse>
+            {
+                HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
+                ReceivedWebhookRequestType = WebhookRequestType.Preflight
+            });
+
+        if (input.CollectionId != null && data.Items.First().CollectionId != input.CollectionId)
             return Task.FromResult(new WebhookResponse<CollectionItemResponse>
             {
                 HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
@@ -145,9 +173,24 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
 
     [Webhook("On collection item unpublished", typeof(CollectionItemUnpublishedWebhookHandler),
         Description = "Triggers when specific collection item was unpublished")]
-    public Task<WebhookResponse<CollectionItemResponse>> OnCollectionItemUnpublished(WebhookRequest webhookRequest)
+    public Task<WebhookResponse<CollectionItemResponse>> OnCollectionItemUnpublished(WebhookRequest webhookRequest,
+        [WebhookParameter] CollectionItemWebhookRequest input)
     {
-        var data = webhookRequest.GetPayload<CollectionItemResponse>();
+        var data = webhookRequest.GetPayload<CollectionCreatedWebhookResponse>();
+
+        if (input.LocaleId != null && data.FieldData["_locale"]!.ToString() != input.LocaleId)
+            return Task.FromResult(new WebhookResponse<CollectionItemResponse>
+            {
+                HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
+                ReceivedWebhookRequestType = WebhookRequestType.Preflight
+            });
+
+        if (input.CollectionId != null && data.CollectionId != input.CollectionId)
+            return Task.FromResult(new WebhookResponse<CollectionItemResponse>
+            {
+                HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
+                ReceivedWebhookRequestType = WebhookRequestType.Preflight
+            });
 
         return Task.FromResult<WebhookResponse<CollectionItemResponse>>(new()
         {
