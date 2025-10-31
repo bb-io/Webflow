@@ -10,12 +10,32 @@ Webflow is a cloud-based web design and development platform that enables users 
 
 ## Before connecting
 
-This app supports two types of connections: **OAuth2** and **Site Token**. You can choose whichever option works best for you. Note that a Site Token limits requests to the site where the token was generated, while OAuth2 allows you to work with multiple sites simultaneously.
+This app supports three types of connections: **OAuth2**, **OAuth2 (multiple sites)** and **Site Token**. You can choose whichever option works best for you. Note that a Site Token limits requests to the site where the token was generated, while OAuth2 allows you to work with multiple sites simultaneously.
 
 1. Ensure you have an active Webflow account. If not, create one here: [here](https://webflow.com/signup).
 2. Confirm that at least one site exists in your Webflow account.
 
 ### OAuth2
+
+1. Open **Apps & Integrations** in Webflow and create a new application.
+
+![create app](image/README/Create-app.png)
+
+2. Provide the application details (name, description and URL can be customized). In **Building blocks**, enable **Designer extension** and **Data client (REST API)**. 
+Configure the OAuth redirect URL with: 'https://bridge.blackbird.io/api/AuthorizationCode'. Then select the required scopes.
+
+![info input](image/README/Input-info.png)
+
+![config input](image/README/Configuration-app.png)
+
+3. Click **Create app**. After creation, Webflow will generate a **Client ID** and **Client Secret**. Retain these credentials—they are required to connect Webflow to Blackbird.
+4. Go to the settings of the site you want to use.
+
+![site settings](image/README/Site-settings.png)
+
+5. Scroll down to **Overview** section and copy the **Site ID** from there.
+
+### OAuth2 (multiple sites)
 
 1. Open **Apps & Integrations** in Webflow and create a new application.
 
@@ -45,6 +65,18 @@ Configure the OAuth redirect URL with: 'https://bridge.blackbird.io/api/Authoriz
 Navigate to Apps, and identify the **Webflow** app. You can use search to find it. Click _Add Connection_.
 
 ### OAuth2
+
+1. Name your connection for future reference e.g. 'My organization'.
+2. Choose **OAuth2** connection type. Input the **Client ID**, **Client Secret**, and **Site ID** obtained from Webflow.
+3. Click _Authorize connection_.
+4. Follow the instructions that Webflow gives you.
+5. When you return to Blackbird, confirm that the connection has appeared and the status is _Connected_.
+
+**Note**: Make sure you give access to the site from which you copied the ID. You can grant access to all sites in your workspace. The **Site ID** input can be overridden for each action.
+
+![site settings](image/README/Sites-access.png)
+
+### OAuth2 (multiple sites)
 
 1. Name your connection for future reference e.g. 'My organization'.
 2. Choose **OAuth2** connection type. Input the **Client ID** and **Client Secret** obtained from Webflow.
