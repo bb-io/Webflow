@@ -6,22 +6,16 @@ using RestSharp;
 
 namespace Apps.Webflow.DataSourceHandlers.Locale;
 
-public class CmsLocaleDataSourceHandler :  WebflowInvocable, IAsyncDataSourceHandler
+public class CmsLocaleDataSourceHandler(InvocationContext invocationContext, string siteId) 
+    : WebflowInvocable(invocationContext), IAsyncDataSourceHandler
 {
-    private string SiteId { get; }
-
-    public CmsLocaleDataSourceHandler(InvocationContext invocationContext, string siteId) : base(invocationContext)
-    {
-        SiteId = siteId;
-    }
-
     public async Task<Dictionary<string, string>> GetDataAsync(DataSourceContext context,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(SiteId))
+        if (string.IsNullOrWhiteSpace(Client.GetSiteId(siteId)))
             throw new("You need to specify Site ID first");
 
-        var request = new RestRequest($"sites/{SiteId}", Method.Get);
+        var request = new RestRequest($"sites/{Client.GetSiteId(siteId)}", Method.Get);
         var site = await Client.ExecuteWithErrorHandling<SiteEntity>(request);
 
         if (site.Locales is null)

@@ -29,24 +29,24 @@ public class ContentActions(InvocationContext invocationContext, IFileManagement
     [BlueprintActionDefinition(BlueprintAction.SearchContent)]
     [Action("Search content", Description = "Search for any type of content")]
     public async Task<SearchContentResponse> SearchContent(
-        [ActionParameter] SiteRequest siteRequest,
+        [ActionParameter] SiteRequest site,
         [ActionParameter] SearchContentRequest request,
         [ActionParameter] DateFilter dateFilter)
     {
         request.ContentTypes ??= ContentTypes.SupportedContentTypes;
         var contentServices = _factory.GetContentServices(request.ContentTypes);
-        return await contentServices.ExecuteMany(siteRequest, request, dateFilter);
+        return await contentServices.ExecuteMany(Client.GetSiteId(site.SiteId), request, dateFilter);
     }
 
     [BlueprintActionDefinition(BlueprintAction.DownloadContent)]
     [Action("Download content", Description = "Download content as HTML for a specific content type based on its ID")]
     public async Task<DownloadContentResponse> DownloadContent(
-        [ActionParameter] SiteRequest siteRequest,
+        [ActionParameter] SiteRequest site,
         [ActionParameter] DownloadContentRequest request,
         [ActionParameter] ContentFilter contentFilter)
     {
         var service = _factory.GetContentService(contentFilter.ContentType);
-        var stream = await service.DownloadContent(siteRequest, request);
+        var stream = await service.DownloadContent(Client.GetSiteId(site.SiteId), request);
         var fileName = $"{contentFilter.ContentType.Replace(' ', '_').ToLower()}_{request.ContentId}.html";
         var fileReference = await fileManagementClient.UploadAsync(stream, MediaTypeNames.Text.Html, fileName);
         return new DownloadContentResponse(fileReference);
@@ -55,7 +55,7 @@ public class ContentActions(InvocationContext invocationContext, IFileManagement
     [BlueprintActionDefinition(BlueprintAction.UploadContent)]
     [Action("Upload content", Description = "Update content from an HTML file")]
     public async Task UploadContent(
-        [ActionParameter] SiteRequest siteRequest,
+        [ActionParameter] SiteRequest site,
         [ActionParameter] UploadContentRequest request)
     {
         var file = await fileManagementClient.DownloadAsync(request.Content);
@@ -72,7 +72,7 @@ public class ContentActions(InvocationContext invocationContext, IFileManagement
 
         using var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(html));
         var service = _factory.GetContentService(request.ContentType);
-        await service.UploadContent(memoryStream, siteRequest, request);
+        await service.UploadContent(memoryStream, site.SiteId, request);
     }
 
     private static string GetContentType(string html)
@@ -100,7 +100,7 @@ public class ContentActions(InvocationContext invocationContext, IFileManagement
         }
 
         throw new PluginMisconfigurationException(
-                "Unable to recognize the content type. Please provide in the input"
-            );
+            "Unable to recognize the content type. Please provide in the input"
+        );
     }
 }

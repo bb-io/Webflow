@@ -1,5 +1,6 @@
 using Apps.Webflow.Extensions;
 using Apps.Webflow.Invocables;
+using Apps.Webflow.Models.Request;
 using Apps.Webflow.Webhooks.Handlers;
 using Apps.Webflow.Webhooks.Models.Request;
 using Apps.Webflow.Webhooks.Models.Response;
@@ -69,6 +70,7 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
     [Webhook("On collection item created", typeof(CollectionItemCreatedWebhookHandler),
         Description = "Triggers when specific collection item was created")]
     public Task<WebhookResponse<CollectionItemResponse>> OnCollectionItemCreated(WebhookRequest webhookRequest,
+        [WebhookParameter] SiteRequest site,
         [WebhookParameter] CollectionItemWebhookRequest input)
     {
         var data = webhookRequest.GetPayload<CollectionWebhookResponse>();
@@ -97,6 +99,7 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
     [Webhook("On collection item updated", typeof(CollectionItemChangedWebhookHandler),
         Description = "Triggers when specific collection item was changed")]
     public Task<WebhookResponse<CollectionItemResponse>> OnCollectionItemChanged(WebhookRequest webhookRequest,
+        [WebhookParameter] SiteRequest site,
         [WebhookParameter] CollectionItemWebhookRequest input)
     {
         var data = webhookRequest.GetPayload<CollectionWebhookResponse>();
@@ -125,6 +128,7 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
     [Webhook("On collection item deleted", typeof(CollectionItemDeletedWebhookHandler),
         Description = "Triggers when specific collection item was deleted")]
     public Task<WebhookResponse<CollectionItemResponse>> OnCollectionItemDeleted(WebhookRequest webhookRequest,
+        [WebhookParameter] SiteRequest site,
         [WebhookParameter] CollectionItemWebhookRequest input)
     {
         var data = webhookRequest.GetPayload<CollectionWebhookResponse>();
@@ -153,6 +157,7 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
     [Webhook("On collection item published", typeof(CollectionItemPublishedWebhookHandler),
         Description = "Triggers when specific collection item was published")]
     public Task<WebhookResponse<CollectionItemResponse>> OnCollectionItemPublished(WebhookRequest webhookRequest,
+        [WebhookParameter] SiteRequest site,
         [WebhookParameter] CollectionItemWebhookRequest input)
     {
         var data = webhookRequest.GetPayload<CollectionItemPublishedResponse>();
@@ -181,6 +186,7 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
     [Webhook("On collection item unpublished", typeof(CollectionItemUnpublishedWebhookHandler),
         Description = "Triggers when specific collection item was unpublished")]
     public Task<WebhookResponse<CollectionItemResponse>> OnCollectionItemUnpublished(WebhookRequest webhookRequest,
+        [WebhookParameter] SiteRequest site,
         [WebhookParameter] CollectionItemWebhookRequest input)
     {
         var data = webhookRequest.GetPayload<CollectionWebhookResponse>();

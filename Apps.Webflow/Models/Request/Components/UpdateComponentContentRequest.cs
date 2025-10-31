@@ -17,10 +17,6 @@ public class UpdateComponentContentRequest
     [DataSource(typeof(SiteLocaleDataSourceHandler))]
     public string LocaleId { get; set; } = string.Empty;
 
-    [Display("Site ID")]
-    [DataSource(typeof(SiteDataSourceHandler))]
-    public string? SiteId { get; set; }
-
     [Display("Component ID")]
     [DataSource(typeof(ComponentDataSourceHandler))]
     public string? ComponentId { get; set; }

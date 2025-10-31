@@ -1,5 +1,5 @@
 ﻿using Apps.Webflow.Invocables;
-using Apps.Webflow.Models.Request.Pages;
+using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Response.Pages;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Dynamic;
@@ -9,15 +9,15 @@ using RestSharp;
 
 namespace Apps.Webflow.DataSourceHandlers.Locale;
 
-public class SiteLocaleDataSourceHandler(InvocationContext invocationContext, [ActionParameter] UpdatePageContentRequest input) 
+public class SiteLocaleDataSourceHandler(InvocationContext invocationContext, [ActionParameter] SiteRequest site) 
     : WebflowInvocable(invocationContext), IAsyncDataSourceItemHandler
 {
     public async Task<IEnumerable<DataSourceItem>> GetDataAsync(DataSourceContext context, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(input.SiteId))
+        if (string.IsNullOrWhiteSpace(Client.GetSiteId(site.SiteId)))
             throw new PluginMisconfigurationException("Site ID cannot be null or empty");
 
-        var endpoint = $"sites/{input.SiteId}";
+        var endpoint = $"sites/{Client.GetSiteId(site.SiteId)}";
         var request = new RestRequest(endpoint, Method.Get);
 
         var siteResponse = await Client.ExecuteWithErrorHandling<SiteLocales>(request);

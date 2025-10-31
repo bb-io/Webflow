@@ -4,12 +4,8 @@ using Blackbird.Applications.Sdk.Common.Webhooks;
 
 namespace Apps.Webflow.Webhooks.Handlers;
 
-public class CollectionItemChangedWebhookHandler : WebflowWebhookHandler
+public class CollectionItemChangedWebhookHandler(InvocationContext invocationContext, [WebhookParameter(true)] SiteRequest siteRequest) 
+    : WebflowWebhookHandler(invocationContext, siteRequest.SiteId)
 {
     protected override string EventType => "collection_item_changed";
-
-    public CollectionItemChangedWebhookHandler(InvocationContext invocationContext, [WebhookParameter(true)] SiteCmsLocaleRequest siteRequest) : base(invocationContext,
-        siteRequest.SiteId)
-    {
-    }
 }

@@ -28,7 +28,7 @@ public class CollectionActions(InvocationContext invocationContext) : WebflowInv
     public Task<CollectionEntity> CreateCollection([ActionParameter] SiteRequest site,
         [ActionParameter] CreateCollectionRequest input)
     {
-        var request = new RestRequest($"sites/{site.SiteId}/collections", Method.Post)
+        var request = new RestRequest($"sites/{Client.GetSiteId(site.SiteId)}/collections", Method.Post)
             .WithJsonBody(input, JsonConfig.Settings);
         return Client.ExecuteWithErrorHandling<CollectionEntity>(request);
     }

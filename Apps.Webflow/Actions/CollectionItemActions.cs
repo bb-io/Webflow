@@ -14,6 +14,7 @@ using Blackbird.Applications.Sdk.Utils.Extensions.String;
 using RestSharp;
 using Apps.Webflow.Models.Request.Collection;
 using Blackbird.Applications.Sdk.Common.Exceptions;
+using Apps.Webflow.Models.Request;
 
 namespace Apps.Webflow.Actions;
 
@@ -22,9 +23,11 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
     : WebflowInvocable(invocationContext)
 {
     [Action("Download collection item", Description = "Get content of a specific collection item in HTML format")]
-    public async Task<FileModel> GetCollectionItemContent([ActionParameter] CollectionItemRequest input)
+    public async Task<FileModel> GetCollectionItemContent(
+        [ActionParameter] SiteRequest site,
+        [ActionParameter] CollectionItemRequest input)
     {
-        if (string.IsNullOrWhiteSpace(input.SiteId))
+        if (string.IsNullOrWhiteSpace(Client.GetSiteId(site.SiteId)))
             throw new PluginMisconfigurationException("Site ID is required.");
         if (string.IsNullOrWhiteSpace(input.CollectionId))
             throw new PluginMisconfigurationException("Collection ID is required.");
@@ -34,7 +37,14 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         var collection = await GetCollection(input.CollectionId);
 
         var item = await GetCollectionItem(input.CollectionId, input.CollectionItemId, input.CmsLocaleId);
-        var html = CollectionItemHtmlConverter.ToHtml(item, collection.Fields, input.SiteId, input.CollectionId, input.CollectionItemId, item.CmsLocaleId);
+        var html = CollectionItemHtmlConverter.ToHtml(
+            item, 
+            collection.Fields, 
+            Client.GetSiteId(site.SiteId), 
+            input.CollectionId, 
+            input.CollectionItemId, 
+            item.CmsLocaleId
+        );
 
         return new()
         {
@@ -44,6 +54,7 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
 
     [Action("Upload collection item", Description = "Update content of a specific collection item from HTML file")]
     public async Task<CollectionItemEntity> UpdateCollectionItemContent(
+        [ActionParameter] SiteRequest site,
         [ActionParameter] UpdateCollectionItemRequest input,
         [ActionParameter] FileModel file)
     {
@@ -52,7 +63,7 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         await source.CopyToAsync(ms);
         ms.Position = 0;
 
-        if (string.IsNullOrEmpty(input.SiteId) ||
+        if (string.IsNullOrEmpty(site.SiteId) ||
             string.IsNullOrEmpty(input.CollectionId) ||
             string.IsNullOrEmpty(input.CollectionItemId) ||
             string.IsNullOrEmpty(input.CmsLocaleId))
@@ -64,7 +75,7 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
                 doc.DocumentNode.SelectSingleNode($"//meta[@name='{name}']")
                    ?.GetAttributeValue("content", null);
 
-            input.SiteId ??= M("blackbird-site-id");
+            site.SiteId ??= M("blackbird-site-id");
             input.CollectionId ??= M("blackbird-collection-id");
             input.CollectionItemId ??= M("blackbird-collection-item-id");
             input.CmsLocaleId ??= M("blackbird-cmslocale-id");

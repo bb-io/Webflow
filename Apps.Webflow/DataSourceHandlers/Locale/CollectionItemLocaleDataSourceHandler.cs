@@ -4,10 +4,7 @@ using Blackbird.Applications.Sdk.Common.Invocation;
 
 namespace Apps.Webflow.DataSourceHandlers.Locale;
 
-public class CollectionItemLocaleDataSourceHandler : CmsLocaleDataSourceHandler
+public class CollectionItemLocaleDataSourceHandler(InvocationContext invocationContext, [ActionParameter] SiteRequest request) 
+    : CmsLocaleDataSourceHandler(invocationContext, request.SiteId)
 {
-    public CollectionItemLocaleDataSourceHandler(InvocationContext invocationContext,
-        [ActionParameter] SiteRequest request) : base(invocationContext, request.SiteId)
-    {
-    }
 }

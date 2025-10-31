@@ -6,7 +6,7 @@ namespace Apps.Webflow.Services;
 
 public interface IContentService
 {
-    Task<SearchContentResponse> SearchContent(SiteRequest site, SearchContentRequest input, DateFilter dateFilter);
-    Task<Stream> DownloadContent(SiteRequest site, DownloadContentRequest input);
-    Task UploadContent(Stream content, SiteRequest site, UploadContentRequest input);
+    Task<SearchContentResponse> SearchContent(string siteId, SearchContentRequest input, DateFilter dateFilter);
+    Task<Stream> DownloadContent(string siteId, DownloadContentRequest input);
+    Task UploadContent(Stream content, string? siteId, UploadContentRequest input);
 }

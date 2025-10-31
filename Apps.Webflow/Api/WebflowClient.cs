@@ -14,17 +14,49 @@ namespace Apps.Webflow.Api;
 public class WebflowClient : BlackBirdRestClient
 {
     private const int Limit = 100;
+    private readonly IEnumerable<AuthenticationCredentialsProvider> _creds;
+    private string ConnectionType => _creds.First(x => x.KeyName == CredsNames.ConnectionType).Value;
 
     public WebflowClient(IEnumerable<AuthenticationCredentialsProvider> creds) : base(new()
     {
         BaseUrl = "https://api.webflow.com/v2".ToUri()
     })
     {
+        _creds = creds;
+
         var accessTokenProvider = creds.FirstOrDefault(x => x.KeyName == CredsNames.AccessToken);
         if (accessTokenProvider != null && !string.IsNullOrEmpty(accessTokenProvider.Value))
         {
             this.AddDefaultHeader("Authorization", $"Bearer {creds.Get(CredsNames.AccessToken).Value}");
         }
+    }
+
+    public async Task ValidateConnection()
+    {
+        if (ConnectionType is ConnectionTypes.OAuth2)
+        {
+            var siteId = _creds.First(x => x.KeyName == CredsNames.SiteId).Value;
+            if (string.IsNullOrWhiteSpace(siteId))
+                throw new PluginMisconfigurationException("Please specify valid site ID value");
+
+            await ExecuteWithErrorHandling(new RestRequest($"sites/{siteId}", Method.Get));
+        } 
+        else
+        {
+            await ExecuteWithErrorHandling(new RestRequest("sites", Method.Get));
+        }
+    }
+
+    public string GetSiteId(string? siteIdFromInput)
+    {
+        if (ConnectionType != ConnectionTypes.OAuth2)
+            return siteIdFromInput ?? throw new PluginMisconfigurationException("Please specify the site ID input");
+
+        if (siteIdFromInput != null)
+            return siteIdFromInput;
+
+        var siteId = _creds.FirstOrDefault(x => x.KeyName == CredsNames.SiteId)?.Value;
+        return siteId ?? throw new PluginMisconfigurationException("Site ID was not found in credentials for OAuth2 connection");
     }
 
     protected override Exception ConfigureErrorException(RestResponse response)

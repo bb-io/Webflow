@@ -4,12 +4,8 @@ using Blackbird.Applications.Sdk.Common.Webhooks;
 
 namespace Apps.Webflow.Webhooks.Handlers;
 
-public class PageMetadataUpdatedWebhookHandler : WebflowWebhookHandler
+public class PageMetadataUpdatedWebhookHandler(InvocationContext invocationContext, [WebhookParameter(true)] SiteRequest siteRequest) 
+    : WebflowWebhookHandler(invocationContext, siteRequest.SiteId)
 {
     protected override string EventType => "page_metadata_updated";
-
-    public PageMetadataUpdatedWebhookHandler(InvocationContext invocationContext, [WebhookParameter(true)] SiteRequest siteRequest) : base(invocationContext,
-        siteRequest.SiteId)
-    {
-    }
 }

@@ -27,7 +27,7 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
         [ActionParameter] SiteRequest site,
         [ActionParameter] SearchComponentsRequest input)
     {
-        var endpoint = $"sites/{site.SiteId}/components";
+        var endpoint = $"sites/{Client.GetSiteId(site.SiteId)}/components";
         var request = new RestRequest(endpoint, Method.Get);
 
         IEnumerable<ComponentEntity> pages = await Client.Paginate<ComponentEntity, ComponentsPaginationResponse>(request, r => r.Components);
@@ -51,9 +51,11 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
     }
 
     [Action("Download component", Description = "Get the component content in HTML file")]
-    public async Task<FileReference> GetComponentAsHtml([ActionParameter] GetComponentContentRequest input)
+    public async Task<FileReference> GetComponentAsHtml(
+        [ActionParameter] SiteRequest site,
+        [ActionParameter] GetComponentContentRequest input)
     {
-        var endpoint = $"sites/{input.SiteId}/components/{input.ComponentId}/dom";
+        var endpoint = $"sites/{Client.GetSiteId(site.SiteId)}/components/{input.ComponentId}/dom";
         var request = new RestRequest(endpoint, Method.Get);
 
         if (!string.IsNullOrEmpty(input.LocaleId))
@@ -61,7 +63,7 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
 
         var componentDom = await Client.ExecuteWithErrorHandling<ComponentDomEntity>(request);
 
-        var htmlStream = ComponentHtmlConverter.ToHtml(componentDom, input.SiteId, input.ComponentId);
+        var htmlStream = ComponentHtmlConverter.ToHtml(componentDom, Client.GetSiteId(site.SiteId), input.ComponentId);
 
         return await fileManagementClient.UploadAsync(
             htmlStream,
@@ -70,7 +72,9 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
     }
 
     [Action("Upload component", Description = "Update component content using HTML file")]
-    public async Task<UpdateComponentContentResponse> UpdateComponentContentAsHtml([ActionParameter] UpdateComponentContentRequest input)
+    public async Task<UpdateComponentContentResponse> UpdateComponentContentAsHtml(
+        [ActionParameter] UpdateComponentContentRequest input,
+        [ActionParameter] SiteRequest site)
     {
         var fileStream = await fileManagementClient.DownloadAsync(input.File);
 
@@ -80,12 +84,12 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
         if (string.IsNullOrEmpty(input.LocaleId))
             throw new PluginMisconfigurationException("Locale ID is required.");
 
-        if (string.IsNullOrEmpty(input.SiteId))
+        if (string.IsNullOrEmpty(site.SiteId))
         {
             var metaSiteIdNode = doc.DocumentNode.SelectSingleNode("//meta[@name='blackbird-site-id']");
-            input.SiteId = metaSiteIdNode.GetAttributeValue("content", string.Empty);
+            site.SiteId = metaSiteIdNode.GetAttributeValue("content", string.Empty);
 
-            if (string.IsNullOrEmpty(input.SiteId))
+            if (string.IsNullOrEmpty(site.SiteId))
                 throw new PluginMisconfigurationException("Site ID not found in the HTML file. Please, provide it in input or ensure that file contains <meta name=\"blackbird-site-id\"> tag.");
         }
 
@@ -148,7 +152,7 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
             Nodes = updateNodes
         };
 
-        var endpoint = $"sites/{input.SiteId}/components/{input.ComponentId}/dom";
+        var endpoint = $"sites/{Client.GetSiteId(site.SiteId)}/components/{input.ComponentId}/dom";
         var apiRequest = new RestRequest(endpoint, Method.Post).WithJsonBody(body);
 
         apiRequest.RequestFormat = DataFormat.Json;

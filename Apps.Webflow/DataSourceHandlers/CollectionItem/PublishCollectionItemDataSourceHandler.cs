@@ -4,10 +4,7 @@ using Blackbird.Applications.Sdk.Common.Invocation;
 
 namespace Apps.Webflow.DataSourceHandlers.CollectionItem;
 
-public class PublishCollectionItemDataSourceHandler : BaseCollectionItemDataSourceHandler
+public class PublishCollectionItemDataSourceHandler(InvocationContext invocationContext, [ActionParameter] PublishItemRequest request) 
+    : BaseCollectionItemDataSourceHandler(invocationContext, request.CollectionId, string.Empty)
 {
-    public PublishCollectionItemDataSourceHandler(InvocationContext invocationContext,
-        [ActionParameter] PublishItemRequest request) : base(invocationContext, request.CollectionId, string.Empty)
-    {
-    }
 }

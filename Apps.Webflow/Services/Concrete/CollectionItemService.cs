@@ -18,7 +18,7 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
 {
     private const string ContentType = ContentTypes.CollectionItem;
 
-    public async override Task<SearchContentResponse> SearchContent(SiteRequest site, SearchContentRequest input, DateFilter dateFilter)
+    public async override Task<SearchContentResponse> SearchContent(string siteId, SearchContentRequest input, DateFilter dateFilter)
     {
         if (string.IsNullOrEmpty(input.CollectionId))
             throw new PluginMisconfigurationException("Please specify collection ID in order to search content items");
@@ -52,7 +52,7 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
         return new SearchContentResponse(result);
     }
 
-    public override async Task<Stream> DownloadContent(SiteRequest site, DownloadContentRequest input)
+    public override async Task<Stream> DownloadContent(string siteId, DownloadContentRequest input)
     {
         if (string.IsNullOrWhiteSpace(input.CollectionId))
             throw new PluginMisconfigurationException("Collection ID is required");
@@ -67,7 +67,7 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
         var itemRequest = new RestRequest(itemEndpoint, Method.Get);
         var item = await Client.ExecuteWithErrorHandling<CollectionItemEntity>(itemRequest);
 
-        var stream = CollectionItemHtmlConverter.ToHtml(item, collection.Fields, site.SiteId, input.CollectionId, input.ContentId);
+        var stream = CollectionItemHtmlConverter.ToHtml(item, collection.Fields, siteId, input.CollectionId, input.ContentId);
         var memoryStream = new MemoryStream();
         await stream.CopyToAsync(memoryStream);
         memoryStream.Position = 0;
@@ -75,7 +75,7 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
         return memoryStream;
     }
 
-    public override async Task UploadContent(Stream content, SiteRequest site, UploadContentRequest input)
+    public override async Task UploadContent(Stream content, string siteId, UploadContentRequest input)
     {
         var memoryStream = new MemoryStream();
         await content.CopyToAsync(memoryStream);
@@ -102,7 +102,7 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
 
         var itemEndpoint = $"collections/{input.CollectionId}/items/{input.ContentId}";
 
-        string fetchedCmsLocaleId = await GetCmsLocale(site.SiteId, input.Locale);
+        string fetchedCmsLocaleId = await GetCmsLocale(siteId, input.Locale);
         itemEndpoint = itemEndpoint.SetQueryParameter("cmsLocaleId", fetchedCmsLocaleId);
 
         var itemRequest = new RestRequest(itemEndpoint, Method.Get);
