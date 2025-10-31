@@ -21,4 +21,8 @@ public class CollectionItemResponse : IDownloadContentInput
     [JsonProperty("workspaceId")]
     [Display("Workspace ID")]
     public string WorkspaceId { get; set; }
+
+    [JsonProperty("cmsLocaleId")]
+    [Display("Locale ID")]
+    public string CmsLocaleId { get; set; }
 }
