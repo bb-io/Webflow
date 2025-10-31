@@ -1,4 +1,5 @@
-﻿using Apps.Webflow.Polling;
+﻿using Apps.Webflow.Models.Request;
+using Apps.Webflow.Polling;
 using Apps.Webflow.Polling.Models;
 using Apps.Webflow.Polling.Models.Requests;
 using Blackbird.Applications.Sdk.Common.Polling;
@@ -27,12 +28,11 @@ public class PollingTests : TestBase
                 }
             };
 
-            var input = new PageUpdatedRequest {
-                SiteId = "68f8b336cbd1cac54f5b9d2c"
-            };
+            var site = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
+            var input = new PageUpdatedRequest { };
 
             // Act
-            var response = polling.OnPageUpdated(request, input);
+            var response = polling.OnPageUpdated(request, site, input);
 
             //Assert
             Assert.IsNotNull(response, "Response should not be null.");
@@ -61,14 +61,11 @@ public class PollingTests : TestBase
                 }
             };
 
-            var input = new PageUpdatedRequest
-            {
-                SiteId = "68f8b336cbd1cac54f5b9d2c",
-                NameContains = "Abo"
-            };
+            var input = new PageUpdatedRequest { NameContains = "Abo" };
+            var site = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
 
             // Act
-            var response = polling.OnPageUpdated(request, input);
+            var response = polling.OnPageUpdated(request, site, input);
 
             //Assert
             Assert.IsNotNull(response, "Response should not be null.");
