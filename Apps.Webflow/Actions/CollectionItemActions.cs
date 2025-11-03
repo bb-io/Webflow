@@ -5,7 +5,9 @@ using Apps.Webflow.Models.Entities;
 using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Collection;
 using Apps.Webflow.Models.Request.CollectionItem;
+using Apps.Webflow.Models.Request.Content;
 using Apps.Webflow.Models.Response.CollectiomItem;
+using Apps.Webflow.Services;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Exceptions;
@@ -26,6 +28,8 @@ namespace Apps.Webflow.Actions;
 public class CollectionItemActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
     : WebflowInvocable(invocationContext)
 {
+    private readonly ContentServicesFactory _factory = new ContentServicesFactory(invocationContext);
+
     [Action("Download collection item", Description = "Get content of a specific collection item in HTML format")]
     public async Task<DownloadCollectionItemContentResponse> GetCollectionItemContent(
         [ActionParameter] SiteRequest site,
@@ -70,45 +74,15 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
 
         await using var ms = new MemoryStream(Encoding.UTF8.GetBytes(html));
 
-        if (string.IsNullOrEmpty(input.CollectionId) ||
-            string.IsNullOrEmpty(input.CollectionItemId) ||
-            string.IsNullOrEmpty(input.CmsLocaleId))
-        {
-            var doc = new HtmlAgilityPack.HtmlDocument();
-            doc.Load(ms);
+        var service = _factory.GetContentService(ContentTypes.CollectionItem);
+        var request = new UploadContentRequest 
+        { 
+            CollectionId = input.CollectionId,
+            Locale = input.CmsLocaleId,
+            ContentId = input.CollectionItemId
+        };
 
-            string? M(string name) =>
-                doc.DocumentNode.SelectSingleNode($"//meta[@name='{name}']")
-                   ?.GetAttributeValue("content", null);
-
-            input.CollectionId ??= M("blackbird-collection-id");
-            input.CollectionItemId ??= M("blackbird-collection-item-id");
-            input.CmsLocaleId ??= M("blackbird-cmslocale-id");
-
-            ms.Position = 0;
-        }
-
-        if (string.IsNullOrWhiteSpace(input.CollectionId))
-            throw new PluginMisconfigurationException("Collection ID is missing. Provide it or include it in the HTML file");
-        if (string.IsNullOrWhiteSpace(input.CollectionItemId))
-            throw new PluginMisconfigurationException("Collection item ID is missing. Provide it or include it in the HTML file");
-        if (string.IsNullOrWhiteSpace(input.CmsLocaleId))
-            throw new PluginMisconfigurationException("Locale ID is missing. Provide it or include it in the HTML file (blackbird-cmslocale-id tag)");
-
-        var item = await GetCollectionItem(input.CollectionId, input.CollectionItemId, input.CmsLocaleId);
-        var collection = await GetCollection(input.CollectionId);
-
-        var fieldData = CollectionItemHtmlConverter.ToJson(ms, item.FieldData, collection.Fields);
-
-        var endpoint = $"collections/{input.CollectionId}/items/{input.CollectionItemId}";
-        var request = new RestRequest(endpoint, Method.Patch)
-            .WithJsonBody(new
-            {
-                fieldData,
-                cmsLocaleId = input.CmsLocaleId,
-            }, JsonConfig.Settings);
-
-        await Client.ExecuteWithErrorHandling(request);
+        await service.UploadContent(ms, site.SiteId, request);
 
         if (input.Publish.HasValue && input.Publish.Value)
         {

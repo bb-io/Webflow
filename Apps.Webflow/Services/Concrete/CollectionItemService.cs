@@ -90,12 +90,17 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
         memoryStream.Position = 0;
 
         if (string.IsNullOrEmpty(input.CollectionId) ||
-            string.IsNullOrEmpty(input.ContentId))
+            string.IsNullOrEmpty(input.ContentId) ||
+            string.IsNullOrEmpty(input.Locale))
         {
-            input.CollectionId ??= doc.DocumentNode.SelectSingleNode($"//meta[@name='blackbird-collection-id']")
+            string? M(string name) =>
+                doc.DocumentNode.SelectSingleNode($"//meta[@name='{name}']")
                    ?.GetAttributeValue("content", null);
-            input.ContentId ??= doc.DocumentNode.SelectSingleNode($"//meta[@name='blackbird-collection-item-id']")
-                   ?.GetAttributeValue("content", null);
+
+            input.CollectionId ??= M("blackbird-collection-id");
+            input.ContentId ??= M("blackbird-collection-item-id");
+            input.Locale ??= M("blackbird-cmslocale-id");
+
             memoryStream.Position = 0;
         }
 
@@ -103,6 +108,8 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
             throw new PluginMisconfigurationException("Collection ID is missing. Provide it or include it in the HTML file");
         if (string.IsNullOrWhiteSpace(input.ContentId))
             throw new PluginMisconfigurationException("Collection item ID is missing. Provide it or include it in the HTML file");
+        if (string.IsNullOrWhiteSpace(input.Locale))
+            throw new PluginMisconfigurationException("Locale ID is missing. Provide it or include it in the HTML file (blackbird-cmslocale-id tag)");
 
         var itemEndpoint = $"collections/{input.CollectionId}/items/{input.ContentId}";
 
