@@ -73,6 +73,24 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         }
 
         await using var ms = new MemoryStream(Encoding.UTF8.GetBytes(html));
+        var doc = new HtmlAgilityPack.HtmlDocument();
+        doc.Load(ms);
+        ms.Position = 0;
+
+        string? M(string name) =>
+            doc.DocumentNode.SelectSingleNode($"//meta[@name='{name}']")
+               ?.GetAttributeValue("content", null);
+
+        input.CollectionId ??= M("blackbird-collection-id");
+        input.CollectionItemId ??= M("blackbird-collection-item-id");
+        input.CmsLocaleId ??= M("blackbird-cmslocale-id");
+
+        if (string.IsNullOrWhiteSpace(input.CollectionId))
+            throw new PluginMisconfigurationException("Collection ID is missing. Provide it or include it in the HTML file.");
+        if (string.IsNullOrWhiteSpace(input.CollectionItemId))
+            throw new PluginMisconfigurationException("Collection item ID is missing. Provide it or include it in the HTML file.");
+        if (string.IsNullOrWhiteSpace(input.CmsLocaleId))
+            throw new PluginMisconfigurationException("CMS locale ID is missing. Provide it or include it in the HTML file.");
 
         var service = _factory.GetContentService(ContentTypes.CollectionItem);
         var request = new UploadContentRequest 

@@ -85,35 +85,9 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
         await content.CopyToAsync(memoryStream);
         memoryStream.Position = 0;
 
-        var doc = new HtmlAgilityPack.HtmlDocument();
-        doc.Load(memoryStream);
-        memoryStream.Position = 0;
-
-        if (string.IsNullOrEmpty(input.CollectionId) ||
-            string.IsNullOrEmpty(input.ContentId) ||
-            string.IsNullOrEmpty(input.Locale))
-        {
-            string? M(string name) =>
-                doc.DocumentNode.SelectSingleNode($"//meta[@name='{name}']")
-                   ?.GetAttributeValue("content", null);
-
-            input.CollectionId ??= M("blackbird-collection-id");
-            input.ContentId ??= M("blackbird-collection-item-id");
-            input.Locale ??= M("blackbird-cmslocale-id");
-
-            memoryStream.Position = 0;
-        }
-
-        if (string.IsNullOrWhiteSpace(input.CollectionId))
-            throw new PluginMisconfigurationException("Collection ID is missing. Provide it or include it in the HTML file");
-        if (string.IsNullOrWhiteSpace(input.ContentId))
-            throw new PluginMisconfigurationException("Collection item ID is missing. Provide it or include it in the HTML file");
-        if (string.IsNullOrWhiteSpace(input.Locale))
-            throw new PluginMisconfigurationException("Locale ID is missing. Provide it or include it in the HTML file (blackbird-cmslocale-id tag)");
-
         var itemEndpoint = $"collections/{input.CollectionId}/items/{input.ContentId}";
 
-        string fetchedCmsLocaleId = await GetCmsLocale(siteId, input.Locale);
+        string fetchedCmsLocaleId = await GetCmsLocale(siteId, input.Locale!);
         itemEndpoint = itemEndpoint.SetQueryParameter("cmsLocaleId", fetchedCmsLocaleId);
 
         var itemRequest = new RestRequest(itemEndpoint, Method.Get);

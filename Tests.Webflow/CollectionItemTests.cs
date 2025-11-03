@@ -37,7 +37,8 @@ public class CollectionItemTests : TestBase
         var context = GetInvocationContext(ConnectionTypes.OAuth2);
         var request = new UpdateCollectionItemRequest
         {
-            File = new FileReference { Name = "12345.xlf" }
+            File = new FileReference { Name = "12345.xlf" },
+            Publish = true
         };
         var site = new SiteRequest { };
         var actions = new CollectionItemActions(context, FileManagementClient);
