@@ -1,13 +1,13 @@
-﻿using RestSharp;
+﻿using Apps.Webflow.Helper;
 using Apps.Webflow.Invocables;
-using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Entities;
+using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Site;
 using Apps.Webflow.Models.Response.Site;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Invocation;
-using Blackbird.Applications.Sdk.Common.Exceptions;
+using RestSharp;
 
 namespace Apps.Webflow.Actions;
 
@@ -54,22 +54,8 @@ public class SiteActions(InvocationContext invocationContext) : WebflowInvocable
 
     private static void ValidateInputDates(SearchSitesRequest input, DateFilter date)
     {
-        if (!IsCorrectDateRange(date.CreatedBefore, date.CreatedAfter))
-            throw new PluginMisconfigurationException("Please specify a valid date range. 'Created after' date cannot be later than the 'Created before' date");
-
-        if (!IsCorrectDateRange(input.LastPublishedBefore, input.LastPublishedAfter))
-            throw new PluginMisconfigurationException("Please specify a valid date range. 'Last published after' date cannot be later than the 'Last published before' date");
-        
-        if (!IsCorrectDateRange(date.LastUpdatedBefore, date.LastUpdatedAfter))
-            throw new PluginMisconfigurationException("Please specify a valid date range. 'Last published after' date cannot be later than the 'Last published before' date");
-    }
-
-    private static bool IsCorrectDateRange(DateTime? before, DateTime? after)
-    {
-        if (!before.HasValue || !after.HasValue)
-            return true;
-
-        return after <= before;
+        ValidatorHelper.ValidateInputDates(date);
+        ValidatorHelper.ValidatePublishedInputDates(input.LastPublishedBefore, input.LastPublishedAfter);
     }
 
     private static IEnumerable<SiteEntity> ApplySiteFilters(SearchSitesRequest input, DateFilter date, SiteEntitiesList result)
