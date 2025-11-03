@@ -1,18 +1,24 @@
-﻿using Apps.Webflow.Helper;
+﻿using Apps.Webflow.Constants;
+using Apps.Webflow.Helper;
 using Apps.Webflow.HtmlConversion;
-using Apps.Webflow.HtmlConversion.Constants;
 using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Entities;
 using Apps.Webflow.Models.Request;
+using Apps.Webflow.Models.Request.Content;
 using Apps.Webflow.Models.Request.Pages;
 using Apps.Webflow.Models.Response.Pages;
 using Apps.Webflow.Models.Response.Pagination;
+using Apps.Webflow.Services;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
+using Blackbird.Filters.Transformations;
+using Blackbird.Filters.Xliff.Xliff2;
 using RestSharp;
-using System.Web;
+using System.Text;
 
 namespace Apps.Webflow.Actions;
 
@@ -20,6 +26,8 @@ namespace Apps.Webflow.Actions;
 public class PagesActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
     : WebflowInvocable(invocationContext)
 {
+    private readonly ContentServicesFactory _factory = new ContentServicesFactory(invocationContext);
+
     [Action("Search pages", Description = "Search pages using filters")]
     public async Task<SearchPagesResponse> SearchPages(
         [ActionParameter] SiteRequest site,
@@ -96,14 +104,19 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
         [ActionParameter] SiteRequest site,
         [ActionParameter] UpdatePageContentRequest input)
     {
-        var fileStream = await fileManagementClient.DownloadAsync(input.File);
+        await using var source = await fileManagementClient.DownloadAsync(input.File);
+        var html = Encoding.UTF8.GetString(await source.GetByteData());
 
-        var memoryStream = new MemoryStream();
-        await fileStream.CopyToAsync(memoryStream);
-        memoryStream.Position = 0;
+        if (Xliff2Serializer.IsXliff2(html))
+        {
+            html = Transformation.Parse(html, input.File.Name).Target().Serialize();
+            if (html == null) throw new PluginMisconfigurationException("XLIFF did not contain files");
+        }
 
+        await using var ms = new MemoryStream(Encoding.UTF8.GetBytes(html));
         var doc = new HtmlAgilityPack.HtmlDocument();
-        doc.Load(memoryStream);
+        doc.Load(ms);
+        ms.Position = 0;
 
         if (string.IsNullOrEmpty(input.PageId))
         {
@@ -113,43 +126,26 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
                 input.PageId = metaPageIdNode.GetAttributeValue("content", string.Empty);
         }
 
-        var elements = doc.DocumentNode
-            .Descendants()
-            .Where(x => x.NodeType == HtmlAgilityPack.HtmlNodeType.Element &&
-                        x.Attributes[ConversionConstants.NodeId] != null)
-            .ToList();
-
-        var updateNodes = new List<UpdatePageNode>();
-
-        foreach (var element in elements)
+        if (string.IsNullOrEmpty(input.LocaleId))
         {
-            var nodeId = element.Attributes[ConversionConstants.NodeId].Value;
-            var textHtml = HttpUtility.HtmlDecode(element.InnerHtml);
+            var localeIdNode = doc.DocumentNode.SelectSingleNode("//meta[@name='blackbird-locale-id']");
 
-            updateNodes.Add(new UpdatePageNode
-            {
-                NodeId = nodeId,
-                Text = textHtml
-            });
+            if (localeIdNode != null && string.IsNullOrEmpty(input.LocaleId))
+                input.PageId = localeIdNode.GetAttributeValue("content", string.Empty);
         }
 
-        var body = new UpdatePageDomRequest
+        if (string.IsNullOrEmpty(input.PageId))
+            throw new PluginMisconfigurationException("Page ID was not found in the file. Please specify it in the input value");
+        if (string.IsNullOrEmpty(input.LocaleId))
+            throw new PluginMisconfigurationException("Locale ID was not found in the file. Please specify it in the input value");
+
+        var uploadRequest = new UploadContentRequest
         {
-            LocaleId = input.LocaleId,
-            Nodes = updateNodes
+            ContentId = input.PageId,
+            Locale = input.LocaleId
         };
 
-        var endpoint = $"pages/{input.PageId}/dom";
-        var request = new RestRequest(endpoint, Method.Post)
-        {
-            RequestFormat = DataFormat.Json
-        };
-
-        if (!string.IsNullOrEmpty(input.LocaleId))
-            request.AddQueryParameter("localeId", input.LocaleId);
-
-        request.AddJsonBody(body);
-
-        var response = await Client.ExecuteWithErrorHandling(request);
+        var service = _factory.GetContentService(ContentTypes.Page);
+        await service.UploadContent(ms, site.SiteId, uploadRequest);
     }
 }

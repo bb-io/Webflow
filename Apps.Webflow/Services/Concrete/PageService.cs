@@ -9,7 +9,6 @@ using Apps.Webflow.Models.Request.Pages;
 using Apps.Webflow.Models.Response.Content;
 using Apps.Webflow.Models.Response.Pages;
 using Apps.Webflow.Models.Response.Pagination;
-using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using RestSharp;
 using System.Web;
@@ -67,9 +66,6 @@ public class PageService(InvocationContext invocationContext) : BaseContentServi
     
     public override async Task UploadContent(Stream content, string siteId, UploadContentRequest input)
     {
-        if (string.IsNullOrEmpty(input.Locale))
-            throw new PluginMisconfigurationException("Please specify the 'Locale' input");
-
         var memoryStream = new MemoryStream();
         await content.CopyToAsync(memoryStream);
         memoryStream.Position = 0;
@@ -77,18 +73,13 @@ public class PageService(InvocationContext invocationContext) : BaseContentServi
         var doc = new HtmlAgilityPack.HtmlDocument();
         doc.Load(memoryStream);
 
-        if (string.IsNullOrEmpty(input.ContentId) || string.IsNullOrEmpty(siteId))
+        if (string.IsNullOrEmpty(input.ContentId))
         {
             var metaPageIdNode = doc.DocumentNode.SelectSingleNode("//meta[@name='blackbird-page-id']");
-            var metaSiteIdNode = doc.DocumentNode.SelectSingleNode("//meta[@name='blackbird-site-id']");
+
             if (metaPageIdNode != null && string.IsNullOrEmpty(input.ContentId))
                 input.ContentId = metaPageIdNode.GetAttributeValue("content", string.Empty);
-            if (metaSiteIdNode != null && string.IsNullOrEmpty(siteId))
-                siteId = metaSiteIdNode.GetAttributeValue("content", string.Empty);
         }
-
-        if (string.IsNullOrEmpty(input.ContentId))
-            throw new PluginMisconfigurationException("Page ID was not found in the file. Please specify it in the input value");
 
         var elements = doc.DocumentNode
             .Descendants()
