@@ -65,7 +65,7 @@ public class PagesTests : TestBase
 
             var site = new SiteRequest { };
 
-            var input = new UpdatePageRequest
+            var input = new UpdatePageContentRequest
             {
                 LocaleId = "67765e8a8235a4578faed52a",
                 File = fileReference
@@ -74,10 +74,7 @@ public class PagesTests : TestBase
             var action = new PagesActions(context, FileManagementClient);
 
             //Act 
-            var result = await action.UpdatePageContentAsHtml(site, input);
-
-            //Assert
-            Assert.IsTrue(result.Success, "Result should not be null.");
+            await action.UpdatePageContentAsHtml(site, input);
         }
     }
 }

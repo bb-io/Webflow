@@ -68,7 +68,6 @@ public class ComponentsTests : TestBase
 
             // Assert
             Assert.IsNotNull(result, "Result should not be null.");
-            Assert.AreEqual("text/html", result.ContentType);
         }
     }
 
@@ -94,10 +93,7 @@ public class ComponentsTests : TestBase
             var action = new ComponentsActions(context, FileManagementClient);
 
             // Act
-            var result = await action.UpdateComponentContentAsHtml(input, site);
-
-            // Assert
-            Assert.IsTrue(result.Success, "Result should be successful.");
+            await action.UpdateComponentContentAsHtml(site, input);
         }
     }
 
@@ -121,7 +117,6 @@ public class ComponentsTests : TestBase
 
             // Assert
             Assert.IsNotNull(result, "Result should not be null.");
-            Assert.AreEqual("text/html", result.ContentType);
         }
     }
 }

@@ -40,21 +40,14 @@ public class CollectionItemTests : TestBase
             var request = new UpdateCollectionItemRequest
             {
                 CollectionId = "68f88700e2a4dba6d693cc90",
-                CollectionItemId = "68f88700e2a4dba6d693ccc4"
+                CollectionItemId = "68f88700e2a4dba6d693ccc4",
+                File = new FileReference { }
             };
             var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
-            var file = new FileModel
-            {
-                File = new FileReference { Name = "test_en.html" }
-            };
             var actions = new CollectionItemActions(context, FileManagementClient);
 
             // Act
-            var result = await actions.UpdateCollectionItemContent(site, request, file);
-
-            // Assert
-            PrintJsonResult(result);
-            Assert.IsNotNull(result);
+            await actions.UpdateCollectionItemContent(site, request);
         }
     }
 
@@ -68,21 +61,14 @@ public class CollectionItemTests : TestBase
             {
                 CollectionId = "68f88700e2a4dba6d693cc90",
                 CollectionItemId = "68f88700e2a4dba6d693ccc4",
-                Publish = true
-            };
-            var file = new FileModel
-            {
+                Publish = true,
                 File = new FileReference { Name = "test_en.html" }
             };
             var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
             var actions = new CollectionItemActions(context, FileManagementClient);
 
             // Act
-            var result = await actions.UpdateCollectionItemContent(site, request, file);
-
-            // Assert
-            PrintJsonResult(result);
-            Assert.IsNotNull(result);
+            await actions.UpdateCollectionItemContent(site, request);
         }
     }
 }
