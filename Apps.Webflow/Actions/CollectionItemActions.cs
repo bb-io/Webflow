@@ -54,7 +54,7 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
             item.CmsLocaleId
         );
 
-        var file = await fileManagementClient.UploadAsync(html, MediaTypeNames.Text.Html, $"{item.Id}.html");
+        var file = await fileManagementClient.UploadAsync(html, MediaTypeNames.Text.Html, $"collection_item_{item.Id}.html");
         return new(file);
     }
 
@@ -82,7 +82,7 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
             ContentId = input.CollectionItemId
         };
 
-        await service.UploadContent(ms, site.SiteId, request);
+        await service.UploadContent(ms, Client.GetSiteId(site.SiteId), request);
 
         if (input.Publish.HasValue && input.Publish.Value)
         {

@@ -146,6 +146,10 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
         if (secondaryLocale != null)
             return secondaryLocale.CmsLocaleId;
 
+        var cmsLocale = siteEntity.Locales.Secondary?.FirstOrDefault(x => x.CmsLocaleId == siteLocaleId);
+        if (cmsLocale != null)
+            return siteLocaleId;
+
         throw new PluginApplicationException("Can't match the input locale with available collection item locale ID");
     }
 }
