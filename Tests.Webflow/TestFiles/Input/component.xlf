@@ -1,0 +1,191 @@
+<xliff srcLang="de" trgLang="sv" version="2.2" xmlns:mda="urn:oasis:names:tc:xliff:metadata:2.0" xmlns:its="http://www.w3.org/2005/11/its" xmlns:fs="urn:oasis:names:tc:xliff:fs:2.0" xmlns="urn:oasis:names:tc:xliff:document:2.2">
+  <file id="f1">
+    <skeleton>&lt;html&gt;&lt;head&gt;&lt;title&gt;&lt;/title&gt;&lt;meta name="blackbird-site-id" content="68f8b336cbd1cac54f5b9d2c"&gt;&lt;meta name="blackbird-component-id" content="88a386dd-8f07-0c34-70f0-2d9f87e29718"&gt;&lt;meta name="blackbird-locale-id" content="69007d6cf09bd27cf732e155"&gt;&lt;/head&gt;&lt;body&gt;&lt;div data-node-id="88a386dd-8f07-0c34-70f0-2d9f87e2971d"&gt;&lt;div class="label"&gt;Meny&lt;/div&gt;&lt;/div&gt;&lt;div data-node-id="88a386dd-8f07-0c34-70f0-2d9f87e29720"&gt;&lt;a class="footer-link" data-wf-link-page-id="68f8b337cbd1cac54f5b9d76"&gt;Hem&lt;/a&gt;&lt;/div&gt;&lt;div data-node-id="49075d18-14d9-c67c-a449-92599a7f2089"&gt;&lt;a class="footer-link" data-wf-link-page-id="68f8b337cbd1cac54f5b9d7f"&gt;Om oss&lt;/a&gt;&lt;/div&gt;&lt;div data-node-id="76224831-ec4a-a3a8-f328-0a779f0099d5"&gt;&lt;a class="footer-link" data-wf-link-page-id="68f8b337cbd1cac54f5b9d80"&gt;Kontakt&lt;/a&gt;&lt;/div&gt;&lt;div data-node-id="88a386dd-8f07-0c34-70f0-2d9f87e29722"&gt;&lt;a class="footer-link" data-wf-link-page-id="68f8b337cbd1cac54f5b9d82"&gt;Produkter&lt;/a&gt;&lt;/div&gt;&lt;div data-node-id="5ca41b34-3e36-7d60-cf9f-1f9a8a1df5c5"&gt;&lt;a class="footer-link" data-wf-link-page-id="68f8b337cbd1cac54f5b9d7e"&gt;Blogg&lt;/a&gt;&lt;/div&gt;&lt;div data-node-id="c6735f5a-ece9-98b2-2d37-1f38511561d6"&gt;&lt;a class="footer-link" data-wf-link-page-id="68f8b337cbd1cac54f5b9d7c"&gt;Stilguide&lt;/a&gt;&lt;/div&gt;&lt;div data-node-id="88a386dd-8f07-0c34-70f0-2d9f87e29724"&gt;&lt;div class="label"&gt;Kategorier&lt;/div&gt;&lt;/div&gt;&lt;div data-node-id="f018e3b0-f437-a7e8-480e-757430cfb5a4"&gt;&lt;div&gt;Inga objekt hittades AAAAAAAAA.&lt;/div&gt;&lt;/div&gt;&lt;div data-node-id="88a386dd-8f07-0c34-70f0-2d9f87e2972d"&gt;&lt;div class="label"&gt;Hjälp&lt;/div&gt;&lt;/div&gt;&lt;div data-node-id="88a386dd-8f07-0c34-70f0-2d9f87e29730"&gt;&lt;a class="footer-link" data-wf-link-page-id="68f8b337cbd1cac54f5b9d80"&gt;Frakt&lt;/a&gt;&lt;/div&gt;&lt;div data-node-id="88a386dd-8f07-0c34-70f0-2d9f87e29732"&gt;&lt;a class="footer-link" data-wf-link-page-id="68f8b337cbd1cac54f5b9d80"&gt;Returer &amp;amp; Byte&lt;/a&gt;&lt;/div&gt;&lt;div data-node-id="88a386dd-8f07-0c34-70f0-2d9f87e29734"&gt;&lt;a class="footer-link" data-wf-link-page-id="68f8b337cbd1cac54f5b9d80"&gt;Produktvård&lt;/a&gt;&lt;/div&gt;&lt;div data-node-id="88a386dd-8f07-0c34-70f0-2d9f87e29736"&gt;&lt;div class="label"&gt;Följ oss&lt;/div&gt;&lt;/div&gt;&lt;div data-node-id="88a386dd-8f07-0c34-70f0-2d9f87e29739"&gt;&lt;a class="footer-link" href="https://www.instagram.com/webflowapp/"&gt;Instagram&lt;/a&gt;&lt;/div&gt;&lt;div data-node-id="88a386dd-8f07-0c34-70f0-2d9f87e2973b"&gt;&lt;a class="footer-link" href="https://www.facebook.com/webflow/"&gt;Facebook&lt;/a&gt;&lt;/div&gt;&lt;div data-node-id="88a386dd-8f07-0c34-70f0-2d9f87e2973d"&gt;&lt;a class="footer-link" href="https://twitter.com/webflow"&gt;Twitter&lt;/a&gt;&lt;/div&gt;&lt;div data-node-id="88a386dd-8f07-0c34-70f0-2d9f87e29741"&gt;&lt;div class="paragraph-tiny"&gt;Drivs av Webflow&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;</skeleton>
+    <mda:metadata>
+      <mda:metaGroup category="blackbird">
+        <mda:meta type="original-name">component_88a386dd-8f07-0c34-70f0-2d9f87e29718.html</mda:meta>
+        <mda:meta type="original-media-type">text/html</mda:meta>
+      </mda:metaGroup>
+    </mda:metadata>
+    <unit id="u1" name="/html[1]/body[1]/div[1]/div[1]" its:tool="DeepL" its:toolRef="https://www.deepl.com/" fs:fs="div" fs:subFs="class,label">
+      <segment state="translated">
+        <source>Meny</source>
+        <target>Till</target>
+      </segment>
+    </unit>
+    <unit id="u2" name="/html[1]/body[1]/div[2]" its:tool="DeepL" its:toolRef="https://www.deepl.com/" fs:fs="div">
+      <originalData>
+        <data id="d1">&lt;a class="footer-link" data-wf-link-page-id="68f8b337cbd1cac54f5b9d76"&gt;</data>
+        <data id="d2">&lt;/a&gt;</data>
+      </originalData>
+      <segment state="translated">
+        <source>
+          <sc id="1" dataRef="d1" fs:fs="a" fs:subFs="class,footer-link" />Hem<ec dataRef="d2" fs:fs="a" startRef="1" /></source>
+        <target>
+          <sc id="1" dataRef="d1" fs:fs="a" fs:subFs="class,footer-link" />Hem<ec dataRef="d2" fs:fs="a" startRef="1" /></target>
+      </segment>
+    </unit>
+    <unit id="u3" name="/html[1]/body[1]/div[3]" its:tool="DeepL" its:toolRef="https://www.deepl.com/" fs:fs="div">
+      <originalData>
+        <data id="d1">&lt;a class="footer-link" data-wf-link-page-id="68f8b337cbd1cac54f5b9d7f"&gt;</data>
+        <data id="d2">&lt;/a&gt;</data>
+      </originalData>
+      <segment state="translated">
+        <source>
+          <sc id="1" dataRef="d1" fs:fs="a" fs:subFs="class,footer-link" />Om oss<ec dataRef="d2" fs:fs="a" startRef="1" /></source>
+        <target>
+          <sc id="1" dataRef="d1" fs:fs="a" fs:subFs="class,footer-link" />Om oss<ec dataRef="d2" fs:fs="a" startRef="1" /></target>
+      </segment>
+    </unit>
+    <unit id="u4" name="/html[1]/body[1]/div[4]" its:tool="DeepL" its:toolRef="https://www.deepl.com/" fs:fs="div">
+      <originalData>
+        <data id="d1">&lt;a class="footer-link" data-wf-link-page-id="68f8b337cbd1cac54f5b9d80"&gt;</data>
+        <data id="d2">&lt;/a&gt;</data>
+      </originalData>
+      <segment state="translated">
+        <source>
+          <sc id="1" dataRef="d1" fs:fs="a" fs:subFs="class,footer-link" />Kontakt<ec dataRef="d2" fs:fs="a" startRef="1" /></source>
+        <target>
+          <sc id="1" dataRef="d1" fs:fs="a" fs:subFs="class,footer-link" />Kontakta oss<ec dataRef="d2" fs:fs="a" startRef="1" /></target>
+      </segment>
+    </unit>
+    <unit id="u5" name="/html[1]/body[1]/div[5]" its:tool="DeepL" its:toolRef="https://www.deepl.com/" fs:fs="div">
+      <originalData>
+        <data id="d1">&lt;a class="footer-link" data-wf-link-page-id="68f8b337cbd1cac54f5b9d82"&gt;</data>
+        <data id="d2">&lt;/a&gt;</data>
+      </originalData>
+      <segment state="translated">
+        <source>
+          <sc id="1" dataRef="d1" fs:fs="a" fs:subFs="class,footer-link" />Produkter<ec dataRef="d2" fs:fs="a" startRef="1" /></source>
+        <target>
+          <sc id="1" dataRef="d1" fs:fs="a" fs:subFs="class,footer-link" />Produkt<ec dataRef="d2" fs:fs="a" startRef="1" /></target>
+      </segment>
+    </unit>
+    <unit id="u6" name="/html[1]/body[1]/div[6]" its:tool="DeepL" its:toolRef="https://www.deepl.com/" fs:fs="div">
+      <originalData>
+        <data id="d1">&lt;a class="footer-link" data-wf-link-page-id="68f8b337cbd1cac54f5b9d7e"&gt;</data>
+        <data id="d2">&lt;/a&gt;</data>
+      </originalData>
+      <segment state="translated">
+        <source>
+          <sc id="1" dataRef="d1" fs:fs="a" fs:subFs="class,footer-link" />Blogg<ec dataRef="d2" fs:fs="a" startRef="1" /></source>
+        <target>
+          <sc id="1" dataRef="d1" fs:fs="a" fs:subFs="class,footer-link" />Blogg<ec dataRef="d2" fs:fs="a" startRef="1" /></target>
+      </segment>
+    </unit>
+    <unit id="u7" name="/html[1]/body[1]/div[7]" its:tool="DeepL" its:toolRef="https://www.deepl.com/" fs:fs="div">
+      <originalData>
+        <data id="d1">&lt;a class="footer-link" data-wf-link-page-id="68f8b337cbd1cac54f5b9d7c"&gt;</data>
+        <data id="d2">&lt;/a&gt;</data>
+      </originalData>
+      <segment state="translated">
+        <source>
+          <sc id="1" dataRef="d1" fs:fs="a" fs:subFs="class,footer-link" />Stilguide<ec dataRef="d2" fs:fs="a" startRef="1" /></source>
+        <target>
+          <sc id="1" dataRef="d1" fs:fs="a" fs:subFs="class,footer-link" />Stilguide<ec dataRef="d2" fs:fs="a" startRef="1" /></target>
+      </segment>
+    </unit>
+    <unit id="u8" name="/html[1]/body[1]/div[8]/div[1]" its:tool="DeepL" its:toolRef="https://www.deepl.com/" fs:fs="div" fs:subFs="class,label">
+      <segment state="translated">
+        <source>Kategorier</source>
+        <target>Kategorisering</target>
+      </segment>
+    </unit>
+    <unit id="u9" name="/html[1]/body[1]/div[9]/div[1]" its:tool="DeepL" its:toolRef="https://www.deepl.com/" fs:fs="div">
+      <segment state="translated">
+        <source>Inga objekt hittades AAAAAAAAA.</source>
+        <target>Inga objekt hittades AAAAAAAAA.</target>
+      </segment>
+    </unit>
+    <unit id="u10" name="/html[1]/body[1]/div[10]/div[1]" its:tool="DeepL" its:toolRef="https://www.deepl.com/" fs:fs="div" fs:subFs="class,label">
+      <segment state="translated">
+        <source>Hjälp</source>
+        <target>Hjälp</target>
+      </segment>
+    </unit>
+    <unit id="u11" name="/html[1]/body[1]/div[11]" its:tool="DeepL" its:toolRef="https://www.deepl.com/" fs:fs="div">
+      <originalData>
+        <data id="d1">&lt;a class="footer-link" data-wf-link-page-id="68f8b337cbd1cac54f5b9d80"&gt;</data>
+        <data id="d2">&lt;/a&gt;</data>
+      </originalData>
+      <segment state="translated">
+        <source>
+          <sc id="1" dataRef="d1" fs:fs="a" fs:subFs="class,footer-link" />Frakt<ec dataRef="d2" fs:fs="a" startRef="1" /></source>
+        <target>
+          <sc id="1" dataRef="d1" fs:fs="a" fs:subFs="class,footer-link" />Fract<ec dataRef="d2" fs:fs="a" startRef="1" /></target>
+      </segment>
+    </unit>
+    <unit id="u12" name="/html[1]/body[1]/div[12]" its:tool="DeepL" its:toolRef="https://www.deepl.com/" fs:fs="div">
+      <originalData>
+        <data id="d1">&lt;a class="footer-link" data-wf-link-page-id="68f8b337cbd1cac54f5b9d80"&gt;</data>
+        <data id="d2">&lt;/a&gt;</data>
+      </originalData>
+      <segment state="translated">
+        <source>
+          <sc id="1" dataRef="d1" fs:fs="a" fs:subFs="class,footer-link" />Returer &amp;amp; Byte<ec dataRef="d2" fs:fs="a" startRef="1" /></source>
+        <target>
+          <sc id="1" dataRef="d1" fs:fs="a" fs:subFs="class,footer-link" />Returer &amp;amp; byten<ec dataRef="d2" fs:fs="a" startRef="1" /></target>
+      </segment>
+    </unit>
+    <unit id="u13" name="/html[1]/body[1]/div[13]" its:tool="DeepL" its:toolRef="https://www.deepl.com/" fs:fs="div">
+      <originalData>
+        <data id="d1">&lt;a class="footer-link" data-wf-link-page-id="68f8b337cbd1cac54f5b9d80"&gt;</data>
+        <data id="d2">&lt;/a&gt;</data>
+      </originalData>
+      <segment state="translated">
+        <source>
+          <sc id="1" dataRef="d1" fs:fs="a" fs:subFs="class,footer-link" />Produktvård<ec dataRef="d2" fs:fs="a" startRef="1" /></source>
+        <target>
+          <sc id="1" dataRef="d1" fs:fs="a" fs:subFs="class,footer-link" />Produktvård<ec dataRef="d2" fs:fs="a" startRef="1" /></target>
+      </segment>
+    </unit>
+    <unit id="u14" name="/html[1]/body[1]/div[14]/div[1]" its:tool="DeepL" its:toolRef="https://www.deepl.com/" fs:fs="div" fs:subFs="class,label">
+      <segment state="translated">
+        <source>Följ oss</source>
+        <target>Följ oss</target>
+      </segment>
+    </unit>
+    <unit id="u15" name="/html[1]/body[1]/div[15]" its:tool="DeepL" its:toolRef="https://www.deepl.com/" fs:fs="div">
+      <originalData>
+        <data id="d1">&lt;a class="footer-link" href="https://www.instagram.com/webflowapp/"&gt;</data>
+        <data id="d2">&lt;/a&gt;</data>
+      </originalData>
+      <segment state="translated">
+        <source>
+          <sc id="1" dataRef="d1" fs:fs="a" fs:subFs="class,footer-link\href,https://www.instagram.com/webflowapp/" />Instagram<ec dataRef="d2" fs:fs="a" startRef="1" /></source>
+        <target>
+          <sc id="1" dataRef="d1" fs:fs="a" fs:subFs="class,footer-link\href,https://www.instagram.com/webflowapp/" />Instagram<ec dataRef="d2" fs:fs="a" startRef="1" /></target>
+      </segment>
+    </unit>
+    <unit id="u16" name="/html[1]/body[1]/div[16]" its:tool="DeepL" its:toolRef="https://www.deepl.com/" fs:fs="div">
+      <originalData>
+        <data id="d1">&lt;a class="footer-link" href="https://www.facebook.com/webflow/"&gt;</data>
+        <data id="d2">&lt;/a&gt;</data>
+      </originalData>
+      <segment state="translated">
+        <source>
+          <sc id="1" dataRef="d1" fs:fs="a" fs:subFs="class,footer-link\href,https://www.facebook.com/webflow/" />Facebook<ec dataRef="d2" fs:fs="a" startRef="1" /></source>
+        <target>
+          <sc id="1" dataRef="d1" fs:fs="a" fs:subFs="class,footer-link\href,https://www.facebook.com/webflow/" />Facebook<ec dataRef="d2" fs:fs="a" startRef="1" /></target>
+      </segment>
+    </unit>
+    <unit id="u17" name="/html[1]/body[1]/div[17]" its:tool="DeepL" its:toolRef="https://www.deepl.com/" fs:fs="div">
+      <originalData>
+        <data id="d1">&lt;a class="footer-link" href="https://twitter.com/webflow"&gt;</data>
+        <data id="d2">&lt;/a&gt;</data>
+      </originalData>
+      <segment state="translated">
+        <source>
+          <sc id="1" dataRef="d1" fs:fs="a" fs:subFs="class,footer-link\href,https://twitter.com/webflow" />Twitter<ec dataRef="d2" fs:fs="a" startRef="1" /></source>
+        <target>
+          <sc id="1" dataRef="d1" fs:fs="a" fs:subFs="class,footer-link\href,https://twitter.com/webflow" />Twitter<ec dataRef="d2" fs:fs="a" startRef="1" /></target>
+      </segment>
+    </unit>
+    <unit id="u18" name="/html[1]/body[1]/div[18]/div[1]" its:tool="DeepL" its:toolRef="https://www.deepl.com/" fs:fs="div" fs:subFs="class,paragraph-tiny">
+      <segment state="translated">
+        <source>Drivs av Webflow</source>
+        <target>Drivs av Webflow</target>
+      </segment>
+    </unit>
+  </file>
+</xliff>

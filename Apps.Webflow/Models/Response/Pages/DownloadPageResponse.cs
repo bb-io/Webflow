@@ -4,8 +4,9 @@ using Blackbird.Applications.Sdk.Common.Files;
 
 namespace Apps.Webflow.Models.Response.Pages;
 
-public class GetPageAsHtmlResponse(FileReference content, PageEntity? metadata)
+public class DownloadPageResponse(FileReference content, PageEntity? metadata)
 {
+    [Display("Page")]
     public FileReference Content { get; set; } = content;
 
     [Display("Site ID")]

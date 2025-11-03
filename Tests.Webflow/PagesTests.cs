@@ -1,4 +1,5 @@
 ﻿using Apps.Webflow.Actions;
+using Apps.Webflow.Constants;
 using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Pages;
 using Blackbird.Applications.Sdk.Common.Files;
@@ -33,51 +34,33 @@ public class PagesTests : TestBase
     [TestMethod]
     public async Task GetPageAsHtml_ReturnsFileReference()
     {
+        // Arrange
+        var context = GetInvocationContext(ConnectionTypes.OAuth2);
+        var site = new SiteRequest { };
+        var input = new DownloadPageRequest { PageId = "68f8b337cbd1cac54f5b9d80", LocaleId = "69007d6cf09bd27cf732e155" };
 
-        foreach (var context in InvocationContext)
-        {
-            // Arrange
-            var site = new SiteRequest { SiteId = "6773fdfb5a841e3420ebc404" };
-            var input = new GetPageAsHtmlRequest { PageId = "6773fdfc5a841e3420ebc46d" };
+        var actions = new PagesActions(context, FileManagementClient);
 
-            var actions = new PagesActions(context, FileManagementClient);
+        // Act
+        var result = await actions.GetPageAsHtml(site, input);
 
-            // Act
-            var result = await actions.GetPageAsHtml(site, input);
-
-            // Assert
-            PrintJsonResult(result);
-            Assert.IsNotNull(result, "Result should not be null.");
-        }
+        // Assert
+        PrintJsonResult(result);
+        Assert.IsNotNull(result, "Result should not be null.");
     }
 
     [TestMethod]
     public async Task UploadPageFromHtml_SuccessOperation()
     {
-        foreach (var context in InvocationContext)
-        {
-            // Arrange
-            var fileReference = new FileReference
-            {
-                Name = "page_6773fdfc5a841e3420ebc46d.html",
-                ContentType = "text/html",
-            };
+        // Arrange
+        var context = GetInvocationContext(ConnectionTypes.OAuth2);
+        var fileReference = new FileReference { Name = "page.xlf" };
+        var site = new SiteRequest { };
 
-            var site = new SiteRequest { };
+        var input = new UpdatePageContentRequest { File = fileReference };
+        var action = new PagesActions(context, FileManagementClient);
 
-            var input = new UpdatePageContentRequest
-            {
-                LocaleId = "67765e8a8235a4578faed52a",
-                File = fileReference
-            };
-
-            var action = new PagesActions(context, FileManagementClient);
-
-            //Act 
-            var result = await action.UpdatePageContentAsHtml(site, input);
-
-            //Assert
-            Assert.IsTrue(result.Success, "Result should not be null.");
-        }
+        //Act 
+        await action.UpdatePageContentAsHtml(site, input);
     }
 }

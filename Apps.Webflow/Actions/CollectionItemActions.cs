@@ -1,20 +1,26 @@
-using System.Net.Mime;
 using Apps.Webflow.Constants;
 using Apps.Webflow.HtmlConversion;
 using Apps.Webflow.Invocables;
-using Apps.Webflow.Models;
 using Apps.Webflow.Models.Entities;
+using Apps.Webflow.Models.Request;
+using Apps.Webflow.Models.Request.Collection;
 using Apps.Webflow.Models.Request.CollectionItem;
+using Apps.Webflow.Models.Request.Content;
+using Apps.Webflow.Models.Response.CollectiomItem;
+using Apps.Webflow.Services;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
-using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
+using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using Blackbird.Applications.Sdk.Utils.Extensions.String;
+using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
+using Blackbird.Filters.Transformations;
+using Blackbird.Filters.Xliff.Xliff2;
 using RestSharp;
-using Apps.Webflow.Models.Request.Collection;
-using Blackbird.Applications.Sdk.Common.Exceptions;
-using Apps.Webflow.Models.Request;
+using System.Net.Mime;
+using System.Text;
 
 namespace Apps.Webflow.Actions;
 
@@ -22,8 +28,10 @@ namespace Apps.Webflow.Actions;
 public class CollectionItemActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
     : WebflowInvocable(invocationContext)
 {
+    private readonly ContentServicesFactory _factory = new ContentServicesFactory(invocationContext);
+
     [Action("Download collection item", Description = "Get content of a specific collection item in HTML format")]
-    public async Task<FileModel> GetCollectionItemContent(
+    public async Task<DownloadCollectionItemContentResponse> GetCollectionItemContent(
         [ActionParameter] SiteRequest site,
         [ActionParameter] CollectionItemRequest input)
     {
@@ -46,86 +54,83 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
             item.CmsLocaleId
         );
 
-        return new()
-        {
-            File = await fileManagementClient.UploadAsync(html, MediaTypeNames.Text.Html, $"{item.Id}.html")
-        };
+        var file = await fileManagementClient.UploadAsync(html, MediaTypeNames.Text.Html, $"collection_item_{item.Id}.html");
+        return new(file);
     }
 
     [Action("Upload collection item", Description = "Update content of a specific collection item from HTML file")]
-    public async Task<CollectionItemEntity> UpdateCollectionItemContent(
+    public async Task UpdateCollectionItemContent(
         [ActionParameter] SiteRequest site,
-        [ActionParameter] UpdateCollectionItemRequest input,
-        [ActionParameter] FileModel file)
+        [ActionParameter] UpdateCollectionItemRequest input)
     {
-        await using var source = await fileManagementClient.DownloadAsync(file.File);
-        using var ms = new MemoryStream();
-        await source.CopyToAsync(ms);
-        ms.Position = 0;
+        await using var source = await fileManagementClient.DownloadAsync(input.File);
+        var html = Encoding.UTF8.GetString(await source.GetByteData());
 
-        if (string.IsNullOrEmpty(site.SiteId) ||
-            string.IsNullOrEmpty(input.CollectionId) ||
-            string.IsNullOrEmpty(input.CollectionItemId) ||
-            string.IsNullOrEmpty(input.CmsLocaleId))
+        if (Xliff2Serializer.IsXliff2(html))
         {
-            var doc = new HtmlAgilityPack.HtmlDocument();
-            doc.Load(ms);
-
-            string? M(string name) =>
-                doc.DocumentNode.SelectSingleNode($"//meta[@name='{name}']")
-                   ?.GetAttributeValue("content", null);
-
-            site.SiteId ??= M("blackbird-site-id");
-            input.CollectionId ??= M("blackbird-collection-id");
-            input.CollectionItemId ??= M("blackbird-collection-item-id");
-            input.CmsLocaleId ??= M("blackbird-cmslocale-id");
-
-            ms.Position = 0;
+            html = Transformation.Parse(html, input.File.Name).Target().Serialize();
+            if (html == null) throw new PluginMisconfigurationException("XLIFF did not contain files");
         }
 
+        await using var ms = new MemoryStream(Encoding.UTF8.GetBytes(html));
+        var doc = new HtmlAgilityPack.HtmlDocument();
+        doc.Load(ms);
+        ms.Position = 0;
+
+        string? M(string name) =>
+            doc.DocumentNode.SelectSingleNode($"//meta[@name='{name}']")
+               ?.GetAttributeValue("content", null);
+
+        input.CollectionId ??= M("blackbird-collection-id");
+        input.CollectionItemId ??= M("blackbird-collection-item-id");
+        input.CmsLocaleId ??= M("blackbird-cmslocale-id");
+
         if (string.IsNullOrWhiteSpace(input.CollectionId))
-            throw new PluginMisconfigurationException("Collection ID is missing. Provide it or include it in the HTML file");
+            throw new PluginMisconfigurationException("Collection ID is missing. Provide it or include it in the HTML file.");
         if (string.IsNullOrWhiteSpace(input.CollectionItemId))
-            throw new PluginMisconfigurationException("Collection item ID is missing. Provide it or include it in the HTML file");
+            throw new PluginMisconfigurationException("Collection item ID is missing. Provide it or include it in the HTML file.");
+        if (string.IsNullOrWhiteSpace(input.CmsLocaleId))
+            throw new PluginMisconfigurationException("CMS locale ID is missing. Provide it or include it in the HTML file.");
 
-        var item = await GetCollectionItem(input.CollectionId, input.CollectionItemId, input.CmsLocaleId);
-        var collection = await GetCollection(input.CollectionId);
+        var service = _factory.GetContentService(ContentTypes.CollectionItem);
+        var request = new UploadContentRequest 
+        { 
+            CollectionId = input.CollectionId,
+            Locale = input.CmsLocaleId,
+            ContentId = input.CollectionItemId
+        };
 
-        var fieldData = CollectionItemHtmlConverter.ToJson(ms, item.FieldData, collection.Fields);
+        await service.UploadContent(ms, Client.GetSiteId(site.SiteId), request);
 
-        var endpoint = $"collections/{input.CollectionId}/items/{input.CollectionItemId}";
-        var request = new RestRequest(endpoint, Method.Patch)
-            .WithJsonBody(new
-            {
-                fieldData,
-                cmsLocaleId = input.CmsLocaleId,
-            }, JsonConfig.Settings);
-
-        var result = await Client.ExecuteWithErrorHandling<CollectionItemEntity>(request);
-
-        if (input.Publish == true)
+        if (input.Publish.HasValue && input.Publish.Value)
         {
             var publishRequest = new PublishItemRequest
             {
                 CollectionId = input.CollectionId,
-                CollectionItemId = input.CollectionItemId
+                CollectionItemId = input.CollectionItemId,
+                CmsLocaleIds = [input.CmsLocaleId]
             };
-            await PublishItem(publishRequest);
-            var getPublishedItemRequest = new RestRequest($"collections/{input.CollectionId}/items/{input.CollectionItemId}", Method.Get);
-            result = await Client.ExecuteWithErrorHandling<CollectionItemEntity>(getPublishedItemRequest);
+            await PublishItem(site, publishRequest);
         }
-
-        return result;
     }
 
     [Action("Publish collection item", Description = "Publish a specific collection item")]
-    public async Task PublishItem([ActionParameter] PublishItemRequest input)
+    public async Task PublishItem(
+        [ActionParameter] SiteRequest site,
+        [ActionParameter] PublishItemRequest input)
     {
         var endpoint = $"collections/{input.CollectionId}/items/publish";
         var request = new RestRequest(endpoint, Method.Post)
             .WithJsonBody(new
             {
-                itemIds = new[] { input.CollectionItemId },
+                items = new[]
+                {
+                    new
+                    {
+                        id = input.CollectionItemId,
+                        cmsLocaleIds = input.CmsLocaleIds ?? Array.Empty<string>()
+                    }
+                },
             }, JsonConfig.Settings);
 
         await Client.ExecuteWithErrorHandling(request);

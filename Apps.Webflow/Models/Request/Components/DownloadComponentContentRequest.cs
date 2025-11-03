@@ -5,11 +5,11 @@ using Blackbird.Applications.Sdk.Common.Dynamic;
 
 namespace Apps.Webflow.Models.Request.Components;
 
-public class GetComponentContentRequest
+public class DownloadComponentContentRequest
 {
     [Display("Component ID")]
     [DataSource(typeof(ComponentDataSourceHandler))]
-    public string ComponentId { get; set; } = string.Empty;
+    public string ComponentId { get; set; }
 
     [Display("Locale ID")]
     [DataSource(typeof(SiteLocaleDataSourceHandler))]

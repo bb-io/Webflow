@@ -2,6 +2,11 @@
   "ConnectionDefinition": [
     {
       "Connection type": "OAuth2",
+      "access_token": "",
+      "Site ID": ""
+    },
+    {
+      "Connection type": "OAuth2 (multiple sites)",
       "access_token": ""
     },
     {

@@ -1,4 +1,5 @@
 using Apps.Webflow.Actions;
+using Apps.Webflow.Constants;
 using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Components;
 using Blackbird.Applications.Sdk.Common.Files;
@@ -58,7 +59,7 @@ public class ComponentsTests : TestBase
         foreach (var context in InvocationContext)
         {
             // Arrange
-            var input = new GetComponentContentRequest { ComponentId = SampleComponentId };
+            var input = new DownloadComponentContentRequest { ComponentId = SampleComponentId };
 
             var actions = new ComponentsActions(context, FileManagementClient);
             var site = new SiteRequest { SiteId = SampleSiteId };
@@ -68,37 +69,23 @@ public class ComponentsTests : TestBase
 
             // Assert
             Assert.IsNotNull(result, "Result should not be null.");
-            Assert.AreEqual("text/html", result.ContentType);
         }
     }
 
     [TestMethod]
     public async Task UpdateComponentFromHtml_SuccessOperation()
     {
-        foreach (var context in InvocationContext)
-        {
-            // Arrange
-            var fileReference = new FileReference
-            {
-                Name = "footer_component_ece52c30-84e9-6ccc-7181-eb186cf93c46.html",
-                ContentType = "text/html",
-            };
+        // Arrange
+        var context = GetInvocationContext(ConnectionTypes.OAuth2);
+        var fileReference = new FileReference { Name = "component.xlf" };
 
-            var input = new UpdateComponentContentRequest
-            {
-                LocaleId = SampleTargetLocaleId,
-                File = fileReference
-            };
+        var input = new UpdateComponentContentRequest { File = fileReference };
 
-            var site = new SiteRequest { };
-            var action = new ComponentsActions(context, FileManagementClient);
+        var site = new SiteRequest { };
+        var action = new ComponentsActions(context, FileManagementClient);
 
-            // Act
-            var result = await action.UpdateComponentContentAsHtml(input, site);
-
-            // Assert
-            Assert.IsTrue(result.Success, "Result should be successful.");
-        }
+        // Act
+        await action.UpdateComponentContentAsHtml(site, input);
     }
 
     // Helpful to test how well the update worked
@@ -108,7 +95,7 @@ public class ComponentsTests : TestBase
         foreach (var context in InvocationContext)
         {
             // Arrange
-            var input = new GetComponentContentRequest
+            var input = new DownloadComponentContentRequest
             {
                 ComponentId = SampleComponentId,
                 LocaleId = SampleTargetLocaleId,
@@ -121,7 +108,6 @@ public class ComponentsTests : TestBase
 
             // Assert
             Assert.IsNotNull(result, "Result should not be null.");
-            Assert.AreEqual("text/html", result.ContentType);
         }
     }
 }

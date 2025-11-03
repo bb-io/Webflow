@@ -85,28 +85,9 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
         await content.CopyToAsync(memoryStream);
         memoryStream.Position = 0;
 
-        var doc = new HtmlAgilityPack.HtmlDocument();
-        doc.Load(memoryStream);
-        memoryStream.Position = 0;
-
-        if (string.IsNullOrEmpty(input.CollectionId) ||
-            string.IsNullOrEmpty(input.ContentId))
-        {
-            input.CollectionId ??= doc.DocumentNode.SelectSingleNode($"//meta[@name='blackbird-collection-id']")
-                   ?.GetAttributeValue("content", null);
-            input.ContentId ??= doc.DocumentNode.SelectSingleNode($"//meta[@name='blackbird-collection-item-id']")
-                   ?.GetAttributeValue("content", null);
-            memoryStream.Position = 0;
-        }
-
-        if (string.IsNullOrWhiteSpace(input.CollectionId))
-            throw new PluginMisconfigurationException("Collection ID is missing. Provide it or include it in the HTML file");
-        if (string.IsNullOrWhiteSpace(input.ContentId))
-            throw new PluginMisconfigurationException("Collection item ID is missing. Provide it or include it in the HTML file");
-
         var itemEndpoint = $"collections/{input.CollectionId}/items/{input.ContentId}";
 
-        string fetchedCmsLocaleId = await GetCmsLocale(siteId, input.Locale);
+        string fetchedCmsLocaleId = await GetCmsLocale(siteId, input.Locale!);
         itemEndpoint = itemEndpoint.SetQueryParameter("cmsLocaleId", fetchedCmsLocaleId);
 
         var itemRequest = new RestRequest(itemEndpoint, Method.Get);
@@ -121,7 +102,7 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
         var request = new RestRequest(endpoint, Method.Patch)
             .WithJsonBody(new { fieldData, cmsLocaleId = fetchedCmsLocaleId }, JsonConfig.Settings);
 
-        await Client.ExecuteWithErrorHandling<CollectionItemEntity>(request);
+        await Client.ExecuteWithErrorHandling(request);
     }
 
     private async Task<string> GetCmsLocale(string siteId, string siteLocaleId)
@@ -138,6 +119,10 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
         var secondaryLocale = siteEntity.Locales.Secondary?.FirstOrDefault(x => x.Id == siteLocaleId);
         if (secondaryLocale != null)
             return secondaryLocale.CmsLocaleId;
+
+        var cmsLocale = siteEntity.Locales.Secondary?.FirstOrDefault(x => x.CmsLocaleId == siteLocaleId);
+        if (cmsLocale != null)
+            return siteLocaleId;
 
         throw new PluginApplicationException("Can't match the input locale with available collection item locale ID");
     }

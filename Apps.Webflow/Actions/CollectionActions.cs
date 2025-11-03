@@ -15,36 +15,30 @@ namespace Apps.Webflow.Actions;
 public class CollectionActions(InvocationContext invocationContext) : WebflowInvocable(invocationContext)
 {
     [Action("Get collection", Description = "Get details of a specific collection")]
-    public async Task<FullCollectionEntity> GetCollection([ActionParameter] CollectionRequest collectionRequest)
+    public async Task<CollectionEntity> GetCollection(
+        [ActionParameter] SiteRequest site,
+        [ActionParameter] CollectionRequest collectionRequest)
     {
         var request = new RestRequest($"collections/{collectionRequest.CollectionId}", Method.Get);
-        var response = await Client.ExecuteWithErrorHandling<FullCollectionEntity>(request);
-
-        response.CollectionItems = await GetCollectionItems(collectionRequest.CollectionId);
-        return response;
+        return await Client.ExecuteWithErrorHandling<CollectionEntity>(request);
     }
 
     [Action("Create collection", Description = "Create a new collection")]
-    public Task<CollectionEntity> CreateCollection([ActionParameter] SiteRequest site,
+    public async Task<CollectionEntity> CreateCollection(
+        [ActionParameter] SiteRequest site,
         [ActionParameter] CreateCollectionRequest input)
     {
         var request = new RestRequest($"sites/{Client.GetSiteId(site.SiteId)}/collections", Method.Post)
             .WithJsonBody(input, JsonConfig.Settings);
-        return Client.ExecuteWithErrorHandling<CollectionEntity>(request);
+        return await Client.ExecuteWithErrorHandling<CollectionEntity>(request);
     }
 
     [Action("Delete collection", Description = "Delete a specific collection")]
-    public Task DeleteCollection([ActionParameter] CollectionRequest collectionRequest)
+    public async Task DeleteCollection(
+        [ActionParameter] SiteRequest site,
+        [ActionParameter] CollectionRequest collectionRequest)
     {
         var request = new RestRequest($"collections/{collectionRequest.CollectionId}", Method.Delete);
-        return Client.ExecuteWithErrorHandling(request);
-    }
-
-    private Task<List<CollectionItemEntity>> GetCollectionItems(string collectionId)
-    {
-        var endpoint = $"collections/{collectionId}/items";
-        var request = new RestRequest(endpoint, Method.Get);
-
-        return Client.Paginate<CollectionItemEntity>(request);
+        await Client.ExecuteWithErrorHandling(request);
     }
 }

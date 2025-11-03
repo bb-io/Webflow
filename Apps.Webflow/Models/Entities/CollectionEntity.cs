@@ -12,7 +12,8 @@ public class CollectionEntity
     
     [Display("Singular name")]
     public string SingularName { get; set; }
-    
+
+    [Display("Slug")]
     public string? Slug { get; set; }
     
     [Display("Last updated")]

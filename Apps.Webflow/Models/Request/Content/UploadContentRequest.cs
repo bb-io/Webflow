@@ -20,7 +20,7 @@ public class UploadContentRequest : IUploadContentInput
 
     [Display("Locale ID")]
     [DataSource(typeof(SiteLocaleDataSourceHandler))]
-    public string Locale { get; set; }
+    public string? Locale { get; set; }
 
     [Display("Content ID")]
     [DataSource(typeof(ContentDataHandler))]
