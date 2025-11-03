@@ -1,23 +1,22 @@
-﻿using Apps.Webflow.HtmlConversion;
-using Apps.Webflow.HtmlConversion.Constants;
+﻿using Apps.Webflow.Constants;
 using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Entities;
 using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Components;
+using Apps.Webflow.Models.Request.Content;
 using Apps.Webflow.Models.Response.Components;
 using Apps.Webflow.Models.Response.Pagination;
+using Apps.Webflow.Services;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Extensions.Files;
-using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Filters.Transformations;
 using Blackbird.Filters.Xliff.Xliff2;
 using RestSharp;
 using System.Text;
-using System.Web;
 
 namespace Apps.Webflow.Actions;
 
@@ -25,6 +24,8 @@ namespace Apps.Webflow.Actions;
 public class ComponentsActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
     : WebflowInvocable(invocationContext)
 {
+    private readonly ContentServicesFactory _factory = new ContentServicesFactory(invocationContext);
+
     [Action("Search components", Description = "Search all components for a site")]
     public async Task<SearchComponentsResponse> SearchComponents(
         [ActionParameter] SiteRequest site,
@@ -58,15 +59,13 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
         [ActionParameter] SiteRequest site,
         [ActionParameter] DownloadComponentContentRequest input)
     {
-        var endpoint = $"sites/{Client.GetSiteId(site.SiteId)}/components/{input.ComponentId}/dom";
-        var request = new RestRequest(endpoint, Method.Get);
-
-        if (!string.IsNullOrEmpty(input.LocaleId))
-            request.AddQueryParameter("localeId", input.LocaleId);
-
-        var componentDom = await Client.ExecuteWithErrorHandling<ComponentDomEntity>(request);
-
-        var htmlStream = ComponentHtmlConverter.ToHtml(componentDom, Client.GetSiteId(site.SiteId), input.ComponentId);
+        var downloadRequest = new DownloadContentRequest
+        {
+            Locale = input.LocaleId,
+            ContentId = input.ComponentId
+        };
+        var service = _factory.GetContentService(ContentTypes.Component);
+        var htmlStream = await service.DownloadContent(Client.GetSiteId(site.SiteId), downloadRequest);
 
         var file = await fileManagementClient.UploadAsync(htmlStream, "text/html", $"component_{input.ComponentId}.html");
         return new(file);
@@ -91,74 +90,13 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
         doc.Load(ms);
         ms.Position = 0;
 
-        if (string.IsNullOrEmpty(input.LocaleId))
-            throw new PluginMisconfigurationException("Locale ID is required.");
-
-        if (string.IsNullOrEmpty(input.ComponentId))
+        var updateRequest = new UploadContentRequest 
         {
-            var metaComponentIdNode = doc.DocumentNode.SelectSingleNode("//meta[@name='blackbird-component-id']");
-            input.ComponentId = metaComponentIdNode.GetAttributeValue("content", string.Empty);
+            Locale = input.LocaleId,
+            ContentId = input.ComponentId,
+        }; 
 
-            if (string.IsNullOrEmpty(input.ComponentId))
-                throw new PluginMisconfigurationException(
-                    "Component ID not found in the HTML file. " +
-                    "Please provide it in input or ensure that file contains <meta name=\"blackbird-component-id\"> tag."
-                );
-        }
-
-        var elements = doc.DocumentNode
-            .Descendants()
-            .Where(x => x.NodeType == HtmlAgilityPack.HtmlNodeType.Element &&
-                        x.Attributes[ConversionConstants.NodeId] != null)
-            .ToList();
-
-        var updateNodes = new List<UpdateComponentNode>();
-
-        foreach (var element in elements)
-        {
-            var nodeId = element.Attributes[ConversionConstants.NodeId].Value;
-            var propertyId = element.Attributes[ConversionConstants.PropertyId]?.Value;
-            var textHtml = HttpUtility.HtmlDecode(element.InnerHtml).Trim();
-
-            if (!string.IsNullOrEmpty(propertyId))
-            {
-                // This is a component instance with property overrides
-                var existingNode = updateNodes.FirstOrDefault(n => n.NodeId == nodeId);
-                if (existingNode == null)
-                {
-                    existingNode = new UpdateComponentNode
-                    {
-                        NodeId = nodeId,
-                        PropertyOverrides = []
-                    };
-                    updateNodes.Add(existingNode);
-                }
-
-                existingNode.PropertyOverrides?.Add(new ComponentPropertyOverride
-                {
-                    PropertyId = propertyId,
-                    Text = textHtml
-                });
-            }
-            else
-            {
-                // This is a text node
-                updateNodes.Add(new UpdateComponentNode
-                {
-                    NodeId = nodeId,
-                    Text = textHtml
-                });
-            }
-        }
-
-        var body = new UpdateComponentDomRequest { Nodes = updateNodes };
-
-        var endpoint = $"sites/{Client.GetSiteId(site.SiteId)}/components/{input.ComponentId}/dom";
-        var apiRequest = new RestRequest(endpoint, Method.Post).WithJsonBody(body);
-
-        apiRequest.RequestFormat = DataFormat.Json;
-        apiRequest.AddQueryParameter("localeId", input.LocaleId);
-
-        await Client.ExecuteWithErrorHandling(apiRequest);
+        var service = _factory.GetContentService(ContentTypes.Component);
+        await service.UploadContent(ms, site.SiteId, updateRequest);
     }
 }

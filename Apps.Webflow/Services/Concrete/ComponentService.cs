@@ -54,7 +54,7 @@ public class ComponentService(InvocationContext invocationContext) : BaseContent
 
         var componentDom = await Client.ExecuteWithErrorHandling<ComponentDomEntity>(request);
 
-        var stream = ComponentHtmlConverter.ToHtml(componentDom, siteId, input.ContentId);
+        await using var stream = ComponentHtmlConverter.ToHtml(componentDom, siteId, input.ContentId, input.Locale);
         var memoryStream = new MemoryStream();
         await stream.CopyToAsync(memoryStream);
         memoryStream.Position = 0;
@@ -64,15 +64,24 @@ public class ComponentService(InvocationContext invocationContext) : BaseContent
 
     public override async Task UploadContent(Stream content, string siteId, UploadContentRequest input)
     {
-        if (string.IsNullOrEmpty(input.Locale))
-            throw new PluginMisconfigurationException("Please specify the 'Locale' input");
-
         var memoryStream = new MemoryStream();
         await content.CopyToAsync(memoryStream);
         memoryStream.Position = 0;
 
         var doc = new HtmlAgilityPack.HtmlDocument();
         doc.Load(memoryStream);
+
+        if (string.IsNullOrEmpty(input.Locale))
+        {
+            var metaLocaleIdNode = doc.DocumentNode.SelectSingleNode("//meta[@name='blackbird-locale-id']");
+            input.Locale = metaLocaleIdNode.GetAttributeValue("content", string.Empty);
+
+            if (string.IsNullOrEmpty(input.Locale))
+                throw new PluginMisconfigurationException(
+                    "Locale ID not found in the HTML file. " +
+                    "Please provide it in input or ensure that file contains <meta name=\"blackbird-locale-id\"> tag."
+                );
+        }
 
         if (string.IsNullOrEmpty(input.ContentId))
         {
