@@ -1,0 +1,167 @@
+<xliff srcLang="sv" trgLang="sv" version="2.2" xmlns:mda="urn:oasis:names:tc:xliff:metadata:2.0" xmlns:its="http://www.w3.org/2005/11/its" xmlns:fs="urn:oasis:names:tc:xliff:fs:2.0" xmlns="urn:oasis:names:tc:xliff:document:2.2">
+  <file id="f1">
+    <skeleton>&lt;html&gt;&lt;head&gt;&lt;title&gt;&lt;/title&gt;&lt;meta name="blackbird-site-id" content="68f8b336cbd1cac54f5b9d2c"&gt;&lt;meta name="blackbird-page-id" content="68f8b337cbd1cac54f5b9d80"&gt;&lt;meta name="blackbird-locale-id" content="69007d6cf09bd27cf732e155"&gt;&lt;/head&gt;&lt;body&gt;&lt;div data-node-id="ecbd41cd-5b2d-78be-ec94-d855601f6275"&gt;&lt;h1&gt;Contact us&lt;/h1&gt;&lt;/div&gt;&lt;div data-node-id="ecbd41cd-5b2d-78be-ec94-d855601f6277"&gt;&lt;div class="paragraph-bigger cc-bigger-light"&gt;Hej! Fyll i formuläret&lt;/div&gt;&lt;/div&gt;&lt;div data-node-id="ecbd41cd-5b2d-78be-ec94-d855601f627e"&gt;&lt;label for="name"&gt;Name&lt;/label&gt;&lt;/div&gt;&lt;div data-node-id="ecbd41cd-5b2d-78be-ec94-d855601f6282"&gt;&lt;label for="Email-2"&gt;E-postadress&lt;/label&gt;&lt;/div&gt;&lt;div data-node-id="ecbd41cd-5b2d-78be-ec94-d855601f6285"&gt;&lt;label for=""&gt;Meddelande&lt;/label&gt;&lt;/div&gt;&lt;div data-node-id="ecbd41cd-5b2d-78be-ec94-d855601f628a"&gt;&lt;div&gt;Tack! Vi har tagit emot ditt meddelande!&lt;/div&gt;&lt;/div&gt;&lt;div data-node-id="ecbd41cd-5b2d-78be-ec94-d855601f628d"&gt;&lt;div&gt;Hoppsan! Något gick fel när formuläret skickades.&lt;/div&gt;&lt;/div&gt;&lt;div data-node-id="016410b9-f46c-d5d0-c671-ed1d7aa23d81"&gt;&lt;h2&gt;Huvudkontakter&lt;/h2&gt;&lt;/div&gt;&lt;div data-node-id="016410b9-f46c-d5d0-c671-ed1d7aa23d85"&gt;&lt;div class="paragraph-bigger"&gt;Support&lt;/div&gt;&lt;/div&gt;&lt;div data-node-id="016410b9-f46c-d5d0-c671-ed1d7aa23d87"&gt;&lt;div class="paragraph-contact-text"&gt;+61 8372 4662&lt;br data-w-id="016410b9-f46c-d5d0-c671-ed1d7aa23d89"&gt;&lt;/div&gt;&lt;/div&gt;&lt;div data-node-id="016410b9-f46c-d5d0-c671-ed1d7aa23d8a"&gt;&lt;div class="paragraph-tiny cc-paragraph-tiny-light"&gt;Mån–fre, 9–17&lt;br data-w-id="016410b9-f46c-d5d0-c671-ed1d7aa23d8c"&gt;&lt;/div&gt;&lt;/div&gt;&lt;div data-node-id="016410b9-f46c-d5d0-c671-ed1d7aa23d8e"&gt;&lt;div class="paragraph-bigger"&gt;Marknadsföring&lt;/div&gt;&lt;/div&gt;&lt;div data-node-id="016410b9-f46c-d5d0-c671-ed1d7aa23d90"&gt;&lt;div class="paragraph-contact-text"&gt;+61 8372 4662&lt;br data-w-id="016410b9-f46c-d5d0-c671-ed1d7aa23d92"&gt;&lt;/div&gt;&lt;/div&gt;&lt;div data-node-id="016410b9-f46c-d5d0-c671-ed1d7aa23d93"&gt;&lt;div class="paragraph-tiny cc-paragraph-tiny-light"&gt;Mån–fre, 9–17&lt;br data-w-id="016410b9-f46c-d5d0-c671-ed1d7aa23d95"&gt;&lt;/div&gt;&lt;/div&gt;&lt;div data-node-id="016410b9-f46c-d5d0-c671-ed1d7aa23d97"&gt;&lt;div class="paragraph-bigger"&gt;Kontorstelefon&lt;/div&gt;&lt;/div&gt;&lt;div data-node-id="016410b9-f46c-d5d0-c671-ed1d7aa23d99"&gt;&lt;div class="paragraph-contact-text"&gt;+61 8372 4662&lt;br data-w-id="016410b9-f46c-d5d0-c671-ed1d7aa23d9b"&gt;&lt;/div&gt;&lt;/div&gt;&lt;div data-node-id="016410b9-f46c-d5d0-c671-ed1d7aa23d9c"&gt;&lt;div class="paragraph-tiny cc-paragraph-tiny-light"&gt;Mån–fre, 9–17&lt;br data-w-id="016410b9-f46c-d5d0-c671-ed1d7aa23d9e"&gt;&lt;/div&gt;&lt;/div&gt;&lt;div data-node-id="016410b9-f46c-d5d0-c671-ed1d7aa23da0"&gt;&lt;div class="paragraph-bigger"&gt;E-post&lt;/div&gt;&lt;/div&gt;&lt;div data-node-id="016410b9-f46c-d5d0-c671-ed1d7aa23da2"&gt;&lt;a class="support-link" href="#"&gt;support@store.com&lt;/a&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;</skeleton>
+    <mda:metadata>
+      <mda:metaGroup category="blackbird">
+        <mda:meta type="original-name">page_68f8b337cbd1cac54f5b9d80.html</mda:meta>
+        <mda:meta type="original-media-type">text/html</mda:meta>
+      </mda:metaGroup>
+    </mda:metadata>
+    <unit id="u1" name="/html[1]/body[1]/div[1]/h1[1]" its:tool="DeepL" its:toolRef="https://www.deepl.com/" fs:fs="h1">
+      <segment state="translated">
+        <source>Contact us</source>
+        <target>Kontakta oss</target>
+      </segment>
+    </unit>
+    <unit id="u2" name="/html[1]/body[1]/div[2]/div[1]" its:tool="DeepL" its:toolRef="https://www.deepl.com/" fs:fs="div" fs:subFs="class,paragraph-bigger cc-bigger-light">
+      <segment state="translated">
+        <source>Hej! Fyll i formuläret</source>
+        <target>Hej! Fyll i formuläret</target>
+      </segment>
+    </unit>
+    <unit id="u3" name="/html[1]/body[1]/div[3]" its:tool="DeepL" its:toolRef="https://www.deepl.com/" fs:fs="div">
+      <originalData>
+        <data id="d1">&lt;label for="name"&gt;</data>
+        <data id="d2">&lt;/label&gt;</data>
+      </originalData>
+      <segment state="translated">
+        <source>
+          <sc id="1" dataRef="d1" fs:fs="label" fs:subFs="for,name" />Name<ec dataRef="d2" fs:fs="label" startRef="1" /></source>
+        <target>
+          <sc id="1" dataRef="d1" fs:fs="label" fs:subFs="for,name" />Namn<ec dataRef="d2" fs:fs="label" startRef="1" /></target>
+      </segment>
+    </unit>
+    <unit id="u4" name="/html[1]/body[1]/div[4]" its:tool="DeepL" its:toolRef="https://www.deepl.com/" fs:fs="div">
+      <originalData>
+        <data id="d1">&lt;label for="Email-2"&gt;</data>
+        <data id="d2">&lt;/label&gt;</data>
+      </originalData>
+      <segment state="translated">
+        <source>
+          <sc id="1" dataRef="d1" fs:fs="label" fs:subFs="for,Email-2" />E-postadress<ec dataRef="d2" fs:fs="label" startRef="1" /></source>
+        <target>
+          <sc id="1" dataRef="d1" fs:fs="label" fs:subFs="for,Email-2" />E-postadress<ec dataRef="d2" fs:fs="label" startRef="1" /></target>
+      </segment>
+    </unit>
+    <unit id="u5" name="/html[1]/body[1]/div[5]" its:tool="DeepL" its:toolRef="https://www.deepl.com/" fs:fs="div">
+      <originalData>
+        <data id="d1">&lt;label for=""&gt;</data>
+        <data id="d2">&lt;/label&gt;</data>
+      </originalData>
+      <segment state="translated">
+        <source>
+          <sc id="1" dataRef="d1" fs:fs="label" fs:subFs="for," />Meddelande<ec dataRef="d2" fs:fs="label" startRef="1" /></source>
+        <target>
+          <sc id="1" dataRef="d1" fs:fs="label" fs:subFs="for," />Meddelande<ec dataRef="d2" fs:fs="label" startRef="1" /></target>
+      </segment>
+    </unit>
+    <unit id="u6" name="/html[1]/body[1]/div[6]/div[1]" its:tool="DeepL" its:toolRef="https://www.deepl.com/" fs:fs="div">
+      <segment state="translated">
+        <source>Tack! Vi har tagit emot ditt meddelande!</source>
+        <target>Tack! Vi har tagit emot ditt meddelande!</target>
+      </segment>
+    </unit>
+    <unit id="u7" name="/html[1]/body[1]/div[7]/div[1]" its:tool="DeepL" its:toolRef="https://www.deepl.com/" fs:fs="div">
+      <segment state="translated">
+        <source>Hoppsan! Något gick fel när formuläret skickades.</source>
+        <target>Hoppsan! Något gick fel när formuläret skickades.</target>
+      </segment>
+    </unit>
+    <unit id="u8" name="/html[1]/body[1]/div[8]/h2[1]" its:tool="DeepL" its:toolRef="https://www.deepl.com/" fs:fs="h2">
+      <segment state="translated">
+        <source>Huvudkontakter</source>
+        <target>Huvudkontakter</target>
+      </segment>
+    </unit>
+    <unit id="u9" name="/html[1]/body[1]/div[9]/div[1]" its:tool="DeepL" its:toolRef="https://www.deepl.com/" fs:fs="div" fs:subFs="class,paragraph-bigger">
+      <segment state="translated">
+        <source>Support</source>
+        <target>Stöd</target>
+      </segment>
+    </unit>
+    <unit id="u10" name="/html[1]/body[1]/div[10]/div[1]" its:tool="DeepL" its:toolRef="https://www.deepl.com/" fs:fs="div" fs:subFs="class,paragraph-contact-text">
+      <originalData>
+        <data id="d1">&lt;br data-w-id="016410b9-f46c-d5d0-c671-ed1d7aa23d89"&gt;</data>
+      </originalData>
+      <segment state="translated">
+        <source>+61 8372 4662<ph id="1" dataRef="d1" fs:fs="br" /></source>
+        <target>+61 8372 4662<ph id="1" dataRef="d1" fs:fs="br" /></target>
+      </segment>
+    </unit>
+    <unit id="u11" name="/html[1]/body[1]/div[11]/div[1]" its:tool="DeepL" its:toolRef="https://www.deepl.com/" fs:fs="div" fs:subFs="class,paragraph-tiny cc-paragraph-tiny-light">
+      <originalData>
+        <data id="d1">&lt;br data-w-id="016410b9-f46c-d5d0-c671-ed1d7aa23d8c"&gt;</data>
+      </originalData>
+      <segment state="translated">
+        <source>Mån–fre, 9–17<ph id="1" dataRef="d1" fs:fs="br" /></source>
+        <target>Mån–fre, 9–17<ph id="1" dataRef="d1" fs:fs="br" /></target>
+      </segment>
+    </unit>
+    <unit id="u12" name="/html[1]/body[1]/div[12]/div[1]" its:tool="DeepL" its:toolRef="https://www.deepl.com/" fs:fs="div" fs:subFs="class,paragraph-bigger">
+      <segment state="translated">
+        <source>Marknadsföring</source>
+        <target>Marknadsföring</target>
+      </segment>
+    </unit>
+    <unit id="u13" name="/html[1]/body[1]/div[13]/div[1]" its:tool="DeepL" its:toolRef="https://www.deepl.com/" fs:fs="div" fs:subFs="class,paragraph-contact-text">
+      <originalData>
+        <data id="d1">&lt;br data-w-id="016410b9-f46c-d5d0-c671-ed1d7aa23d92"&gt;</data>
+      </originalData>
+      <segment state="translated">
+        <source>+61 8372 4662<ph id="1" dataRef="d1" fs:fs="br" /></source>
+        <target>+61 8372 4662<ph id="1" dataRef="d1" fs:fs="br" /></target>
+      </segment>
+    </unit>
+    <unit id="u14" name="/html[1]/body[1]/div[14]/div[1]" its:tool="DeepL" its:toolRef="https://www.deepl.com/" fs:fs="div" fs:subFs="class,paragraph-tiny cc-paragraph-tiny-light">
+      <originalData>
+        <data id="d1">&lt;br data-w-id="016410b9-f46c-d5d0-c671-ed1d7aa23d95"&gt;</data>
+      </originalData>
+      <segment state="translated">
+        <source>Mån–fre, 9–17<ph id="1" dataRef="d1" fs:fs="br" /></source>
+        <target>Mån–fre, 9–17<ph id="1" dataRef="d1" fs:fs="br" /></target>
+      </segment>
+    </unit>
+    <unit id="u15" name="/html[1]/body[1]/div[15]/div[1]" its:tool="DeepL" its:toolRef="https://www.deepl.com/" fs:fs="div" fs:subFs="class,paragraph-bigger">
+      <segment state="translated">
+        <source>Kontorstelefon</source>
+        <target>Telefon till kontoret</target>
+      </segment>
+    </unit>
+    <unit id="u16" name="/html[1]/body[1]/div[16]/div[1]" its:tool="DeepL" its:toolRef="https://www.deepl.com/" fs:fs="div" fs:subFs="class,paragraph-contact-text">
+      <originalData>
+        <data id="d1">&lt;br data-w-id="016410b9-f46c-d5d0-c671-ed1d7aa23d9b"&gt;</data>
+      </originalData>
+      <segment state="translated">
+        <source>+61 8372 4662<ph id="1" dataRef="d1" fs:fs="br" /></source>
+        <target>+61 8372 4662<ph id="1" dataRef="d1" fs:fs="br" /></target>
+      </segment>
+    </unit>
+    <unit id="u17" name="/html[1]/body[1]/div[17]/div[1]" its:tool="DeepL" its:toolRef="https://www.deepl.com/" fs:fs="div" fs:subFs="class,paragraph-tiny cc-paragraph-tiny-light">
+      <originalData>
+        <data id="d1">&lt;br data-w-id="016410b9-f46c-d5d0-c671-ed1d7aa23d9e"&gt;</data>
+      </originalData>
+      <segment state="translated">
+        <source>Mån–fre, 9–17<ph id="1" dataRef="d1" fs:fs="br" /></source>
+        <target>Mån–fre, 9–17<ph id="1" dataRef="d1" fs:fs="br" /></target>
+      </segment>
+    </unit>
+    <unit id="u18" name="/html[1]/body[1]/div[18]/div[1]" its:tool="DeepL" its:toolRef="https://www.deepl.com/" fs:fs="div" fs:subFs="class,paragraph-bigger">
+      <segment state="translated">
+        <source>E-post</source>
+        <target>E-post</target>
+      </segment>
+    </unit>
+    <unit id="u19" name="/html[1]/body[1]/div[19]" its:tool="DeepL" its:toolRef="https://www.deepl.com/" fs:fs="div">
+      <originalData>
+        <data id="d1">&lt;a class="support-link" href="#"&gt;</data>
+        <data id="d2">&lt;/a&gt;</data>
+      </originalData>
+      <segment state="translated">
+        <source>
+          <sc id="1" dataRef="d1" fs:fs="a" fs:subFs="class,support-link\href,#" />support@store.com<ec dataRef="d2" fs:fs="a" startRef="1" /></source>
+        <target>
+          <sc id="1" dataRef="d1" fs:fs="a" fs:subFs="class,support-link\href,#" />support@store.com<ec dataRef="d2" fs:fs="a" startRef="1" /></target>
+      </segment>
+    </unit>
+  </file>
+</xliff>

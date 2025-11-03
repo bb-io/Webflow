@@ -121,7 +121,7 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
             var localeIdNode = doc.DocumentNode.SelectSingleNode("//meta[@name='blackbird-locale-id']");
 
             if (localeIdNode != null && string.IsNullOrEmpty(input.LocaleId))
-                input.PageId = localeIdNode.GetAttributeValue("content", string.Empty);
+                input.LocaleId = localeIdNode.GetAttributeValue("content", string.Empty);
         }
 
         if (string.IsNullOrEmpty(input.PageId))

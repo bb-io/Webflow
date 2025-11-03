@@ -52,27 +52,15 @@ public class PagesTests : TestBase
     [TestMethod]
     public async Task UploadPageFromHtml_SuccessOperation()
     {
-        foreach (var context in InvocationContext)
-        {
-            // Arrange
-            var fileReference = new FileReference
-            {
-                Name = "page_6773fdfc5a841e3420ebc46d.html",
-                ContentType = "text/html",
-            };
+        // Arrange
+        var context = GetInvocationContext(ConnectionTypes.OAuth2);
+        var fileReference = new FileReference { Name = "page.xlf" };
+        var site = new SiteRequest { };
 
-            var site = new SiteRequest { };
+        var input = new UpdatePageContentRequest { File = fileReference };
+        var action = new PagesActions(context, FileManagementClient);
 
-            var input = new UpdatePageContentRequest
-            {
-                LocaleId = "67765e8a8235a4578faed52a",
-                File = fileReference
-            };
-
-            var action = new PagesActions(context, FileManagementClient);
-
-            //Act 
-            await action.UpdatePageContentAsHtml(site, input);
-        }
+        //Act 
+        await action.UpdatePageContentAsHtml(site, input);
     }
 }
