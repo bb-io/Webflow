@@ -81,22 +81,16 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
         if (string.IsNullOrEmpty(input.LocaleId))
             throw new PluginMisconfigurationException("Locale ID is required.");
 
-        if (string.IsNullOrEmpty(site.SiteId))
-        {
-            var metaSiteIdNode = doc.DocumentNode.SelectSingleNode("//meta[@name='blackbird-site-id']");
-            site.SiteId = metaSiteIdNode.GetAttributeValue("content", string.Empty);
-
-            if (string.IsNullOrEmpty(site.SiteId))
-                throw new PluginMisconfigurationException("Site ID not found in the HTML file. Please, provide it in input or ensure that file contains <meta name=\"blackbird-site-id\"> tag.");
-        }
-
         if (string.IsNullOrEmpty(input.ComponentId))
         {
             var metaComponentIdNode = doc.DocumentNode.SelectSingleNode("//meta[@name='blackbird-component-id']");
             input.ComponentId = metaComponentIdNode.GetAttributeValue("content", string.Empty);
 
             if (string.IsNullOrEmpty(input.ComponentId))
-                throw new PluginMisconfigurationException("Component ID not found in the HTML file. Please, provide it in input or ensure that file contains <meta name=\"blackbird-component-id\"> tag.");
+                throw new PluginMisconfigurationException(
+                    "Component ID not found in the HTML file. " +
+                    "Please provide it in input or ensure that file contains <meta name=\"blackbird-component-id\"> tag."
+                );
         }
 
         var elements = doc.DocumentNode
@@ -144,10 +138,7 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
             }
         }
 
-        var body = new UpdateComponentDomRequest
-        {
-            Nodes = updateNodes
-        };
+        var body = new UpdateComponentDomRequest { Nodes = updateNodes };
 
         var endpoint = $"sites/{Client.GetSiteId(site.SiteId)}/components/{input.ComponentId}/dom";
         var apiRequest = new RestRequest(endpoint, Method.Post).WithJsonBody(body);
