@@ -5,7 +5,7 @@ using Blackbird.Applications.Sdk.Common.Dynamic;
 
 namespace Apps.Webflow.Models.Request.Pages;
 
-public class GetPageAsHtmlRequest
+public class DownloadPageRequest
 {
     [Display("Page ID")]
     [DataSource(typeof(PageDataSourceHandler))]

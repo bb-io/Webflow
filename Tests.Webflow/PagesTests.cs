@@ -38,7 +38,7 @@ public class PagesTests : TestBase
         {
             // Arrange
             var site = new SiteRequest { SiteId = "6773fdfb5a841e3420ebc404" };
-            var input = new GetPageAsHtmlRequest { PageId = "6773fdfc5a841e3420ebc46d" };
+            var input = new DownloadPageRequest { PageId = "6773fdfc5a841e3420ebc46d" };
 
             var actions = new PagesActions(context, FileManagementClient);
 
@@ -65,7 +65,7 @@ public class PagesTests : TestBase
 
             var site = new SiteRequest { };
 
-            var input = new UpdatePageContentRequest
+            var input = new UpdatePageRequest
             {
                 LocaleId = "67765e8a8235a4578faed52a",
                 File = fileReference

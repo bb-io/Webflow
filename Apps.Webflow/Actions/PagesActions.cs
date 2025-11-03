@@ -57,9 +57,9 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
     }
 
     [Action("Download page", Description = "Get the page content in HTML file")]
-    public async Task<GetPageAsHtmlResponse> GetPageAsHtml(
+    public async Task<DownloadPageResponse> GetPageAsHtml(
         [ActionParameter] SiteRequest site,
-        [ActionParameter] GetPageAsHtmlRequest input)
+        [ActionParameter] DownloadPageRequest input)
     {
         var domEndpoint = $"pages/{input.PageId}/dom";
         var domRequest = new RestRequest(domEndpoint, Method.Get);
@@ -88,11 +88,11 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
             metadata = await Client.ExecuteWithErrorHandling<PageEntity>(metadataRequest);
         }
 
-        return new GetPageAsHtmlResponse(fileReference, metadata);
+        return new DownloadPageResponse(fileReference, metadata);
     }
 
     [Action("Upload page", Description = "Update page content using HTML file")]
-    public async Task<UpdatePageContentResponse> UpdatePageContentAsHtml(
+    public async Task UpdatePageContentAsHtml(
         [ActionParameter] SiteRequest site,
         [ActionParameter] UpdatePageContentRequest input)
     {
@@ -105,18 +105,12 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
         var doc = new HtmlAgilityPack.HtmlDocument();
         doc.Load(memoryStream);
 
-        if (string.IsNullOrEmpty(input.PageId) || string.IsNullOrEmpty(site.SiteId))
+        if (string.IsNullOrEmpty(input.PageId))
         {
             var metaPageIdNode = doc.DocumentNode.SelectSingleNode("//meta[@name='blackbird-page-id']");
-            var metaSiteIdNode = doc.DocumentNode.SelectSingleNode("//meta[@name='blackbird-site-id']");
+
             if (metaPageIdNode != null && string.IsNullOrEmpty(input.PageId))
-            {
                 input.PageId = metaPageIdNode.GetAttributeValue("content", string.Empty);
-            }
-            if (metaSiteIdNode != null && string.IsNullOrEmpty(site.SiteId))
-            {
-                site.SiteId = metaSiteIdNode.GetAttributeValue("content", string.Empty);
-            }
         }
 
         var elements = doc.DocumentNode
@@ -156,12 +150,6 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
 
         request.AddJsonBody(body);
 
-        var response = await Client.ExecuteWithErrorHandling<UpdatePageContentResponse>(request);
-
-        return new UpdatePageContentResponse
-        {
-            Success = true
-        };
-
+        var response = await Client.ExecuteWithErrorHandling(request);
     }
 }
