@@ -24,6 +24,7 @@ public class UpdateCollectionItemRequest
     [DataSource(typeof(UpdateCollectionItemDataSourceHandler))]
     public string? CollectionItemId { get; set; }
 
-    [Display("Publish collection item", Description = "Choose whether to publish your collection item during the update. False by default")]
+    [Display("Publish collection item", 
+        Description = "Choose whether to publish your collection item to the translated locale during the update. False by default")]
     public bool? Publish { get; set; }
 }

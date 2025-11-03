@@ -92,6 +92,8 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
             throw new PluginMisconfigurationException("Collection ID is missing. Provide it or include it in the HTML file");
         if (string.IsNullOrWhiteSpace(input.CollectionItemId))
             throw new PluginMisconfigurationException("Collection item ID is missing. Provide it or include it in the HTML file");
+        if (string.IsNullOrWhiteSpace(input.CmsLocaleId))
+            throw new PluginMisconfigurationException("Locale ID is missing. Provide it or include it in the HTML file (blackbird-cmslocale-id tag)");
 
         var item = await GetCollectionItem(input.CollectionId, input.CollectionItemId, input.CmsLocaleId);
         var collection = await GetCollection(input.CollectionId);
@@ -113,7 +115,8 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
             var publishRequest = new PublishItemRequest
             {
                 CollectionId = input.CollectionId,
-                CollectionItemId = input.CollectionItemId
+                CollectionItemId = input.CollectionItemId,
+                CmsLocaleIds = [input.CmsLocaleId]
             };
             await PublishItem(site, publishRequest);
         }
@@ -128,7 +131,14 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         var request = new RestRequest(endpoint, Method.Post)
             .WithJsonBody(new
             {
-                itemIds = new[] { input.CollectionItemId },
+                items = new[]
+                {
+                    new
+                    {
+                        id = input.CollectionItemId,
+                        cmsLocaleIds = input.CmsLocaleIds ?? Array.Empty<string>()
+                    }
+                },
             }, JsonConfig.Settings);
 
         await Client.ExecuteWithErrorHandling(request);
