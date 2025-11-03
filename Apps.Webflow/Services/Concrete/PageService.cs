@@ -56,7 +56,7 @@ public class PageService(InvocationContext invocationContext) : BaseContentServi
 
         var pageDom = await Client.ExecuteWithErrorHandling<PageDomEntity>(domRequest);
 
-        var stream = PageHtmlConverter.ToHtml(pageDom, siteId, input.ContentId);
+        var stream = PageHtmlConverter.ToHtml(pageDom, siteId, input.ContentId, input.Locale);
         var memoryStream = new MemoryStream();
         await stream.CopyToAsync(memoryStream);
         memoryStream.Position = 0;

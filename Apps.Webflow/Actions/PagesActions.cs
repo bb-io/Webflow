@@ -1,6 +1,5 @@
 ﻿using Apps.Webflow.Constants;
 using Apps.Webflow.Helper;
-using Apps.Webflow.HtmlConversion;
 using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Entities;
 using Apps.Webflow.Models.Request;
@@ -69,23 +68,14 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
         [ActionParameter] SiteRequest site,
         [ActionParameter] DownloadPageRequest input)
     {
-        var domEndpoint = $"pages/{input.PageId}/dom";
-        var domRequest = new RestRequest(domEndpoint, Method.Get);
-
-        if (!string.IsNullOrEmpty(input.LocaleId))
-            domRequest.AddQueryParameter("localeId", input.LocaleId);
-
-        var pageDom = await Client.ExecuteWithErrorHandling<PageDomEntity>(domRequest);
-
-        var htmlStream = PageHtmlConverter.ToHtml(pageDom, Client.GetSiteId(site.SiteId), input.PageId);
-
-        var fileName = $"page_{input.PageId}.html";
-        var contentType = "text/html";
-
-        var fileReference = await fileManagementClient.UploadAsync(htmlStream, contentType, fileName);
-
-        fileReference.Name = fileName;
-        fileReference.ContentType = contentType;
+        var service = _factory.GetContentService(ContentTypes.Page);
+        var request = new DownloadContentRequest
+        {
+            Locale = input.LocaleId,
+            ContentId = input.PageId
+        };
+        var htmlStream = await service.DownloadContent(Client.GetSiteId(site.SiteId), request);
+        var fileReference = await fileManagementClient.UploadAsync(htmlStream, "text/html", $"page_{input.PageId}.html");
 
         PageEntity? metadata = null;
 

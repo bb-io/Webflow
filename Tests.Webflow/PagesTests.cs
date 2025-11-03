@@ -1,4 +1,5 @@
 ﻿using Apps.Webflow.Actions;
+using Apps.Webflow.Constants;
 using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Pages;
 using Blackbird.Applications.Sdk.Common.Files;
@@ -33,22 +34,19 @@ public class PagesTests : TestBase
     [TestMethod]
     public async Task GetPageAsHtml_ReturnsFileReference()
     {
+        // Arrange
+        var context = GetInvocationContext(ConnectionTypes.OAuth2);
+        var site = new SiteRequest { };
+        var input = new DownloadPageRequest { PageId = "68f8b337cbd1cac54f5b9d80", LocaleId = "69007d6cf09bd27cf732e155" };
 
-        foreach (var context in InvocationContext)
-        {
-            // Arrange
-            var site = new SiteRequest { SiteId = "6773fdfb5a841e3420ebc404" };
-            var input = new DownloadPageRequest { PageId = "6773fdfc5a841e3420ebc46d" };
+        var actions = new PagesActions(context, FileManagementClient);
 
-            var actions = new PagesActions(context, FileManagementClient);
+        // Act
+        var result = await actions.GetPageAsHtml(site, input);
 
-            // Act
-            var result = await actions.GetPageAsHtml(site, input);
-
-            // Assert
-            PrintJsonResult(result);
-            Assert.IsNotNull(result, "Result should not be null.");
-        }
+        // Assert
+        PrintJsonResult(result);
+        Assert.IsNotNull(result, "Result should not be null.");
     }
 
     [TestMethod]
