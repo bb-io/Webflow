@@ -13,7 +13,7 @@ public class UpdateComponentContentRequest
 
     [Display("Locale ID")]
     [DataSource(typeof(SiteLocaleDataSourceHandler))]
-    public string LocaleId { get; set; }
+    public string? LocaleId { get; set; }
 
     [Display("Component ID")]
     [DataSource(typeof(ComponentDataSourceHandler))]
