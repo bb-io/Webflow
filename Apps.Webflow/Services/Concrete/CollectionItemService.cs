@@ -121,7 +121,7 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
         var request = new RestRequest(endpoint, Method.Patch)
             .WithJsonBody(new { fieldData, cmsLocaleId = fetchedCmsLocaleId }, JsonConfig.Settings);
 
-        await Client.ExecuteWithErrorHandling<CollectionItemEntity>(request);
+        await Client.ExecuteWithErrorHandling(request);
     }
 
     private async Task<string> GetCmsLocale(string siteId, string siteLocaleId)

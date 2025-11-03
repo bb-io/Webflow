@@ -124,6 +124,6 @@ public class PageService(InvocationContext invocationContext) : BaseContentServi
 
         request.AddJsonBody(body);
 
-        var response = await Client.ExecuteWithErrorHandling<UpdatePageContentResponse>(request);
+        await Client.ExecuteWithErrorHandling(request);
     }
 }
