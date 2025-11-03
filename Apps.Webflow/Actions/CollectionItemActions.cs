@@ -51,7 +51,7 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
     }
 
     [Action("Upload collection item", Description = "Update content of a specific collection item from HTML file")]
-    public async Task<CollectionItemEntity> UpdateCollectionItemContent(
+    public async Task UpdateCollectionItemContent(
         [ActionParameter] SiteRequest site,
         [ActionParameter] UpdateCollectionItemRequest input)
     {
@@ -60,7 +60,7 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         await source.CopyToAsync(ms);
         ms.Position = 0;
 
-        if (string.IsNullOrEmpty(site.SiteId) ||
+        if (string.IsNullOrEmpty(Client.GetSiteId(site.SiteId)) ||
             string.IsNullOrEmpty(input.CollectionId) ||
             string.IsNullOrEmpty(input.CollectionItemId) ||
             string.IsNullOrEmpty(input.CmsLocaleId))
@@ -98,9 +98,9 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
                 cmsLocaleId = input.CmsLocaleId,
             }, JsonConfig.Settings);
 
-        var result = await Client.ExecuteWithErrorHandling<CollectionItemEntity>(request);
+        await Client.ExecuteWithErrorHandling(request);
 
-        if (input.Publish == true)
+        if (input.Publish.HasValue && input.Publish.Value)
         {
             var publishRequest = new PublishItemRequest
             {
@@ -108,11 +108,7 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
                 CollectionItemId = input.CollectionItemId
             };
             await PublishItem(site, publishRequest);
-            var getPublishedItemRequest = new RestRequest($"collections/{input.CollectionId}/items/{input.CollectionItemId}", Method.Get);
-            result = await Client.ExecuteWithErrorHandling<CollectionItemEntity>(getPublishedItemRequest);
         }
-
-        return result;
     }
 
     [Action("Publish collection item", Description = "Publish a specific collection item")]
