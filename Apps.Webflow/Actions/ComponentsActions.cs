@@ -97,6 +97,6 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
         }; 
 
         var service = _factory.GetContentService(ContentTypes.Component);
-        await service.UploadContent(ms, site.SiteId, updateRequest);
+        await service.UploadContent(ms, Client.GetSiteId(site.SiteId), updateRequest);
     }
 }

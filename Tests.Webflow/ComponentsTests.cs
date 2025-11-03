@@ -1,4 +1,5 @@
 using Apps.Webflow.Actions;
+using Apps.Webflow.Constants;
 using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Components;
 using Blackbird.Applications.Sdk.Common.Files;
@@ -74,27 +75,17 @@ public class ComponentsTests : TestBase
     [TestMethod]
     public async Task UpdateComponentFromHtml_SuccessOperation()
     {
-        foreach (var context in InvocationContext)
-        {
-            // Arrange
-            var fileReference = new FileReference
-            {
-                Name = "footer_component_ece52c30-84e9-6ccc-7181-eb186cf93c46.html",
-                ContentType = "text/html",
-            };
+        // Arrange
+        var context = GetInvocationContext(ConnectionTypes.OAuth2);
+        var fileReference = new FileReference { Name = "component.xlf" };
 
-            var input = new UpdateComponentContentRequest
-            {
-                LocaleId = SampleTargetLocaleId,
-                File = fileReference
-            };
+        var input = new UpdateComponentContentRequest { File = fileReference };
 
-            var site = new SiteRequest { };
-            var action = new ComponentsActions(context, FileManagementClient);
+        var site = new SiteRequest { };
+        var action = new ComponentsActions(context, FileManagementClient);
 
-            // Act
-            await action.UpdateComponentContentAsHtml(site, input);
-        }
+        // Act
+        await action.UpdateComponentContentAsHtml(site, input);
     }
 
     // Helpful to test how well the update worked
