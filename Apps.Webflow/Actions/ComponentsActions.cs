@@ -1,5 +1,4 @@
-﻿using System.Web;
-using Apps.Webflow.HtmlConversion;
+﻿using Apps.Webflow.HtmlConversion;
 using Apps.Webflow.HtmlConversion.Constants;
 using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Entities;
@@ -11,9 +10,14 @@ using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
+using Blackbird.Filters.Transformations;
+using Blackbird.Filters.Xliff.Xliff2;
 using RestSharp;
+using System.Text;
+using System.Web;
 
 namespace Apps.Webflow.Actions;
 
@@ -73,10 +77,19 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
         [ActionParameter] SiteRequest site,
         [ActionParameter] UpdateComponentContentRequest input)
     {
-        var fileStream = await fileManagementClient.DownloadAsync(input.File);
+        await using var source = await fileManagementClient.DownloadAsync(input.File);
+        var html = Encoding.UTF8.GetString(await source.GetByteData());
 
+        if (Xliff2Serializer.IsXliff2(html))
+        {
+            html = Transformation.Parse(html, input.File.Name).Target().Serialize();
+            if (html == null) throw new PluginMisconfigurationException("XLIFF did not contain files");
+        }
+
+        await using var ms = new MemoryStream(Encoding.UTF8.GetBytes(html));
         var doc = new HtmlAgilityPack.HtmlDocument();
-        doc.Load(fileStream);
+        doc.Load(ms);
+        ms.Position = 0;
 
         if (string.IsNullOrEmpty(input.LocaleId))
             throw new PluginMisconfigurationException("Locale ID is required.");
