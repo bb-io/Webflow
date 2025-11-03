@@ -10,11 +10,15 @@ using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using Blackbird.Applications.Sdk.Utils.Extensions.String;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
+using Blackbird.Filters.Transformations;
+using Blackbird.Filters.Xliff.Xliff2;
 using RestSharp;
 using System.Net.Mime;
+using System.Text;
 
 namespace Apps.Webflow.Actions;
 
@@ -56,12 +60,17 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         [ActionParameter] UpdateCollectionItemRequest input)
     {
         await using var source = await fileManagementClient.DownloadAsync(input.File);
-        using var ms = new MemoryStream();
-        await source.CopyToAsync(ms);
-        ms.Position = 0;
+        var html = Encoding.UTF8.GetString(await source.GetByteData());
 
-        if (string.IsNullOrEmpty(Client.GetSiteId(site.SiteId)) ||
-            string.IsNullOrEmpty(input.CollectionId) ||
+        if (Xliff2Serializer.IsXliff2(html))
+        {
+            html = Transformation.Parse(html, input.File.Name).Target().Serialize();
+            if (html == null) throw new PluginMisconfigurationException("XLIFF did not contain files");
+        }
+
+        await using var ms = new MemoryStream(Encoding.UTF8.GetBytes(html));
+
+        if (string.IsNullOrEmpty(input.CollectionId) ||
             string.IsNullOrEmpty(input.CollectionItemId) ||
             string.IsNullOrEmpty(input.CmsLocaleId))
         {
@@ -72,7 +81,6 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
                 doc.DocumentNode.SelectSingleNode($"//meta[@name='{name}']")
                    ?.GetAttributeValue("content", null);
 
-            site.SiteId ??= M("blackbird-site-id");
             input.CollectionId ??= M("blackbird-collection-id");
             input.CollectionItemId ??= M("blackbird-collection-item-id");
             input.CmsLocaleId ??= M("blackbird-cmslocale-id");
