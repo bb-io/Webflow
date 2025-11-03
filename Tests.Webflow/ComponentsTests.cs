@@ -58,7 +58,7 @@ public class ComponentsTests : TestBase
         foreach (var context in InvocationContext)
         {
             // Arrange
-            var input = new GetComponentContentRequest { ComponentId = SampleComponentId };
+            var input = new DownloadComponentContentRequest { ComponentId = SampleComponentId };
 
             var actions = new ComponentsActions(context, FileManagementClient);
             var site = new SiteRequest { SiteId = SampleSiteId };
@@ -108,7 +108,7 @@ public class ComponentsTests : TestBase
         foreach (var context in InvocationContext)
         {
             // Arrange
-            var input = new GetComponentContentRequest
+            var input = new DownloadComponentContentRequest
             {
                 ComponentId = SampleComponentId,
                 LocaleId = SampleTargetLocaleId,

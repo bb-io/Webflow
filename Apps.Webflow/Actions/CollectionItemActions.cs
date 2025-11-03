@@ -1,20 +1,20 @@
-using System.Net.Mime;
 using Apps.Webflow.Constants;
 using Apps.Webflow.HtmlConversion;
 using Apps.Webflow.Invocables;
-using Apps.Webflow.Models;
 using Apps.Webflow.Models.Entities;
+using Apps.Webflow.Models.Request;
+using Apps.Webflow.Models.Request.Collection;
 using Apps.Webflow.Models.Request.CollectionItem;
+using Apps.Webflow.Models.Response.CollectiomItem;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
-using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using Blackbird.Applications.Sdk.Utils.Extensions.String;
+using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using RestSharp;
-using Apps.Webflow.Models.Request.Collection;
-using Blackbird.Applications.Sdk.Common.Exceptions;
-using Apps.Webflow.Models.Request;
+using System.Net.Mime;
 
 namespace Apps.Webflow.Actions;
 
@@ -23,7 +23,7 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
     : WebflowInvocable(invocationContext)
 {
     [Action("Download collection item", Description = "Get content of a specific collection item in HTML format")]
-    public async Task<FileModel> GetCollectionItemContent(
+    public async Task<DownloadCollectionItemContentResponse> GetCollectionItemContent(
         [ActionParameter] SiteRequest site,
         [ActionParameter] CollectionItemRequest input)
     {
@@ -46,19 +46,16 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
             item.CmsLocaleId
         );
 
-        return new()
-        {
-            File = await fileManagementClient.UploadAsync(html, MediaTypeNames.Text.Html, $"{item.Id}.html")
-        };
+        var file = await fileManagementClient.UploadAsync(html, MediaTypeNames.Text.Html, $"{item.Id}.html");
+        return new(file);
     }
 
     [Action("Upload collection item", Description = "Update content of a specific collection item from HTML file")]
     public async Task<CollectionItemEntity> UpdateCollectionItemContent(
         [ActionParameter] SiteRequest site,
-        [ActionParameter] UpdateCollectionItemRequest input,
-        [ActionParameter] FileModel file)
+        [ActionParameter] UpdateCollectionItemRequest input)
     {
-        await using var source = await fileManagementClient.DownloadAsync(file.File);
+        await using var source = await fileManagementClient.DownloadAsync(input.File);
         using var ms = new MemoryStream();
         await source.CopyToAsync(ms);
         ms.Position = 0;
@@ -110,7 +107,7 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
                 CollectionId = input.CollectionId,
                 CollectionItemId = input.CollectionItemId
             };
-            await PublishItem(publishRequest);
+            await PublishItem(site, publishRequest);
             var getPublishedItemRequest = new RestRequest($"collections/{input.CollectionId}/items/{input.CollectionItemId}", Method.Get);
             result = await Client.ExecuteWithErrorHandling<CollectionItemEntity>(getPublishedItemRequest);
         }
@@ -119,7 +116,9 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
     }
 
     [Action("Publish collection item", Description = "Publish a specific collection item")]
-    public async Task PublishItem([ActionParameter] PublishItemRequest input)
+    public async Task PublishItem(
+        [ActionParameter] SiteRequest site,
+        [ActionParameter] PublishItemRequest input)
     {
         var endpoint = $"collections/{input.CollectionId}/items/publish";
         var request = new RestRequest(endpoint, Method.Post)

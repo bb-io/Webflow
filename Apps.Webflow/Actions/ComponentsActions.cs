@@ -10,7 +10,6 @@ using Apps.Webflow.Models.Response.Pagination;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Exceptions;
-using Blackbird.Applications.Sdk.Common.Files;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
@@ -51,9 +50,9 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
     }
 
     [Action("Download component", Description = "Get the component content in HTML file")]
-    public async Task<FileReference> GetComponentAsHtml(
+    public async Task<DownloadComponentResponse> GetComponentAsHtml(
         [ActionParameter] SiteRequest site,
-        [ActionParameter] GetComponentContentRequest input)
+        [ActionParameter] DownloadComponentContentRequest input)
     {
         var endpoint = $"sites/{Client.GetSiteId(site.SiteId)}/components/{input.ComponentId}/dom";
         var request = new RestRequest(endpoint, Method.Get);
@@ -65,16 +64,14 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
 
         var htmlStream = ComponentHtmlConverter.ToHtml(componentDom, Client.GetSiteId(site.SiteId), input.ComponentId);
 
-        return await fileManagementClient.UploadAsync(
-            htmlStream,
-            "text/html",
-            $"component_{input.ComponentId}.html");
+        var file = await fileManagementClient.UploadAsync(htmlStream, "text/html", $"component_{input.ComponentId}.html");
+        return new(file);
     }
 
     [Action("Upload component", Description = "Update component content using HTML file")]
-    public async Task<UpdateComponentContentResponse> UpdateComponentContentAsHtml(
-        [ActionParameter] UpdateComponentContentRequest input,
-        [ActionParameter] SiteRequest site)
+    public async Task UpdateComponentContentAsHtml(
+        [ActionParameter] SiteRequest site,
+        [ActionParameter] UpdateComponentContentRequest input)
     {
         var fileStream = await fileManagementClient.DownloadAsync(input.File);
 
@@ -159,10 +156,5 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
         apiRequest.AddQueryParameter("localeId", input.LocaleId);
 
         await Client.ExecuteWithErrorHandling(apiRequest);
-
-        return new UpdateComponentContentResponse
-        {
-            Success = true
-        };
     }
 }
