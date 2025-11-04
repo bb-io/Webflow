@@ -23,12 +23,8 @@ public class PagePollingList(InvocationContext invocationContext) : WebflowInvoc
             return new()
             {
                 FlyBird = false,
-                Memory = new()
-                {
-                    LastPollingTime = DateTime.UtcNow,
-                    Triggered = false,
-                },
-                Result = new ListPagesPollingResponse()
+                Memory = new(DateTime.UtcNow, false),
+                Result = new ListPagesPollingResponse([])
             };
         }
 
@@ -45,20 +41,11 @@ public class PagePollingList(InvocationContext invocationContext) : WebflowInvoc
 
         bool triggered = updatedPages.Any();
 
-        var newMemory = new PageMemory
-        {
-            LastPollingTime = DateTime.UtcNow,
-            Triggered = triggered
-        };
-
         return new PollingEventResponse<PageMemory, ListPagesPollingResponse>
         {
             FlyBird = triggered,
-            Memory = newMemory,
-            Result = new ListPagesPollingResponse
-            {
-                Pages = updatedPages
-            }
+            Memory = new PageMemory(DateTime.UtcNow, triggered),
+            Result = new ListPagesPollingResponse(updatedPages)
         };
     }
 }

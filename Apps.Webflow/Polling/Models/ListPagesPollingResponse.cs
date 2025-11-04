@@ -1,9 +1,6 @@
-﻿using Apps.Webflow.Models.Entities;
+﻿namespace Apps.Webflow.Polling.Models;
 
-namespace Apps.Webflow.Polling.Models
+public class ListPagesPollingResponse(IEnumerable<PagePollingEntity> pages)
 {
-    public class ListPagesPollingResponse
-    {
-        public IEnumerable<PagePollingEntity> Pages { get; set; }
-    }
+    public IEnumerable<PagePollingEntity> Pages { get; set; } = pages;
 }

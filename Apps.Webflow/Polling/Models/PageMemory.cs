@@ -1,16 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Apps.Webflow.Polling.Models;
 
-namespace Apps.Webflow.Polling.Models
+public class PageMemory(DateTime? lastPollingTime, bool triggered)
 {
-    public class PageMemory 
-    {
-        public DateTime? LastPollingTime { get; set; }
-
-        public bool Triggered { get; set; }
-
-    }
+    public DateTime? LastPollingTime { get; set; } = lastPollingTime;
+    public bool Triggered { get; set; } = triggered;
 }

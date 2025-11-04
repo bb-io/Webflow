@@ -21,11 +21,7 @@ public class PollingTests : TestBase
 
         var request = new PollingEventRequest<PageMemory>
         {
-            Memory = new PageMemory
-            {
-                LastPollingTime = lastPollingTime,
-                Triggered = false
-            }
+            Memory = new PageMemory(lastPollingTime, false)
         };
 
         var site = new SiteRequest { };
@@ -49,11 +45,7 @@ public class PollingTests : TestBase
 
         var request = new PollingEventRequest<PageMemory>
         {
-            Memory = new PageMemory
-            {
-                LastPollingTime = lastPollingTime,
-                Triggered = false
-            }
+            Memory = new PageMemory(lastPollingTime, false)
         };
 
         var input = new PageUpdatedRequest { NameDoesNotContain = "40" };
