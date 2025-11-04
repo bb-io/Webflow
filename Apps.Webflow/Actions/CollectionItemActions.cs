@@ -62,7 +62,7 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
     }
 
     [Action("Download collection item", Description = "Get content of a specific collection item in HTML format")]
-    public async Task<DownloadCollectionItemContentResponse> GetCollectionItemContent(
+    public async Task<DownloadCollectionItemContentResponse> DownloadCollectionItem(
         [ActionParameter] SiteRequest site,
         [ActionParameter] CollectionItemRequest input)
     {
@@ -80,7 +80,7 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
     }
 
     [Action("Upload collection item", Description = "Update content of a specific collection item from HTML file")]
-    public async Task UpdateCollectionItemContent(
+    public async Task UploadCollectionItem(
         [ActionParameter] SiteRequest site,
         [ActionParameter] UpdateCollectionItemRequest input)
     {
