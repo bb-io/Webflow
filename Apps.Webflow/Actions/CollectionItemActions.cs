@@ -1,5 +1,5 @@
 using Apps.Webflow.Constants;
-using Apps.Webflow.HtmlConversion;
+using Apps.Webflow.Helper;
 using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Entities;
 using Apps.Webflow.Models.Request;
@@ -7,6 +7,7 @@ using Apps.Webflow.Models.Request.Collection;
 using Apps.Webflow.Models.Request.CollectionItem;
 using Apps.Webflow.Models.Request.Content;
 using Apps.Webflow.Models.Response.CollectiomItem;
+using Apps.Webflow.Models.Response.Pagination;
 using Apps.Webflow.Services;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
@@ -14,7 +15,6 @@ using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using Blackbird.Applications.Sdk.Utils.Extensions.Http;
-using Blackbird.Applications.Sdk.Utils.Extensions.String;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Filters.Transformations;
 using Blackbird.Filters.Xliff.Xliff2;
@@ -30,31 +30,52 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
 {
     private readonly ContentServicesFactory _factory = new ContentServicesFactory(invocationContext);
 
+    [Action("Search collection items", Description = "Search all collection items for a specific collection")]
+    public async Task<SearchCollectionItemsResponse> SearchCollectionItems(
+        [ActionParameter] SiteRequest site,
+        [ActionParameter] CollectionRequest collection,
+        [ActionParameter] DateFilter dateFilter,
+        [ActionParameter] SearchCollectionItemsRequest input)
+    {
+        ValidatorHelper.ValidateInputDates(dateFilter);
+        ValidatorHelper.ValidatePublishedInputDates(input.LastPublishedBefore, input.LastPublishedAfter);
+
+        var endpoint = $"collections/{collection.CollectionId}/items";
+        var request = new RestRequest(endpoint, Method.Get);
+
+        if (input.LastPublishedBefore.HasValue)
+            request.AddParameter("lastPublished[lte]", input.LastPublishedBefore.Value.ToString("O"));
+
+        if (input.LastPublishedAfter.HasValue)
+            request.AddParameter("lastPublished[gte]", input.LastPublishedAfter.Value.ToString("O"));
+
+        if (!string.IsNullOrEmpty(input.CmsLocaleId))
+            request.AddParameter("cmsLocaleId", input.CmsLocaleId);
+
+        var items = await Client.Paginate<CollectionItemEntity, CollectionItemPaginationResponse>(request, r => r.Items);
+
+        IEnumerable<CollectionItemEntity> filtered = FilterHelper.ApplyDateFilters(items, dateFilter);
+        filtered = FilterHelper.ApplyContainsFilter(filtered, input.NameContains, r => r.Name);
+        filtered = FilterHelper.ApplyContainsFilter(filtered, input.SlugContains, r => r.FieldData["slug"]?.ToString());
+
+        return new(filtered);
+    }
+
     [Action("Download collection item", Description = "Get content of a specific collection item in HTML format")]
     public async Task<DownloadCollectionItemContentResponse> GetCollectionItemContent(
         [ActionParameter] SiteRequest site,
         [ActionParameter] CollectionItemRequest input)
     {
-        if (string.IsNullOrWhiteSpace(Client.GetSiteId(site.SiteId)))
-            throw new PluginMisconfigurationException("Site ID is required.");
-        if (string.IsNullOrWhiteSpace(input.CollectionId))
-            throw new PluginMisconfigurationException("Collection ID is required.");
-        if (string.IsNullOrWhiteSpace(input.CollectionItemId))
-            throw new PluginMisconfigurationException("Collection item ID is required.");
+        var service = _factory.GetContentService(ContentTypes.CollectionItem);
+        var contentRequest = new DownloadContentRequest
+        {
+            CollectionId = input.CollectionId,
+            ContentId = input.CollectionItemId,
+            Locale = input.CmsLocaleId
+        };
+        var html = await service.DownloadContent(Client.GetSiteId(site.SiteId), contentRequest);
 
-        var collection = await GetCollection(input.CollectionId);
-
-        var item = await GetCollectionItem(input.CollectionId, input.CollectionItemId, input.CmsLocaleId);
-        var html = CollectionItemHtmlConverter.ToHtml(
-            item, 
-            collection.Fields, 
-            Client.GetSiteId(site.SiteId), 
-            input.CollectionId, 
-            input.CollectionItemId, 
-            item.CmsLocaleId
-        );
-
-        var file = await fileManagementClient.UploadAsync(html, MediaTypeNames.Text.Html, $"collection_item_{item.Id}.html");
+        var file = await fileManagementClient.UploadAsync(html, MediaTypeNames.Text.Html, $"collection_item_{input.CollectionItemId}.html");
         return new(file);
     }
 
@@ -79,7 +100,7 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
 
         string? M(string name) =>
             doc.DocumentNode.SelectSingleNode($"//meta[@name='{name}']")
-               ?.GetAttributeValue("content", null);
+               ?.GetAttributeValue("content", "");
 
         input.CollectionId ??= M("blackbird-collection-id");
         input.CollectionItemId ??= M("blackbird-collection-item-id");
@@ -134,24 +155,5 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
             }, JsonConfig.Settings);
 
         await Client.ExecuteWithErrorHandling(request);
-    }
-
-    private Task<CollectionItemEntity> GetCollectionItem(string collectionId, string collectionItemId,
-        string? locale = default)
-    {
-        var endpoint = $"collections/{collectionId}/items/{collectionItemId}";
-
-        if (locale != null)
-            endpoint = endpoint.SetQueryParameter("cmsLocaleId", locale);
-
-        var request = new RestRequest(endpoint, Method.Get);
-
-        return Client.ExecuteWithErrorHandling<CollectionItemEntity>(request);
-    }
-
-    private Task<CollectionEntity> GetCollection(string collectionId)
-    {
-        var request = new RestRequest($"collections/{collectionId}", Method.Get);
-        return Client.ExecuteWithErrorHandling<CollectionEntity>(request);
     }
 }

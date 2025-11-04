@@ -183,27 +183,24 @@ public class ContentTests : TestBase
     [TestMethod]
     public async Task SearchContent_CollectionItemTypeWithFilters_ReturnsCollectionItemMetadata()
     {
-        foreach (var context in InvocationContext)
+        // Arrange
+        var context = GetInvocationContext(ConnectionTypes.OAuth2);
+        var action = new ContentActions(context, FileManagementClient);
+        var site = new SiteRequest { };
+        var input = new SearchContentRequest
         {
-            // Arrange
-            var action = new ContentActions(context, FileManagementClient);
-            var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
-            var input = new SearchContentRequest
-            {
-                ContentTypes = [ContentTypes.CollectionItem], 
-                LastPublishedAfter = new DateTime(2025, 10, 22, 5, 0, 0, DateTimeKind.Utc),
-                CollectionId = "68f88700e2a4dba6d693cc90",
-                /* NameContains = "Effective"*/
-            };
-            var dates = new DateFilter { LastUpdatedAfter = new DateTime(2025, 1, 1, 10, 0, 0, DateTimeKind.Utc) };
+            ContentTypes = [ContentTypes.CollectionItem], 
+            LastPublishedBefore = new DateTime(2025, 11, 3, 5, 0, 0, DateTimeKind.Utc),
+            CollectionId = "68f8b337cbd1cac54f5b9d9c",
+        };
+        var dates = new DateFilter { LastUpdatedAfter = new DateTime(2025, 1, 1, 10, 0, 0, DateTimeKind.Utc) };
 
-            // Act
-            var result = await action.SearchContent(site, input, dates);
+        // Act
+        var result = await action.SearchContent(site, input, dates);
 
-            // Assert
-            PrintJsonResult(result);
-            Assert.IsNotNull(result);
-        }
+        // Assert
+        PrintJsonResult(result);
+        Assert.IsNotNull(result);
     }
     
     [TestMethod]

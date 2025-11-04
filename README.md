@@ -102,6 +102,7 @@ Navigate to Apps, and identify the **Webflow** app. You can use search to find i
 
 ### Collection items
 
+- **Search collection items** searches all collection items for a specific collection.
 - **Download collection item** returns content of a specific collection item in HTML format.
 - **Publish collection item** publishes a specific collection item. This actions can only publish an item of the default locale, because of the Webflow API limitation.
 - **Upload collection item** updates content of a specific collection item from HTML file.

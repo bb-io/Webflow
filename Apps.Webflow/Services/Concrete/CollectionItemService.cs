@@ -29,15 +29,14 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
         var endpoint = $"collections/{input.CollectionId}/items";
         var request = new RestRequest(endpoint, Method.Get);
 
-        var items = await Client.Paginate<CollectionItemEntity, CollectionItemPaginationResponse>(request, r => r.Items);
-        IEnumerable<CollectionItemEntity> filtered = FilterHelper.ApplyDateFilters(items, dateFilter);
-
         if (input.LastPublishedBefore.HasValue)
-            filtered = filtered.Where(c => c.LastPublished <= input.LastPublishedBefore);
+            request.AddParameter("lastPublished[lte]", input.LastPublishedBefore.Value.ToString("O"));
 
         if (input.LastPublishedAfter.HasValue)
-            filtered = filtered.Where(c => c.LastPublished >= input.LastPublishedAfter);
+            request.AddParameter("lastPublished[gte]", input.LastPublishedAfter.Value.ToString("O"));
 
+        var items = await Client.Paginate<CollectionItemEntity, CollectionItemPaginationResponse>(request, r => r.Items);
+        IEnumerable<CollectionItemEntity> filtered = FilterHelper.ApplyDateFilters(items, dateFilter);
         filtered = FilterHelper.ApplyContainsFilter(filtered, input.NameContains, r => r.Name);
 
         var result = filtered.Select(x => new ContentItemEntity
@@ -69,7 +68,15 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
         var itemRequest = new RestRequest(itemEndpoint, Method.Get);
         var item = await Client.ExecuteWithErrorHandling<CollectionItemEntity>(itemRequest);
 
-        var stream = CollectionItemHtmlConverter.ToHtml(item, collection.Fields, siteId, input.CollectionId, input.ContentId);
+        var stream = CollectionItemHtmlConverter.ToHtml(
+            item, 
+            collection.Fields, 
+            siteId, 
+            input.CollectionId, 
+            input.ContentId, 
+            item.CmsLocaleId
+        );
+
         var memoryStream = new MemoryStream();
         await stream.CopyToAsync(memoryStream);
         memoryStream.Position = 0;
@@ -103,24 +110,24 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
         await Client.ExecuteWithErrorHandling(request);
     }
 
-    private async Task<string> GetCmsLocale(string siteId, string siteLocaleId)
+    private async Task<string> GetCmsLocale(string siteId, string localeId)
     {
         var siteRequest = new RestRequest($"/sites/{siteId}", Method.Get);
         var siteEntity = await Client.ExecuteWithErrorHandling<SiteEntity>(siteRequest);
 
         if (siteEntity.Locales == null)
             throw new PluginApplicationException("Site locales are not available");
+
+        var cmsLocale = siteEntity.Locales.Secondary?.FirstOrDefault(x => x.CmsLocaleId == localeId);
+        if (cmsLocale != null)
+            return localeId;
         
-        if (siteEntity.Locales.Primary?.Id == siteLocaleId)
+        if (siteEntity.Locales.Primary?.Id == localeId)
             return siteEntity.Locales.Primary.CmsLocaleId;
 
-        var secondaryLocale = siteEntity.Locales.Secondary?.FirstOrDefault(x => x.Id == siteLocaleId);
+        var secondaryLocale = siteEntity.Locales.Secondary?.FirstOrDefault(x => x.Id == localeId);
         if (secondaryLocale != null)
             return secondaryLocale.CmsLocaleId;
-
-        var cmsLocale = siteEntity.Locales.Secondary?.FirstOrDefault(x => x.CmsLocaleId == siteLocaleId);
-        if (cmsLocale != null)
-            return siteLocaleId;
 
         throw new PluginApplicationException("Can't match the input locale with available collection item locale ID");
     }
