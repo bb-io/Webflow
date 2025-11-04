@@ -21,4 +21,41 @@ public static class FilterHelper
 
         return items;
     }
+
+    public static IEnumerable<T> ApplyContainsFilter<T>(
+        IEnumerable<T> items,
+        string? contains,
+        Func<T, string?> selector)
+    {
+        if (string.IsNullOrWhiteSpace(contains))
+            return items;
+
+        return items.Where(x =>
+            !string.IsNullOrEmpty(selector(x)) &&
+            selector(x)!.Contains(contains, StringComparison.OrdinalIgnoreCase));
+    }
+
+    public static IEnumerable<T> ApplyDoesNotContainFilter<T>(
+        IEnumerable<T> items,
+        string? doesNotContain,
+        Func<T, string?> selector)
+    {
+        if (string.IsNullOrWhiteSpace(doesNotContain))
+            return items;
+
+        return items.Where(x =>
+            string.IsNullOrEmpty(selector(x)) ||
+            !selector(x)!.Contains(doesNotContain, StringComparison.OrdinalIgnoreCase));
+    }
+
+    public static IEnumerable<T> ApplyBooleanFilter<T>(
+        IEnumerable<T> items,
+        bool? value,
+        Func<T, bool?> selector)
+    {
+        if (!value.HasValue)
+            return items;
+
+        return items.Where(x => selector(x).HasValue && selector(x)!.Value == value.Value);
+    }
 }

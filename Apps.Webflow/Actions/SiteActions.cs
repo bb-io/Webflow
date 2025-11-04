@@ -58,9 +58,9 @@ public class SiteActions(InvocationContext invocationContext) : WebflowInvocable
         ValidatorHelper.ValidatePublishedInputDates(input.LastPublishedBefore, input.LastPublishedAfter);
     }
 
-    private static IEnumerable<SiteEntity> ApplySiteFilters(SearchSitesRequest input, DateFilter date, SiteEntitiesList result)
+    private static List<SiteEntity> ApplySiteFilters(SearchSitesRequest input, DateFilter date, SiteEntitiesList result)
     {
-        var sites = result.Sites;
+        IEnumerable<SiteEntity> sites = result.Sites;
 
         if (date.CreatedBefore.HasValue)
             sites = sites.Where(x => x.CreatedOn < date.CreatedBefore);
@@ -80,8 +80,7 @@ public class SiteActions(InvocationContext invocationContext) : WebflowInvocable
         if (date.LastUpdatedAfter.HasValue)
             sites = sites.Where(x => x.LastUpdated > date.LastUpdatedAfter);
 
-        if (!string.IsNullOrEmpty(input.DisplayNameContains))
-            sites = sites.Where(x => x.DisplayName.Contains(input.DisplayNameContains));
+        sites = FilterHelper.ApplyContainsFilter(sites, input.DisplayNameContains, s => s.DisplayName);
 
         return sites.ToList();
     }

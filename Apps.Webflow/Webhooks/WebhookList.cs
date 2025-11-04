@@ -1,6 +1,5 @@
 using Apps.Webflow.Extensions;
 using Apps.Webflow.Invocables;
-using Apps.Webflow.Models.Request;
 using Apps.Webflow.Webhooks.Handlers;
 using Apps.Webflow.Webhooks.Models.Request;
 using Apps.Webflow.Webhooks.Models.Response;
@@ -29,9 +28,17 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
 
     [Webhook("On page created", typeof(PageCreatedWebhookHandler),
         Description = "Triggers when specific page was created")]
-    public Task<WebhookResponse<PageCreatedResponse>> OnPageCreated(WebhookRequest webhookRequest)
+    public Task<WebhookResponse<PageCreatedResponse>> OnPageCreated(
+        WebhookRequest webhookRequest,
+        [WebhookParameter] PageWebhookRequest input)
     {
         var data = webhookRequest.GetPayload<PageCreatedResponse>();
+
+        if (DoesNotMatch(input.TitleContains, data.PageTitle))
+            return Preflight<PageCreatedResponse>();
+
+        if (DoesNotMatch(input.PublishedPathContains, data.PublishedPath))
+            return Preflight<PageCreatedResponse>();
 
         return Task.FromResult<WebhookResponse<PageCreatedResponse>>(new()
         {
@@ -42,9 +49,17 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
 
     [Webhook("On page deleted", typeof(PageDeletedWebhookHandler),
         Description = "Triggers when specific page was deleted")]
-    public Task<WebhookResponse<PageDeletedResponse>> OnPageDeleted(WebhookRequest webhookRequest)
+    public Task<WebhookResponse<PageDeletedResponse>> OnPageDeleted(
+        WebhookRequest webhookRequest,
+        [WebhookParameter] PageWebhookRequest input)
     {
         var data = webhookRequest.GetPayload<PageDeletedResponse>();
+
+        if (DoesNotMatch(input.TitleContains, data.PageTitle))
+            return Preflight<PageDeletedResponse>();
+
+        if (DoesNotMatch(input.PublishedPathContains, data.PublishedPath))
+            return Preflight<PageDeletedResponse>();
 
         return Task.FromResult<WebhookResponse<PageDeletedResponse>>(new()
         {
@@ -55,9 +70,17 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
 
     [Webhook("On page metadata updated", typeof(PageMetadataUpdatedWebhookHandler),
         Description = "Triggers when specific page metadata was updated")]
-    public Task<WebhookResponse<PageUpdatedResponse>> OnPageMetadataUpdated(WebhookRequest webhookRequest)
+    public Task<WebhookResponse<PageUpdatedResponse>> OnPageMetadataUpdated(
+        WebhookRequest webhookRequest,
+        [WebhookParameter] PageWebhookRequest input)
     {
         var data = webhookRequest.GetPayload<PageUpdatedResponse>();
+
+        if (DoesNotMatch(input.TitleContains, data.PageTitle))
+            return Preflight<PageUpdatedResponse>();
+
+        if (DoesNotMatch(input.PublishedPathContains, data.PublishedPath))
+            return Preflight<PageUpdatedResponse>();
 
         return Task.FromResult<WebhookResponse<PageUpdatedResponse>>(new()
         {
@@ -75,18 +98,10 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
         var data = webhookRequest.GetPayload<CollectionWebhookResponse>();
 
         if (input.LocaleId != null && data.FieldData["_locale"]!.ToString() != input.LocaleId)
-            return Task.FromResult(new WebhookResponse<CollectionItemResponse>
-            {
-                HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
-                ReceivedWebhookRequestType = WebhookRequestType.Preflight
-            });
+            return Preflight<CollectionItemResponse>();
 
         if (input.CollectionId != null && data.CollectionId != input.CollectionId)
-            return Task.FromResult(new WebhookResponse<CollectionItemResponse>
-            {
-                HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
-                ReceivedWebhookRequestType = WebhookRequestType.Preflight
-            });
+            return Preflight<CollectionItemResponse>();
 
         return Task.FromResult<WebhookResponse<CollectionItemResponse>>(new()
         {
@@ -103,18 +118,10 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
         var data = webhookRequest.GetPayload<CollectionWebhookResponse>();
 
         if (input.LocaleId != null && data.FieldData["_locale"]!.ToString() != input.LocaleId)
-            return Task.FromResult(new WebhookResponse<CollectionItemResponse>
-            {
-                HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
-                ReceivedWebhookRequestType = WebhookRequestType.Preflight
-            });
+            return Preflight<CollectionItemResponse>();
 
         if (input.CollectionId != null && data.CollectionId != input.CollectionId)
-            return Task.FromResult(new WebhookResponse<CollectionItemResponse>
-            {
-                HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
-                ReceivedWebhookRequestType = WebhookRequestType.Preflight
-            });
+            return Preflight<CollectionItemResponse>();
 
         return Task.FromResult<WebhookResponse<CollectionItemResponse>>(new()
         {
@@ -131,18 +138,10 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
         var data = webhookRequest.GetPayload<CollectionWebhookResponse>();
 
         if (input.CollectionId != null && data.CollectionId != input.CollectionId)
-            return Task.FromResult(new WebhookResponse<CollectionItemResponse>
-            {
-                HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
-                ReceivedWebhookRequestType = WebhookRequestType.Preflight
-            });
+            return Preflight<CollectionItemResponse>();
 
         if (input.LocaleId != null && data.FieldData["_locale"]!.ToString() != input.LocaleId)
-            return Task.FromResult(new WebhookResponse<CollectionItemResponse>
-            {
-                HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
-                ReceivedWebhookRequestType = WebhookRequestType.Preflight
-            });
+            return Preflight<CollectionItemResponse>();
 
         return Task.FromResult<WebhookResponse<CollectionItemResponse>>(new()
         {
@@ -159,18 +158,10 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
         var data = webhookRequest.GetPayload<CollectionItemPublishedResponse>();
 
         if (input.LocaleId != null && data.Items.First().FieldData["_locale"]!.ToString() != input.LocaleId)
-            return Task.FromResult(new WebhookResponse<CollectionItemResponse>
-            {
-                HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
-                ReceivedWebhookRequestType = WebhookRequestType.Preflight
-            });
+            return Preflight<CollectionItemResponse>();
 
         if (input.CollectionId != null && data.Items.First().CollectionId != input.CollectionId)
-            return Task.FromResult(new WebhookResponse<CollectionItemResponse>
-            {
-                HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
-                ReceivedWebhookRequestType = WebhookRequestType.Preflight
-            });
+            return Preflight<CollectionItemResponse>();
 
         return Task.FromResult<WebhookResponse<CollectionItemResponse>>(new()
         {
@@ -187,23 +178,30 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
         var data = webhookRequest.GetPayload<CollectionWebhookResponse>();
 
         if (input.LocaleId != null && data.FieldData["_locale"]!.ToString() != input.LocaleId)
-            return Task.FromResult(new WebhookResponse<CollectionItemResponse>
-            {
-                HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
-                ReceivedWebhookRequestType = WebhookRequestType.Preflight
-            });
+            return Preflight<CollectionItemResponse>();
 
         if (input.CollectionId != null && data.CollectionId != input.CollectionId)
-            return Task.FromResult(new WebhookResponse<CollectionItemResponse>
-            {
-                HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
-                ReceivedWebhookRequestType = WebhookRequestType.Preflight
-            });
+            return Preflight<CollectionItemResponse>();
 
         return Task.FromResult<WebhookResponse<CollectionItemResponse>>(new()
         {
             HttpResponseMessage = null,
             Result = data
+        });
+    }
+
+    private static bool DoesNotMatch(string? filter, string? value)
+    {
+        return !string.IsNullOrWhiteSpace(filter) &&
+               (string.IsNullOrEmpty(value) || !value.Contains(filter, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static Task<WebhookResponse<T>> Preflight<T>() where T : class
+    {
+        return Task.FromResult(new WebhookResponse<T>
+        {
+            HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
+            ReceivedWebhookRequestType = WebhookRequestType.Preflight
         });
     }
 }

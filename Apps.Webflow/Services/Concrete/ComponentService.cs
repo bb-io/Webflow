@@ -1,4 +1,5 @@
 ﻿using Apps.Webflow.Constants;
+using Apps.Webflow.Helper;
 using Apps.Webflow.HtmlConversion;
 using Apps.Webflow.HtmlConversion.Constants;
 using Apps.Webflow.Models.Entities;
@@ -29,10 +30,7 @@ public class ComponentService(InvocationContext invocationContext) : BaseContent
         var request = new RestRequest(endpoint, Method.Get);
 
         IEnumerable<ComponentEntity> pages = await Client.Paginate<ComponentEntity, ComponentsPaginationResponse>(request, r => r.Components);
-
-        if (!string.IsNullOrWhiteSpace(input.NameContains))
-            pages = pages.Where(c => !string.IsNullOrEmpty(c.Name) &&
-                                           c.Name.Contains(input.NameContains, StringComparison.OrdinalIgnoreCase));
+        pages = FilterHelper.ApplyContainsFilter(pages, input.NameContains, r => r.Name);
 
         var result = pages.Select(x => new ContentItemEntity
         {

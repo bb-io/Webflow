@@ -38,9 +38,7 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
         if (input.LastPublishedAfter.HasValue)
             filtered = filtered.Where(c => c.LastPublished >= input.LastPublishedAfter);
 
-        if (!string.IsNullOrWhiteSpace(input.NameContains))
-            filtered = filtered.Where(c => !string.IsNullOrEmpty(c.Name) &&
-                                           c.Name.Contains(input.NameContains, StringComparison.OrdinalIgnoreCase));
+        filtered = FilterHelper.ApplyContainsFilter(filtered, input.NameContains, r => r.Name);
 
         var result = filtered.Select(x => new ContentItemEntity
         {
