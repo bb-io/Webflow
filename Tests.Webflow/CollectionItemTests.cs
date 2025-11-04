@@ -59,7 +59,7 @@ public class CollectionItemTests : TestBase
         var request = new SearchCollectionItemsRequest
         {
             LastPublishedAfter = new DateTime(2025, 11, 03, 10, 0, 0, DateTimeKind.Utc),
-            NameContains = "work"
+            CmsLocaleId = "69007d6cf09bd27cf732e15a"
         };
         var site = new SiteRequest { };
         var dateFilter = new DateFilter { };

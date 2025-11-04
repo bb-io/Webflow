@@ -51,10 +51,14 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         if (input.LastPublishedAfter.HasValue)
             request.AddParameter("lastPublished[gte]", input.LastPublishedAfter.Value.ToString("O"));
 
+        if (!string.IsNullOrEmpty(input.CmsLocaleId))
+            request.AddParameter("cmsLocaleId", input.CmsLocaleId);
+
         var items = await Client.Paginate<CollectionItemEntity, CollectionItemPaginationResponse>(request, r => r.Items);
 
         IEnumerable<CollectionItemEntity> filtered = FilterHelper.ApplyDateFilters(items, dateFilter);
         filtered = FilterHelper.ApplyContainsFilter(filtered, input.NameContains, r => r.Name);
+        filtered = FilterHelper.ApplyContainsFilter(filtered, input.SlugContains, r => r.FieldData["slug"]?.ToString());
 
         return new(filtered);
     }
