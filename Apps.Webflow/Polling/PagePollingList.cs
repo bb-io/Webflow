@@ -1,4 +1,5 @@
-﻿using Apps.Webflow.Invocables;
+﻿using Apps.Webflow.Helper;
+using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Request;
 using Apps.Webflow.Polling.Models;
 using Apps.Webflow.Polling.Models.Requests;
@@ -35,13 +36,12 @@ public class PagePollingList(InvocationContext invocationContext) : WebflowInvoc
         var pagesResponse = await Client.ExecuteWithErrorHandling<ListPagesPollingResponse>(pagesRequest);
 
         var lastPollingTime = request.Memory.LastPollingTime ?? DateTime.MinValue;
-        var updatedPages = pagesResponse.Pages
-            .Where(p => p.LastUpdated.HasValue && p.LastUpdated.Value > lastPollingTime)
-            .Where(p => string.IsNullOrEmpty(input.NameDoesNotContain) ||
-                        (p.Title != null && !p.Title.Contains(input.NameDoesNotContain, StringComparison.OrdinalIgnoreCase)))
-            .Where(p => string.IsNullOrEmpty(input.NameContains) ||
-                        (p.Title != null && p.Title.Contains(input.NameContains, StringComparison.OrdinalIgnoreCase)))
-            .ToList();
+
+        IEnumerable<PagePollingEntity> updatedPages = pagesResponse.Pages
+            .Where(p => p.LastUpdated.HasValue && p.LastUpdated.Value > lastPollingTime);
+
+        updatedPages = FilterHelper.ApplyDoesNotContainFilter(updatedPages, input.NameDoesNotContain, p => p.Title);
+        updatedPages = FilterHelper.ApplyContainsFilter(updatedPages, input.NameContains, p => p.Title);
 
         bool triggered = updatedPages.Any();
 

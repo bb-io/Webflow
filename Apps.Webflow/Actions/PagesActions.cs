@@ -40,25 +40,16 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
 
         var allPages = await Client.Paginate<PageEntity, PagesPaginationResponse>(request, r => r.Pages);
         if (!allPages.Any())
-            return new SearchPagesResponse(new List<PageEntity>());
+            return new SearchPagesResponse([]);
 
         IEnumerable<PageEntity> filtered = allPages;
 
-        if (!string.IsNullOrWhiteSpace(input.TitleContains))
-            filtered = filtered.Where(p => !string.IsNullOrEmpty(p.Title) &&
-                                           p.Title.Contains(input.TitleContains, StringComparison.OrdinalIgnoreCase));
-
-        if (!string.IsNullOrWhiteSpace(input.SlugContains))
-            filtered = filtered.Where(p => !string.IsNullOrEmpty(p.Slug) &&
-                                           p.Slug.Contains(input.SlugContains, StringComparison.OrdinalIgnoreCase));
-
+        filtered = FilterHelper.ApplyBooleanFilter(filtered, input.Draft, p => p.Draft);
+        filtered = FilterHelper.ApplyBooleanFilter(filtered, input.Archived, p => p.Archived);
         filtered = FilterHelper.ApplyDateFilters(filtered, dateFilter);
-
-        if (input.Archived.HasValue)
-            filtered = filtered.Where(p => p.Archived.HasValue && p.Archived.Value == input.Archived.Value);
-
-        if (input.Draft.HasValue)
-            filtered = filtered.Where(p => p.Draft.HasValue && p.Draft.Value == input.Draft.Value);
+        filtered = FilterHelper.ApplyContainsFilter(filtered, input.TitleContains, p => p.Title);
+        filtered = FilterHelper.ApplyContainsFilter(filtered, input.SlugContains, p => p.Slug);
+        filtered = FilterHelper.ApplyContainsFilter(filtered, input.PublishedPathContains, p => p.PublishedPath);
 
         return new SearchPagesResponse(filtered.ToList());
     }
