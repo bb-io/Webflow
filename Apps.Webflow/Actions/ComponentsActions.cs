@@ -1,4 +1,5 @@
 ﻿using Apps.Webflow.Constants;
+using Apps.Webflow.Helper;
 using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Entities;
 using Apps.Webflow.Models.Request;
@@ -36,20 +37,9 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
 
         IEnumerable<ComponentEntity> pages = await Client.Paginate<ComponentEntity, ComponentsPaginationResponse>(request, r => r.Components);
 
-        if (!string.IsNullOrWhiteSpace(input.NameContains))
-            pages = pages.Where(c => !string.IsNullOrEmpty(c.Name) &&
-                                           c.Name.Contains(input.NameContains, StringComparison.OrdinalIgnoreCase));
-
-        if (!string.IsNullOrWhiteSpace(input.NameContains))
-            pages = pages.Where(c => !string.IsNullOrEmpty(c.Name) &&
-                                           c.Name.Contains(input.NameContains, StringComparison.OrdinalIgnoreCase));
-
-        if (!string.IsNullOrWhiteSpace(input.GroupContains))
-            pages = pages.Where(c => !string.IsNullOrEmpty(c.Group) &&
-                                           c.Group.Contains(input.GroupContains, StringComparison.OrdinalIgnoreCase));
-
-        if (input.InludeReadOnly != true)
-            pages = pages.Where(c => c.ReadOnly != true);
+        pages = FilterHelper.ApplyBooleanFilter(pages, input.InludeReadOnly, c => c.ReadOnly);
+        pages = FilterHelper.ApplyContainsFilter(pages, input.NameContains, c => c.Name);
+        pages = FilterHelper.ApplyContainsFilter(pages, input.GroupContains, c => c.Group);
 
         return new SearchComponentsResponse(pages.ToList());
     }

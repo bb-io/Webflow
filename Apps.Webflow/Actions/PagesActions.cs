@@ -39,19 +39,11 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
         var request = new RestRequest(endpoint, Method.Get);
 
         var allPages = await Client.Paginate<PageEntity, PagesPaginationResponse>(request, r => r.Pages);
-        if (!allPages.Any())
+        if (allPages.Count == 0)
             return new SearchPagesResponse([]);
 
-        IEnumerable<PageEntity> filtered = allPages;
-
-        filtered = FilterHelper.ApplyBooleanFilter(filtered, input.Draft, p => p.Draft);
-        filtered = FilterHelper.ApplyBooleanFilter(filtered, input.Archived, p => p.Archived);
-        filtered = FilterHelper.ApplyDateFilters(filtered, dateFilter);
-        filtered = FilterHelper.ApplyContainsFilter(filtered, input.TitleContains, p => p.Title);
-        filtered = FilterHelper.ApplyContainsFilter(filtered, input.SlugContains, p => p.Slug);
-        filtered = FilterHelper.ApplyContainsFilter(filtered, input.PublishedPathContains, p => p.PublishedPath);
-
-        return new SearchPagesResponse(filtered.ToList());
+        var filtered = ApplyPageFilters(allPages, dateFilter, input);
+        return new SearchPagesResponse(filtered);
     }
 
     [Action("Download page", Description = "Get the page content in HTML file")]
@@ -128,5 +120,19 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
 
         var service = _factory.GetContentService(ContentTypes.Page);
         await service.UploadContent(ms, site.SiteId, uploadRequest);
+    }
+
+    private static List<PageEntity> ApplyPageFilters(List<PageEntity> pages, DateFilter dateFilter, SearchPagesRequest input)
+    {
+        IEnumerable<PageEntity> filtered = pages;
+
+        filtered = FilterHelper.ApplyBooleanFilter(filtered, input.Draft, p => p.Draft);
+        filtered = FilterHelper.ApplyBooleanFilter(filtered, input.Archived, p => p.Archived);
+        filtered = FilterHelper.ApplyDateFilters(filtered, dateFilter);
+        filtered = FilterHelper.ApplyContainsFilter(filtered, input.TitleContains, p => p.Title);
+        filtered = FilterHelper.ApplyContainsFilter(filtered, input.SlugContains, p => p.Slug);
+        filtered = FilterHelper.ApplyContainsFilter(filtered, input.PublishedPathContains, p => p.PublishedPath);
+
+        return filtered.ToList();
     }
 }

@@ -31,10 +31,7 @@ public class PageService(InvocationContext invocationContext) : BaseContentServi
         var pages = await Client.Paginate<PageEntity, PagesPaginationResponse>(request, r => r.Pages);
 
         IEnumerable<PageEntity> filtered = FilterHelper.ApplyDateFilters(pages, dateFilter);
-
-        if (!string.IsNullOrWhiteSpace(input.NameContains))
-            filtered = filtered.Where(p => !string.IsNullOrEmpty(p.Title) && 
-                p.Title.Contains(input.NameContains, StringComparison.OrdinalIgnoreCase));
+        filtered = FilterHelper.ApplyContainsFilter(filtered, input.NameContains, r => r.Title);
 
         var result = filtered.Select(x => new ContentItemEntity
         {
