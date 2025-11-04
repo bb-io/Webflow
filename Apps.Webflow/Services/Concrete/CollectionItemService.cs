@@ -68,7 +68,15 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
         var itemRequest = new RestRequest(itemEndpoint, Method.Get);
         var item = await Client.ExecuteWithErrorHandling<CollectionItemEntity>(itemRequest);
 
-        var stream = CollectionItemHtmlConverter.ToHtml(item, collection.Fields, siteId, input.CollectionId, input.ContentId);
+        var stream = CollectionItemHtmlConverter.ToHtml(
+            item, 
+            collection.Fields, 
+            siteId, 
+            input.CollectionId, 
+            input.ContentId, 
+            item.CmsLocaleId
+        );
+
         var memoryStream = new MemoryStream();
         await stream.CopyToAsync(memoryStream);
         memoryStream.Position = 0;

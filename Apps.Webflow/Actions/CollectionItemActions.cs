@@ -1,6 +1,5 @@
 using Apps.Webflow.Constants;
 using Apps.Webflow.Helper;
-using Apps.Webflow.HtmlConversion;
 using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Entities;
 using Apps.Webflow.Models.Request;
@@ -16,7 +15,6 @@ using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using Blackbird.Applications.Sdk.Utils.Extensions.Http;
-using Blackbird.Applications.Sdk.Utils.Extensions.String;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Filters.Transformations;
 using Blackbird.Filters.Xliff.Xliff2;
@@ -68,26 +66,16 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         [ActionParameter] SiteRequest site,
         [ActionParameter] CollectionItemRequest input)
     {
-        if (string.IsNullOrWhiteSpace(Client.GetSiteId(site.SiteId)))
-            throw new PluginMisconfigurationException("Site ID is required.");
-        if (string.IsNullOrWhiteSpace(input.CollectionId))
-            throw new PluginMisconfigurationException("Collection ID is required.");
-        if (string.IsNullOrWhiteSpace(input.CollectionItemId))
-            throw new PluginMisconfigurationException("Collection item ID is required.");
+        var service = _factory.GetContentService(ContentTypes.CollectionItem);
+        var contentRequest = new DownloadContentRequest
+        {
+            CollectionId = input.CollectionId,
+            ContentId = input.CollectionItemId,
+            Locale = input.CmsLocaleId
+        };
+        var html = await service.DownloadContent(Client.GetSiteId(site.SiteId), contentRequest);
 
-        var collection = await GetCollection(input.CollectionId);
-
-        var item = await GetCollectionItem(input.CollectionId, input.CollectionItemId, input.CmsLocaleId);
-        var html = CollectionItemHtmlConverter.ToHtml(
-            item, 
-            collection.Fields, 
-            Client.GetSiteId(site.SiteId), 
-            input.CollectionId, 
-            input.CollectionItemId, 
-            item.CmsLocaleId
-        );
-
-        var file = await fileManagementClient.UploadAsync(html, MediaTypeNames.Text.Html, $"collection_item_{item.Id}.html");
+        var file = await fileManagementClient.UploadAsync(html, MediaTypeNames.Text.Html, $"collection_item_{input.CollectionItemId}.html");
         return new(file);
     }
 
@@ -167,24 +155,5 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
             }, JsonConfig.Settings);
 
         await Client.ExecuteWithErrorHandling(request);
-    }
-
-    private Task<CollectionItemEntity> GetCollectionItem(string collectionId, string collectionItemId,
-        string? locale = default)
-    {
-        var endpoint = $"collections/{collectionId}/items/{collectionItemId}";
-
-        if (locale != null)
-            endpoint = endpoint.SetQueryParameter("cmsLocaleId", locale);
-
-        var request = new RestRequest(endpoint, Method.Get);
-
-        return Client.ExecuteWithErrorHandling<CollectionItemEntity>(request);
-    }
-
-    private Task<CollectionEntity> GetCollection(string collectionId)
-    {
-        var request = new RestRequest($"collections/{collectionId}", Method.Get);
-        return Client.ExecuteWithErrorHandling<CollectionEntity>(request);
     }
 }
