@@ -16,9 +16,9 @@ public class SearchCollectionItemsRequest
     [DataSource(typeof(CollectionItemLocaleDataSourceHandler))]
     public string? CmsLocaleId { get; set; }
 
-    [Display("Last published before (for collection items)")]
+    [Display("Last published before")]
     public DateTime? LastPublishedBefore { get; set; }
 
-    [Display("Last published after (for collection items)")]
+    [Display("Last published after")]
     public DateTime? LastPublishedAfter { get; set; }
 }

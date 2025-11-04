@@ -102,24 +102,24 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
         await Client.ExecuteWithErrorHandling(request);
     }
 
-    private async Task<string> GetCmsLocale(string siteId, string siteLocaleId)
+    private async Task<string> GetCmsLocale(string siteId, string localeId)
     {
         var siteRequest = new RestRequest($"/sites/{siteId}", Method.Get);
         var siteEntity = await Client.ExecuteWithErrorHandling<SiteEntity>(siteRequest);
 
         if (siteEntity.Locales == null)
             throw new PluginApplicationException("Site locales are not available");
+
+        var cmsLocale = siteEntity.Locales.Secondary?.FirstOrDefault(x => x.CmsLocaleId == localeId);
+        if (cmsLocale != null)
+            return localeId;
         
-        if (siteEntity.Locales.Primary?.Id == siteLocaleId)
+        if (siteEntity.Locales.Primary?.Id == localeId)
             return siteEntity.Locales.Primary.CmsLocaleId;
 
-        var secondaryLocale = siteEntity.Locales.Secondary?.FirstOrDefault(x => x.Id == siteLocaleId);
+        var secondaryLocale = siteEntity.Locales.Secondary?.FirstOrDefault(x => x.Id == localeId);
         if (secondaryLocale != null)
             return secondaryLocale.CmsLocaleId;
-
-        var cmsLocale = siteEntity.Locales.Secondary?.FirstOrDefault(x => x.CmsLocaleId == siteLocaleId);
-        if (cmsLocale != null)
-            return siteLocaleId;
 
         throw new PluginApplicationException("Can't match the input locale with available collection item locale ID");
     }
