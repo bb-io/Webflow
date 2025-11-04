@@ -34,10 +34,10 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
     {
         var data = webhookRequest.GetPayload<PageCreatedResponse>();
 
-        if (input.TitleContains != null && !data.PageTitle.Contains(input.TitleContains))
+        if (DoesNotMatch(input.TitleContains, data.PageTitle))
             return Preflight<PageCreatedResponse>();
 
-        if (input.PublishedPathContains != null && !data.PublishedPath.Contains(input.PublishedPathContains))
+        if (DoesNotMatch(input.PublishedPathContains, data.PublishedPath))
             return Preflight<PageCreatedResponse>();
 
         return Task.FromResult<WebhookResponse<PageCreatedResponse>>(new()
@@ -55,10 +55,10 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
     {
         var data = webhookRequest.GetPayload<PageDeletedResponse>();
 
-        if (input.TitleContains != null && !data.PageTitle.Contains(input.TitleContains))
+        if (DoesNotMatch(input.TitleContains, data.PageTitle))
             return Preflight<PageDeletedResponse>();
 
-        if (input.PublishedPathContains != null && !data.PublishedPath.Contains(input.PublishedPathContains))
+        if (DoesNotMatch(input.PublishedPathContains, data.PublishedPath))
             return Preflight<PageDeletedResponse>();
 
         return Task.FromResult<WebhookResponse<PageDeletedResponse>>(new()
@@ -76,10 +76,10 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
     {
         var data = webhookRequest.GetPayload<PageUpdatedResponse>();
 
-        if (input.TitleContains != null && !data.PageTitle.Contains(input.TitleContains))
+        if (DoesNotMatch(input.TitleContains, data.PageTitle))
             return Preflight<PageUpdatedResponse>();
 
-        if (input.PublishedPathContains != null && !data.PublishedPath.Contains(input.PublishedPathContains))
+        if (DoesNotMatch(input.PublishedPathContains, data.PublishedPath))
             return Preflight<PageUpdatedResponse>();
 
         return Task.FromResult<WebhookResponse<PageUpdatedResponse>>(new()
@@ -188,6 +188,12 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
             HttpResponseMessage = null,
             Result = data
         });
+    }
+
+    private static bool DoesNotMatch(string? filter, string? value)
+    {
+        return !string.IsNullOrWhiteSpace(filter) &&
+               (string.IsNullOrEmpty(value) || !value.Contains(filter, StringComparison.OrdinalIgnoreCase));
     }
 
     private static Task<WebhookResponse<T>> Preflight<T>() where T : class
