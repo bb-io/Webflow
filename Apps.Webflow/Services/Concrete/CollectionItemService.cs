@@ -29,15 +29,14 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
         var endpoint = $"collections/{input.CollectionId}/items";
         var request = new RestRequest(endpoint, Method.Get);
 
-        var items = await Client.Paginate<CollectionItemEntity, CollectionItemPaginationResponse>(request, r => r.Items);
-        IEnumerable<CollectionItemEntity> filtered = FilterHelper.ApplyDateFilters(items, dateFilter);
-
         if (input.LastPublishedBefore.HasValue)
-            filtered = filtered.Where(c => c.LastPublished <= input.LastPublishedBefore);
+            request.AddParameter("lastPublished[lte]", input.LastPublishedBefore.Value.ToString("O"));
 
         if (input.LastPublishedAfter.HasValue)
-            filtered = filtered.Where(c => c.LastPublished >= input.LastPublishedAfter);
+            request.AddParameter("lastPublished[gte]", input.LastPublishedAfter.Value.ToString("O"));
 
+        var items = await Client.Paginate<CollectionItemEntity, CollectionItemPaginationResponse>(request, r => r.Items);
+        IEnumerable<CollectionItemEntity> filtered = FilterHelper.ApplyDateFilters(items, dateFilter);
         filtered = FilterHelper.ApplyContainsFilter(filtered, input.NameContains, r => r.Name);
 
         var result = filtered.Select(x => new ContentItemEntity

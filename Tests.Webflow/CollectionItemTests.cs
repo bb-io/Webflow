@@ -12,7 +12,7 @@ namespace Tests.Webflow;
 public class CollectionItemTests : TestBase
 {
     [TestMethod]
-    public async Task GetCollectionItemContent_ReturnsExpectedItems()
+    public async Task GetCollectionItemContent_ReturnsCollectionItems()
     {
         foreach (var context in InvocationContext)
         {
@@ -29,6 +29,48 @@ public class CollectionItemTests : TestBase
             // Assert
             Assert.IsNotNull(result, "Result should not be null.");
         }
+    }
+
+    [TestMethod]
+    public async Task SearchCollectionItems_WithoutFilters_ReturnsCollectionItems()
+    {
+        // Arrange
+        var context = GetInvocationContext(ConnectionTypes.OAuth2);
+        var actions = new CollectionItemActions(context, FileManagementClient);
+        var request = new SearchCollectionItemsRequest { };
+        var site = new SiteRequest { };
+        var dateFilter = new DateFilter { };
+        var collection = new CollectionRequest { CollectionId = "68f8b337cbd1cac54f5b9d9c" };
+
+        // Act
+        var result = await actions.SearchCollectionItems(site, collection, dateFilter, request);
+
+        // Assert
+        Assert.IsNotNull(result);
+        PrintJsonResult(result);
+    }
+
+    [TestMethod]
+    public async Task SearchCollectionItems_WithFilters_ReturnsCollectionItems()
+    {
+        // Arrange
+        var context = GetInvocationContext(ConnectionTypes.OAuth2);
+        var actions = new CollectionItemActions(context, FileManagementClient);
+        var request = new SearchCollectionItemsRequest
+        {
+            LastPublishedAfter = new DateTime(2025, 11, 03, 10, 0, 0, DateTimeKind.Utc),
+            NameContains = "work"
+        };
+        var site = new SiteRequest { };
+        var dateFilter = new DateFilter { };
+        var collection = new CollectionRequest { CollectionId = "68f8b337cbd1cac54f5b9d9c" };
+
+        // Act
+        var result = await actions.SearchCollectionItems(site, collection, dateFilter, request);
+
+        // Assert
+        Assert.IsNotNull(result);
+        PrintJsonResult(result);
     }
 
     [TestMethod]

@@ -1,4 +1,5 @@
 using Apps.Webflow.Constants;
+using Apps.Webflow.Helper;
 using Apps.Webflow.HtmlConversion;
 using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Entities;
@@ -7,6 +8,7 @@ using Apps.Webflow.Models.Request.Collection;
 using Apps.Webflow.Models.Request.CollectionItem;
 using Apps.Webflow.Models.Request.Content;
 using Apps.Webflow.Models.Response.CollectiomItem;
+using Apps.Webflow.Models.Response.Pagination;
 using Apps.Webflow.Services;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
@@ -29,6 +31,33 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
     : WebflowInvocable(invocationContext)
 {
     private readonly ContentServicesFactory _factory = new ContentServicesFactory(invocationContext);
+
+    [Action("Search collection items", Description = "Search all collection items for a specific collection")]
+    public async Task<SearchCollectionItemsResponse> SearchCollectionItems(
+        [ActionParameter] SiteRequest site,
+        [ActionParameter] CollectionRequest collection,
+        [ActionParameter] DateFilter dateFilter,
+        [ActionParameter] SearchCollectionItemsRequest input)
+    {
+        ValidatorHelper.ValidateInputDates(dateFilter);
+        ValidatorHelper.ValidatePublishedInputDates(input.LastPublishedBefore, input.LastPublishedAfter);
+
+        var endpoint = $"collections/{collection.CollectionId}/items";
+        var request = new RestRequest(endpoint, Method.Get);
+
+        if (input.LastPublishedBefore.HasValue)
+            request.AddParameter("lastPublished[lte]", input.LastPublishedBefore.Value.ToString("O"));
+
+        if (input.LastPublishedAfter.HasValue)
+            request.AddParameter("lastPublished[gte]", input.LastPublishedAfter.Value.ToString("O"));
+
+        var items = await Client.Paginate<CollectionItemEntity, CollectionItemPaginationResponse>(request, r => r.Items);
+
+        IEnumerable<CollectionItemEntity> filtered = FilterHelper.ApplyDateFilters(items, dateFilter);
+        filtered = FilterHelper.ApplyContainsFilter(filtered, input.NameContains, r => r.Name);
+
+        return new(filtered);
+    }
 
     [Action("Download collection item", Description = "Get content of a specific collection item in HTML format")]
     public async Task<DownloadCollectionItemContentResponse> GetCollectionItemContent(
@@ -79,7 +108,7 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
 
         string? M(string name) =>
             doc.DocumentNode.SelectSingleNode($"//meta[@name='{name}']")
-               ?.GetAttributeValue("content", null);
+               ?.GetAttributeValue("content", "");
 
         input.CollectionId ??= M("blackbird-collection-id");
         input.CollectionItemId ??= M("blackbird-collection-item-id");
