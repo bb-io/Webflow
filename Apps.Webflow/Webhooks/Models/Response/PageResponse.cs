@@ -12,4 +12,7 @@ public class PageResponse
     
     [Display("Page title")]
     public string PageTitle { get; set; }
+
+    [Display("Published path")]
+    public string PublishedPath { get; set; }
 }

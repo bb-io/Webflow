@@ -1,5 +1,6 @@
 ﻿using Apps.Webflow.Constants;
 using Apps.Webflow.Models.Request;
+using Apps.Webflow.Models.Response.Pages;
 using Apps.Webflow.Polling;
 using Apps.Webflow.Polling.Models;
 using Apps.Webflow.Polling.Models.Requests;
@@ -25,7 +26,7 @@ public class PollingTests : TestBase
         };
 
         var site = new SiteRequest { };
-        var input = new PageUpdatedRequest { };
+        var input = new PagePollingRequest { };
 
         // Act
         var response = await polling.OnPageUpdated(request, site, input);
@@ -48,7 +49,7 @@ public class PollingTests : TestBase
             Memory = new PageMemory(lastPollingTime, false)
         };
 
-        var input = new PageUpdatedRequest { NameDoesNotContain = "40" };
+        var input = new PagePollingRequest { NameDoesNotContain = "40" };
         var site = new SiteRequest { };
 
         // Act
@@ -59,7 +60,7 @@ public class PollingTests : TestBase
         PrintPollingResult(response);
     }
 
-    private static void PrintPollingResult(PollingEventResponse<PageMemory, ListPagesPollingResponse> response)
+    private static void PrintPollingResult(PollingEventResponse<PageMemory, SearchPagesResponse> response)
     {
         foreach (var page in response.Result!.Pages)
             Console.WriteLine($"Page ID: {page.Id}, Title: {page.Title}, Last Updated: {page.LastUpdated}");

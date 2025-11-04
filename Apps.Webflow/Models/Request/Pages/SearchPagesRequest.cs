@@ -4,9 +4,6 @@ namespace Apps.Webflow.Models.Request.Pages;
 
 public class SearchPagesRequest
 {
-    [Display("Locale ID")]
-    public string? LocaleId { get; set; }
-
     [Display("Title contains")]
     public string? TitleContains { get; set; }
 
