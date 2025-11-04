@@ -1,4 +1,5 @@
-﻿using Apps.Webflow.Models.Request;
+﻿using Apps.Webflow.Constants;
+using Apps.Webflow.Models.Request;
 using Apps.Webflow.Polling;
 using Apps.Webflow.Polling.Models;
 using Apps.Webflow.Polling.Models.Requests;
@@ -13,66 +14,62 @@ public class PollingTests : TestBase
     [TestMethod]
     public async Task OnPageUpdated_WithoutNameFilter_ReturnsUpdatedPages()
     {
-        foreach (var context in InvocationContext)
+        // Arrange
+        var context = GetInvocationContext(ConnectionTypes.OAuth2);
+        var lastPollingTime = DateTime.UtcNow.AddHours(-1);
+        var polling = new PagePollingList(context);
+
+        var request = new PollingEventRequest<PageMemory>
         {
-            // Arrange
-            var lastPollingTime = DateTime.UtcNow.AddHours(-1);
-            var polling = new PagePollingList(context);
-
-            var request = new PollingEventRequest<PageMemory>
+            Memory = new PageMemory
             {
-                Memory = new PageMemory
-                {
-                    LastPollingTime = lastPollingTime,
-                    Triggered = false
-                }
-            };
-
-            var site = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
-            var input = new PageUpdatedRequest { };
-
-            // Act
-            var response = polling.OnPageUpdated(request, site, input);
-
-            //Assert
-            Assert.IsNotNull(response, "Response should not be null.");
-            foreach (var page in response.Result.Result.Pages)
-            {
-                Console.WriteLine($"Page ID: {page.Id}, Title: {page.Title}, Last Updated: {page.LastUpdated}");
+                LastPollingTime = lastPollingTime,
+                Triggered = false
             }
-        }
+        };
+
+        var site = new SiteRequest { };
+        var input = new PageUpdatedRequest { };
+
+        // Act
+        var response = await polling.OnPageUpdated(request, site, input);
+
+        //Assert
+        Assert.IsNotNull(response.Result);
+        PrintPollingResult(response);
     }
 
     [TestMethod]
     public async Task OnPageUpdated_WithNameFilter_ReturnsUpdatedPages()
     {
-        foreach (var context in InvocationContext)
+        // Arrange
+        var context = GetInvocationContext(ConnectionTypes.OAuth2);
+        var lastPollingTime = DateTime.UtcNow.AddHours(-1);
+        var polling = new PagePollingList(context);
+
+        var request = new PollingEventRequest<PageMemory>
         {
-            // Arrange
-            var lastPollingTime = DateTime.UtcNow.AddHours(-1);
-            var polling = new PagePollingList(context);
-
-            var request = new PollingEventRequest<PageMemory>
+            Memory = new PageMemory
             {
-                Memory = new PageMemory
-                {
-                    LastPollingTime = lastPollingTime,
-                    Triggered = false
-                }
-            };
-
-            var input = new PageUpdatedRequest { NameContains = "Abo" };
-            var site = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
-
-            // Act
-            var response = polling.OnPageUpdated(request, site, input);
-
-            //Assert
-            Assert.IsNotNull(response, "Response should not be null.");
-            foreach (var page in response.Result.Result.Pages)
-            {
-                Console.WriteLine($"Page ID: {page.Id}, Title: {page.Title}, Last Updated: {page.LastUpdated}");
+                LastPollingTime = lastPollingTime,
+                Triggered = false
             }
-        }
+        };
+
+        var input = new PageUpdatedRequest { NameDoesNotContain = "40" };
+        var site = new SiteRequest { };
+
+        // Act
+        var response = await polling.OnPageUpdated(request, site, input);
+
+        //Assert
+        Assert.IsNotNull(response.Result);
+        PrintPollingResult(response);
+    }
+
+    private static void PrintPollingResult(PollingEventResponse<PageMemory, ListPagesPollingResponse> response)
+    {
+        foreach (var page in response.Result!.Pages)
+            Console.WriteLine($"Page ID: {page.Id}, Title: {page.Title}, Last Updated: {page.LastUpdated}");
     }
 }

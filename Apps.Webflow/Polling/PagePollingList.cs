@@ -37,6 +37,8 @@ public class PagePollingList(InvocationContext invocationContext) : WebflowInvoc
         var lastPollingTime = request.Memory.LastPollingTime ?? DateTime.MinValue;
         var updatedPages = pagesResponse.Pages
             .Where(p => p.LastUpdated.HasValue && p.LastUpdated.Value > lastPollingTime)
+            .Where(p => string.IsNullOrEmpty(input.NameDoesNotContain) ||
+                        (p.Title != null && !p.Title.Contains(input.NameDoesNotContain, StringComparison.OrdinalIgnoreCase)))
             .Where(p => string.IsNullOrEmpty(input.NameContains) ||
                         (p.Title != null && p.Title.Contains(input.NameContains, StringComparison.OrdinalIgnoreCase)))
             .ToList();
