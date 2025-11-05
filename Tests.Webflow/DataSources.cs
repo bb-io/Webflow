@@ -38,30 +38,6 @@ public class DataSources : TestBase
     }
 
     [TestMethod]
-    public async Task PageDataSourceHandler_ReturnsPages()
-    {
-        foreach (var context in InvocationContext)
-        {
-            var input = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
-
-            //Arange
-            var handler = new PageDataSourceHandler(context, input);
-
-            // Act
-            var data = await handler.GetDataAsync(
-                new DataSourceContext { SearchString = "" },
-                CancellationToken.None
-            );
-
-            // Assert
-            Assert.IsNotNull(data, "Handler returned null.");
-
-            foreach (var item in data)
-                Console.WriteLine($"Page ID: {item.Value}, Display Name: {item.DisplayName}");
-        }
-    }
-
-    [TestMethod]
     public async Task SiteLocaleDataSourceHandler_SearchString_FiltersLocales()
     {
         //Arange

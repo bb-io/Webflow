@@ -35,4 +35,7 @@ public class PageEntity : IDateFilterable
 
     [Display("Is draft")]
     public bool? Draft { get; set; }
+
+    [Display("Parent ID")]
+    public string? ParentId { get; set; }
 }
