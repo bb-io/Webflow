@@ -15,7 +15,7 @@ public class FileDataSources : TestBase
         // Arrange
         var context = GetInvocationContext(ConnectionTypes.OAuth2);
         var request = new SiteRequest { };
-        var folderContext = new FolderPathDataSourceContext { FileDataItemId = "88a386dd-8f07-0c34-70f0-2d9f87e29718" };
+        var folderContext = new FolderPathDataSourceContext { FileDataItemId = "2df3695a-ff87-37fa-7ac7-63d4f4891939" };
         var handler = new ComponentFileDataSourceHandler(context, request);
 
         // Act
@@ -34,7 +34,7 @@ public class FileDataSources : TestBase
         // Arrange
         var context = GetInvocationContext(ConnectionTypes.OAuth2);
         var request = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
-        var folderContext = new FolderContentDataSourceContext { FolderId = "Test" };
+        var folderContext = new FolderContentDataSourceContext { FolderId = "Root" };
         var handler = new ComponentFileDataSourceHandler(context, request);
 
         // Act

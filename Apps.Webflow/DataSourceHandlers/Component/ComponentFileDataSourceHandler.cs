@@ -47,39 +47,42 @@ public class ComponentFileDataSourceHandler(InvocationContext invocationContext,
         return result;
     }
 
-    public async Task<IEnumerable<FolderPathItem>> GetFolderPathAsync(FolderPathDataSourceContext context, CancellationToken cancellationToken)
+    public async Task<IEnumerable<FolderPathItem>> GetFolderPathAsync(FolderPathDataSourceContext context, CancellationToken token)
     {
         if (string.IsNullOrEmpty(context?.FileDataItemId))
-            return new List<FolderPathItem>() { new FolderPathItem() { DisplayName = RootFolderDisplayName, Id = RootFolderId } };
+            return new[] { new FolderPathItem { DisplayName = RootFolderDisplayName, Id = RootFolderId } };
 
-        var result = new List<FolderPathItem>();
+        var path = new Stack<FolderPathItem>();
+
         try
         {
-            var component = await GetComponentById(context.FileDataItemId);
-            var parentFolderId = component.Group;
+            var currentId = context.FileDataItemId;
 
-            while (!string.IsNullOrEmpty(parentFolderId))
+            while (!string.IsNullOrEmpty(currentId))
             {
-                var parentFolder = await GetComponentById(parentFolderId);
-                result = result.Prepend(new FolderPathItem()
+                var component = await GetComponentById(currentId);
+
+                path.Push(new FolderPathItem
                 {
-                    DisplayName = parentFolder.Group ?? "",
-                    Id = parentFolder.Group ?? "",
-                }).ToList();
-                parentFolderId = parentFolder.Group;
+                    Id = currentId,
+                    DisplayName = component.Name ?? component.Group ?? string.Empty
+                });
+
+                currentId = component.Group;
             }
-            var rootFolder = result.FirstOrDefault();
-            if (rootFolder != null)
+
+            path.Push(new FolderPathItem
             {
-                rootFolder.DisplayName = RootFolderDisplayName;
-                rootFolder.Id = RootFolderId;
-            }
+                Id = RootFolderId,
+                DisplayName = RootFolderDisplayName
+            });
         }
-        catch (Exception)
+        catch
         {
-            result.Add(new FolderPathItem() { DisplayName = RootFolderDisplayName, Id = RootFolderId });
+            return new[] { new FolderPathItem {  DisplayName = RootFolderDisplayName, Id = RootFolderId }};
         }
-        return result;
+
+        return path;
     }
 
     private async Task<IEnumerable<ComponentEntity>> ListItemsInFolderById(string? folderId)
