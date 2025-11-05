@@ -20,22 +20,31 @@ public class ComponentFileDataSourceHandler(InvocationContext invocationContext,
     public async Task<IEnumerable<FileDataItem>> GetFolderContentAsync(FolderContentDataSourceContext context, CancellationToken token)
     {
         var result = new List<FileDataItem>();
-        var sourceItems = await ListItemsInFolderById(string.IsNullOrEmpty(context.FolderId) ? RootFolderId : context.FolderId);
+        var seenFolders = new HashSet<string>();
+
+        var currentFolderId = string.IsNullOrEmpty(context.FolderId)
+            ? RootFolderId
+            : context.FolderId;
+
+        var sourceItems = await ListItemsInFolderById(currentFolderId);
 
         foreach (var item in sourceItems)
         {
-            if (!string.IsNullOrEmpty(item.Group) && item.Group != context.FolderId)
+            if (item.Group != currentFolderId && !string.IsNullOrEmpty(item.Group))
             {
-                result.Add(new Folder()
+                if (seenFolders.Add(item.Group))
                 {
-                    Id = item.Group,
-                    DisplayName = item.Group,
-                    IsSelectable = false
-                });
-            } 
+                    result.Add(new Folder
+                    {
+                        Id = item.Group,
+                        DisplayName = item.Group,
+                        IsSelectable = false
+                    });
+                }
+            }
             else
             {
-                result.Add(new File()
+                result.Add(new File
                 {
                     Id = item.Id,
                     DisplayName = item.Name,
@@ -85,7 +94,7 @@ public class ComponentFileDataSourceHandler(InvocationContext invocationContext,
         return path;
     }
 
-    private async Task<IEnumerable<ComponentEntity>> ListItemsInFolderById(string? folderId)
+    private async Task<IEnumerable<ComponentEntity>> ListItemsInFolderById(string folderId)
     {
         var request = new RestRequest($"sites/{Client.GetSiteId(site.SiteId)}/components", Method.Get);
         var components = await Client.ExecuteWithErrorHandling<SearchComponentsResponse>(request);
