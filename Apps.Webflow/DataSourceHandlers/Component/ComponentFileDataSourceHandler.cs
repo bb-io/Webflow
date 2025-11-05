@@ -24,21 +24,24 @@ public class ComponentFileDataSourceHandler(InvocationContext invocationContext,
 
         foreach (var item in sourceItems)
         {
-            if (!string.IsNullOrEmpty(item.Group))
+            if (!string.IsNullOrEmpty(item.Group) && item.Group != context.FolderId)
             {
                 result.Add(new Folder()
                 {
-                    Id = item.Name,
-                    DisplayName = item.Name,
+                    Id = item.Group,
+                    DisplayName = item.Group,
                     IsSelectable = false
                 });
-            }
-            result.Add(new File()
+            } 
+            else
             {
-                Id = item.Id,
-                DisplayName = item.Name,
-                IsSelectable = true
-            });
+                result.Add(new File()
+                {
+                    Id = item.Id,
+                    DisplayName = item.Name,
+                    IsSelectable = true
+                });
+            }
         }
 
         return result;
@@ -79,12 +82,14 @@ public class ComponentFileDataSourceHandler(InvocationContext invocationContext,
         return result;
     }
 
-    private async Task<List<ComponentEntity>> ListItemsInFolderById(string? folderId)
+    private async Task<IEnumerable<ComponentEntity>> ListItemsInFolderById(string? folderId)
     {
         var request = new RestRequest($"sites/{Client.GetSiteId(site.SiteId)}/components", Method.Get);
         var components = await Client.ExecuteWithErrorHandling<SearchComponentsResponse>(request);
-        if (folderId == RootFolderId) 
-            folderId = null;
+
+        if (folderId == RootFolderId)
+            return components.Components;
+
         return components.Components.Where(x => x.Group == folderId).ToList();
     }
 

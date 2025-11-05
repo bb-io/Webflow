@@ -14,7 +14,7 @@ public class FileDataSources : TestBase
     {
         // Arrange
         var context = GetInvocationContext(ConnectionTypes.OAuth2);
-        var request = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
+        var request = new SiteRequest { };
         var folderContext = new FolderPathDataSourceContext { FileDataItemId = "88a386dd-8f07-0c34-70f0-2d9f87e29718" };
         var handler = new ComponentFileDataSourceHandler(context, request);
 
@@ -34,7 +34,7 @@ public class FileDataSources : TestBase
         // Arrange
         var context = GetInvocationContext(ConnectionTypes.OAuth2);
         var request = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
-        var folderContext = new FolderContentDataSourceContext { FolderId = "Root" };
+        var folderContext = new FolderContentDataSourceContext { FolderId = "Test" };
         var handler = new ComponentFileDataSourceHandler(context, request);
 
         // Act
@@ -44,6 +44,6 @@ public class FileDataSources : TestBase
         Assert.IsNotNull(data);
 
         foreach (var item in data)
-            Console.WriteLine($"Folder ID: {item.Id}, Display Name: {item.DisplayName}, Type: {item.Type}");
+            Console.WriteLine($"ID: {item.Id}, Display Name: {item.DisplayName}, Type: {(item.Type == 1 ? "File" : "Folder")}");
     }
 }
