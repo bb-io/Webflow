@@ -9,7 +9,7 @@ namespace Apps.Webflow.Models.Request.Components;
 public class DownloadComponentContentRequest
 {
     [Display("Component ID")]
-    [FileDataSource(typeof(ComponentDataSourceHandler))]
+    [FileDataSource(typeof(ComponentFileDataSourceHandler))]
     public string ComponentId { get; set; }
 
     [Display("Locale ID")]

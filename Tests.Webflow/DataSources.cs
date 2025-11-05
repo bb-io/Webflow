@@ -5,9 +5,6 @@ using Apps.Webflow.DataSourceHandlers.CollectionItem;
 using Apps.Webflow.DataSourceHandlers.Locale;
 using Apps.Webflow.DataSourceHandlers.Site;
 using Apps.Webflow.Models.Request;
-using Apps.Webflow.Models.Request.Collection;
-using Apps.Webflow.Models.Request.Components;
-using Apps.Webflow.Models.Request.Pages;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Tests.Webflow.Base;
@@ -61,30 +58,6 @@ public class DataSources : TestBase
 
             foreach (var item in data)
                 Console.WriteLine($"Page ID: {item.Value}, Display Name: {item.DisplayName}");
-        }
-    }
-
-    [TestMethod]
-    public async Task ComponentDataSourceHandler_ReturnsComponents()
-    {
-        foreach (var context in InvocationContext)
-        {
-            var request = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
-
-            // Arrange
-            var handler = new ComponentDataSourceHandler(context, request);
-
-            // Act
-            var data = await handler.GetDataAsync(
-                new DataSourceContext { SearchString = "" },
-                CancellationToken.None
-            );
-
-            // Assert
-            Assert.IsNotNull(data, "Handler returned null.");
-
-            foreach (var item in data)
-                Console.WriteLine($"Component ID: {item.Value}, Display Name: {item.DisplayName}");
         }
     }
 

@@ -17,6 +17,6 @@ public class UpdateComponentContentRequest
     public string? LocaleId { get; set; }
 
     [Display("Component ID")]
-    [FileDataSource(typeof(ComponentDataSourceHandler))]
+    [FileDataSource(typeof(ComponentFileDataSourceHandler))]
     public string? ComponentId { get; set; }
 }

@@ -11,24 +11,34 @@ using File = Blackbird.Applications.SDK.Extensions.FileManagement.Models.FileDat
 
 namespace Apps.Webflow.DataSourceHandlers.Component;
 
-public class ComponentDataSourceHandler(InvocationContext invocationContext, [ActionParameter] SiteRequest site) 
+public class ComponentFileDataSourceHandler(InvocationContext invocationContext, [ActionParameter] SiteRequest site) 
     : WebflowInvocable(invocationContext), IAsyncFileDataSourceItemHandler
 {
     private const string RootFolderDisplayName = "Components";
+    private const string RootFolderId = "Root";
 
-    public async Task<IEnumerable<FileDataItem>> GetFolderContentAsync(FolderContentDataSourceContext context, CancellationToken cancellationToken)
+    public async Task<IEnumerable<FileDataItem>> GetFolderContentAsync(FolderContentDataSourceContext context, CancellationToken token)
     {
         var result = new List<FileDataItem>();
-        var sourceItems = await ListItemsInFolderById(string.IsNullOrEmpty(context.FolderId) ? "root" : context.FolderId);
+        var sourceItems = await ListItemsInFolderById(string.IsNullOrEmpty(context.FolderId) ? RootFolderId : context.FolderId);
 
         foreach (var item in sourceItems)
         {
-            new File()
+            if (!string.IsNullOrEmpty(item.Group))
+            {
+                result.Add(new Folder()
+                {
+                    Id = item.Name,
+                    DisplayName = item.Name,
+                    IsSelectable = false
+                });
+            }
+            result.Add(new File()
             {
                 Id = item.Id,
                 DisplayName = item.Name,
                 IsSelectable = true
-            };
+            });
         }
 
         return result;
@@ -37,7 +47,7 @@ public class ComponentDataSourceHandler(InvocationContext invocationContext, [Ac
     public async Task<IEnumerable<FolderPathItem>> GetFolderPathAsync(FolderPathDataSourceContext context, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(context?.FileDataItemId))
-            return new List<FolderPathItem>() { new FolderPathItem() { DisplayName = RootFolderDisplayName, Id = "root" } };
+            return new List<FolderPathItem>() { new FolderPathItem() { DisplayName = RootFolderDisplayName, Id = RootFolderId } };
 
         var result = new List<FolderPathItem>();
         try
@@ -59,20 +69,22 @@ public class ComponentDataSourceHandler(InvocationContext invocationContext, [Ac
             if (rootFolder != null)
             {
                 rootFolder.DisplayName = RootFolderDisplayName;
-                rootFolder.Id = "root";
+                rootFolder.Id = RootFolderId;
             }
         }
         catch (Exception)
         {
-            result.Add(new FolderPathItem() { DisplayName = RootFolderDisplayName, Id = "root" });
+            result.Add(new FolderPathItem() { DisplayName = RootFolderDisplayName, Id = RootFolderId });
         }
         return result;
     }
 
-    private async Task<List<ComponentEntity>> ListItemsInFolderById(string folderId)
+    private async Task<List<ComponentEntity>> ListItemsInFolderById(string? folderId)
     {
         var request = new RestRequest($"sites/{Client.GetSiteId(site.SiteId)}/components", Method.Get);
         var components = await Client.ExecuteWithErrorHandling<SearchComponentsResponse>(request);
+        if (folderId == RootFolderId) 
+            folderId = null;
         return components.Components.Where(x => x.Group == folderId).ToList();
     }
 
