@@ -20,7 +20,7 @@ public class CollectionItemTests : TestBase
         {
             CollectionId = "68f8b337cbd1cac54f5b9d9c",
             CollectionItemId = "68f8b337cbd1cac54f5b9dee",
-            FileFormat = "original"
+            FileFormat = "text/html"
         };
         var site = new SiteRequest { };
         var actions = new CollectionItemActions(context, FileManagementClient);

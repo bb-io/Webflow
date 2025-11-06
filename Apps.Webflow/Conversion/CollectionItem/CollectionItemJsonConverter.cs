@@ -1,12 +1,21 @@
-﻿using System.Text;
-using Newtonsoft.Json;
-using Apps.Webflow.Conversion.Models;
+﻿using Apps.Webflow.Conversion.Models;
 using Apps.Webflow.Models.Entities;
+using Blackbird.Applications.Sdk.Common.Exceptions;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
+using System.Text;
 
 namespace Apps.Webflow.Conversion.CollectionItem;
 
 public static class CollectionItemJsonConverter
 {
+    private static readonly JsonSerializerSettings settings = new()
+    {
+        Formatting = Formatting.Indented,
+        ContractResolver = new CamelCasePropertyNamesContractResolver()
+    };
+
     public static Stream ToJson(
         CollectionItemEntity item,
         string collectionItemId,
@@ -23,7 +32,29 @@ public static class CollectionItemJsonConverter
             CollectionItem = item
         };
 
-        var jsonString = JsonConvert.SerializeObject(model, Formatting.Indented);
+        var jsonString = JsonConvert.SerializeObject(model, settings);
         return new MemoryStream(Encoding.UTF8.GetBytes(jsonString));
+    }
+
+    public static JObject ToUploadRequestBody(string jsonString)
+    {
+        var dto = JsonConvert.DeserializeObject<DownloadedCollectionItem>(jsonString)
+            ?? throw new PluginMisconfigurationException("Invalid Webflow JSON structure");
+
+        var fieldData = dto.CollectionItem.FieldData
+            ?? throw new PluginMisconfigurationException("Missing fieldData in JSON file");
+
+        return fieldData;
+    }
+
+    public static CollectionItemMetadata GetMetadata(string inputString)
+    {
+        var json = JObject.Parse(inputString);
+
+        return new CollectionItemMetadata(
+            json["collectionId"]?.ToString(),
+            json["collectionItemId"]?.ToString(),
+            json["cmsLocaleId"]?.ToString()
+        );
     }
 }

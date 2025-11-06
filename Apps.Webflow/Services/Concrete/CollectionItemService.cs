@@ -101,22 +101,11 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
         await content.CopyToAsync(memoryStream);
         memoryStream.Position = 0;
 
-        var itemEndpoint = $"collections/{input.CollectionId}/items/{input.ContentId}";
-
         string fetchedCmsLocaleId = await GetCmsLocale(siteId, input.Locale!);
-        itemEndpoint = itemEndpoint.SetQueryParameter("cmsLocaleId", fetchedCmsLocaleId);
-
-        var itemRequest = new RestRequest(itemEndpoint, Method.Get);
-        var item = await Client.ExecuteWithErrorHandling<CollectionItemEntity>(itemRequest);
-
-        var collectionRequest = new RestRequest($"collections/{input.CollectionId}", Method.Get);
-        var collection = await Client.ExecuteWithErrorHandling<CollectionEntity>(collectionRequest);
-
-        var fieldData = CollectionItemHtmlConverter.ToJson(memoryStream, item.FieldData, collection.Fields);
 
         var endpoint = $"collections/{input.CollectionId}/items/{input.ContentId}";
         var request = new RestRequest(endpoint, Method.Patch)
-            .WithJsonBody(new { fieldData, cmsLocaleId = fetchedCmsLocaleId }, JsonConfig.Settings);
+            .WithJsonBody(new { content, cmsLocaleId = fetchedCmsLocaleId }, JsonConfig.Settings);
 
         await Client.ExecuteWithErrorHandling(request);
     }
