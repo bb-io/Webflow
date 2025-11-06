@@ -29,10 +29,10 @@ public class PageFileDataSourceHandler(InvocationContext invocationContext, [Act
                 var lastSlashIndex = path.LastIndexOf('/');
                 bool hasNothingAfter = lastSlashIndex == 0;
                 if (hasNothingAfter)
-                    result.Add(new Folder { Id = path, DisplayName = page.Title, Date = page.LastUpdated });
+                    result.Add(new Folder { Id = path, DisplayName = page.Title, Date = page.LastUpdated, IsSelectable = false });
             }
             else
-                result.Add(new File { Id = item.Id, DisplayName = item.Title, Date = item.LastUpdated });
+                result.Add(new File { Id = item.Id, DisplayName = item.Title, Date = item.LastUpdated, IsSelectable = true });
         }
 
         return result;
