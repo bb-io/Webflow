@@ -45,7 +45,7 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
     }
 
     [Action("Download component", Description = "Get the component content in HTML file")]
-    public async Task<DownloadComponentResponse> GetComponentAsHtml(
+    public async Task<DownloadComponentResponse> DownloadComponent(
         [ActionParameter] SiteRequest site,
         [ActionParameter] DownloadComponentContentRequest input)
     {
@@ -62,7 +62,7 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
     }
 
     [Action("Upload component", Description = "Update component content using HTML file")]
-    public async Task UpdateComponentContentAsHtml(
+    public async Task UploadComponent(
         [ActionParameter] SiteRequest site,
         [ActionParameter] UpdateComponentContentRequest input)
     {

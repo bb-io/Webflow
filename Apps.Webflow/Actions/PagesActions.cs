@@ -47,7 +47,7 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
     }
 
     [Action("Download page", Description = "Get the page content in HTML file")]
-    public async Task<DownloadPageResponse> GetPageAsHtml(
+    public async Task<DownloadPageResponse> DownloadPage(
         [ActionParameter] SiteRequest site,
         [ActionParameter] DownloadPageRequest input)
     {

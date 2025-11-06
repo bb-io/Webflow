@@ -65,7 +65,7 @@ public class ComponentsTests : TestBase
             var site = new SiteRequest { SiteId = SampleSiteId };
 
             // Act
-            var result = await actions.GetComponentAsHtml(site, input);
+            var result = await actions.DownloadComponent(site, input);
 
             // Assert
             Assert.IsNotNull(result, "Result should not be null.");
@@ -85,7 +85,7 @@ public class ComponentsTests : TestBase
         var action = new ComponentsActions(context, FileManagementClient);
 
         // Act
-        await action.UpdateComponentContentAsHtml(site, input);
+        await action.UploadComponent(site, input);
     }
 
     // Helpful to test how well the update worked
@@ -104,7 +104,7 @@ public class ComponentsTests : TestBase
             var actions = new ComponentsActions(context, FileManagementClient);
 
             // Act
-            var result = await actions.GetComponentAsHtml(site, input);
+            var result = await actions.DownloadComponent(site, input);
 
             // Assert
             Assert.IsNotNull(result, "Result should not be null.");

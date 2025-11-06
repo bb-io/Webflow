@@ -42,7 +42,7 @@ public class PagesTests : TestBase
         var actions = new PagesActions(context, FileManagementClient);
 
         // Act
-        var result = await actions.GetPageAsHtml(site, input);
+        var result = await actions.DownloadPage(site, input);
 
         // Assert
         PrintJsonResult(result);

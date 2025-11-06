@@ -25,7 +25,7 @@ public class CollectionItemTests : TestBase
             var site = new SiteRequest { SiteId = "6773fdfb5a841e3420ebc404" };
             var actions = new CollectionItemActions(context, FileManagementClient);
             // Act
-            var result = await actions.GetCollectionItemContent(site, request);
+            var result = await actions.DownloadCollectionItem(site, request);
             // Assert
             Assert.IsNotNull(result, "Result should not be null.");
         }
@@ -86,7 +86,7 @@ public class CollectionItemTests : TestBase
         var actions = new CollectionItemActions(context, FileManagementClient);
 
         // Act
-        await actions.UpdateCollectionItemContent(site, request);
+        await actions.UploadCollectionItem(site, request);
     }
 
     [TestMethod]
@@ -106,7 +106,7 @@ public class CollectionItemTests : TestBase
             var actions = new CollectionItemActions(context, FileManagementClient);
 
             // Act
-            await actions.UpdateCollectionItemContent(site, request);
+            await actions.UploadCollectionItem(site, request);
         }
     }
 }
