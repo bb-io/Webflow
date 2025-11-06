@@ -1,7 +1,7 @@
 ﻿using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Entities;
 using Apps.Webflow.Models.Request;
-using Apps.Webflow.Models.Response.Pages;
+using Apps.Webflow.Models.Response.Pagination;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
@@ -16,9 +16,9 @@ public class PageFileDataSourceHandler(InvocationContext invocationContext, [Act
 {
     public async Task<IEnumerable<FileDataItem>> GetFolderContentAsync(FolderContentDataSourceContext context, CancellationToken token)
     {
-        var allItems = await ListPages();
+        var currentFolder = context.FolderId ?? "";
+        var allItems = await ListPages(currentFolder);
         var result = new List<FileDataItem>();
-        var currentFolder = context.FolderId ?? "/";
 
         foreach (var item in allItems)
         {
@@ -29,7 +29,7 @@ public class PageFileDataSourceHandler(InvocationContext invocationContext, [Act
                 var lastSlashIndex = path.LastIndexOf('/');
                 bool hasNothingAfter = lastSlashIndex == 0;
                 if (hasNothingAfter)
-                    result.Add(new Folder { Id = path, DisplayName = page.Title, Date = page.LastUpdated, IsSelectable = false });
+                    result.Add(new Folder { Id = item.Id, DisplayName = page.Title, Date = page.LastUpdated, IsSelectable = false });
             }
             else
                 result.Add(new File { Id = item.Id, DisplayName = item.Title, Date = item.LastUpdated, IsSelectable = true });
@@ -43,10 +43,11 @@ public class PageFileDataSourceHandler(InvocationContext invocationContext, [Act
         throw new NotImplementedException();
     }
 
-    private async Task<IEnumerable<PageEntity>> ListPages()
+    private async Task<IEnumerable<PageEntity>> ListPages(string parentId)
     {
         var request = new RestRequest($"sites/{Client.GetSiteId(site.SiteId)}/pages", Method.Get);
-        return (await Client.ExecuteWithErrorHandling<SearchPagesResponse>(request)).Pages;
+        var response = await Client.Paginate<PageEntity, PagesPaginationResponse>(request, r => r.Pages);
+        return response;
     }
 
     private async Task<PageEntity> GetPage(string pageId)

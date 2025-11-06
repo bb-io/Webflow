@@ -54,7 +54,7 @@ public class FileDataSources : TestBase
         // Arrange
         var context = GetInvocationContext(ConnectionTypes.OAuth2);
         var request = new SiteRequest { };
-        var folderContext = new FolderContentDataSourceContext {  };
+        var folderContext = new FolderContentDataSourceContext { FolderId = "68f8b337cbd1cac54f5b9d7f" };
         var handler = new PageFileDataSourceHandler(context, request);
 
         // Act
