@@ -14,6 +14,8 @@ namespace Apps.Webflow.DataSourceHandlers.Pages;
 public class PageFileDataSourceHandler(InvocationContext invocationContext, [ActionParameter] SiteRequest site) 
     : WebflowInvocable(invocationContext), IAsyncFileDataSourceItemHandler
 {
+    private const string RootFolderDisplayName = "Pages";
+
     public async Task<IEnumerable<FileDataItem>> GetFolderContentAsync(FolderContentDataSourceContext context, CancellationToken token)
     {
         var currentFolderId = string.IsNullOrEmpty(context.FolderId) || context.FolderId == "root"
@@ -41,9 +43,49 @@ public class PageFileDataSourceHandler(InvocationContext invocationContext, [Act
         return result;
     }
 
-    public Task<IEnumerable<FolderPathItem>> GetFolderPathAsync(FolderPathDataSourceContext context, CancellationToken cancellationToken)
+    public async Task<IEnumerable<FolderPathItem>> GetFolderPathAsync(FolderPathDataSourceContext context, CancellationToken token)
     {
-        throw new NotImplementedException();
+        var path = new Stack<FolderPathItem>();
+
+        try
+        {
+            if (string.IsNullOrEmpty(context?.FileDataItemId) || context.FileDataItemId == "root")
+                return new[] { new FolderPathItem { DisplayName = RootFolderDisplayName, Id = "root" } };
+
+            var currentId = context.FileDataItemId;
+
+            while (!string.IsNullOrEmpty(currentId))
+            {
+                var request = new RestRequest($"pages/{currentId}", Method.Get);
+                var page = await Client.ExecuteWithErrorHandling<PageEntity>(request);
+
+                if (page == null)
+                    break;
+
+                path.Push(new FolderPathItem
+                {
+                    Id = page.Id,
+                    DisplayName = page.Title
+                });
+
+                if (string.IsNullOrEmpty(page.ParentId))
+                    break;
+
+                currentId = page.ParentId;
+            }
+
+            path.Push(new FolderPathItem
+            {
+                Id = "root",
+                DisplayName = RootFolderDisplayName
+            });
+        }
+        catch
+        {
+            return new[] { new FolderPathItem { DisplayName = RootFolderDisplayName, Id = "root" } };
+        }
+
+        return path;
     }
 
     private async Task<IEnumerable<PageEntity>> ListPages()
