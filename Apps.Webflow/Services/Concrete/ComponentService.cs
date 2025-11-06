@@ -1,5 +1,5 @@
 ﻿using Apps.Webflow.Constants;
-using Apps.Webflow.Conversion;
+using Apps.Webflow.Conversion.Component;
 using Apps.Webflow.Conversion.Constants;
 using Apps.Webflow.Helper;
 using Apps.Webflow.Models.Entities;
@@ -21,7 +21,7 @@ public class ComponentService(InvocationContext invocationContext) : BaseContent
 {
     private const string ContentType = ContentTypes.Component;
 
-    public async override Task<SearchContentResponse> SearchContent(string siteId, SearchContentRequest input, DateFilter dateFilter)
+    public override async Task<SearchContentResponse> SearchContent(string siteId, SearchContentRequest input, DateFilter dateFilter)
     {
         ThrowForDateInputs(dateFilter, ContentType);
         ThrowForPublishedDateInputs(input, ContentType);
@@ -52,9 +52,15 @@ public class ComponentService(InvocationContext invocationContext) : BaseContent
 
         var componentDom = await Client.ExecuteWithErrorHandling<ComponentDomEntity>(request);
 
-        await using var stream = ComponentHtmlConverter.ToHtml(componentDom, siteId, input.ContentId, input.Locale);
+        Stream outputStream = input.FileFormat switch
+        {
+            "text/html" => ComponentHtmlConverter.ToHtml(componentDom, siteId, input.ContentId, input.Locale),
+            "original" => ComponentJsonConverter.ToJson(componentDom, siteId, input.ContentId, input.Locale),
+            _ => throw new PluginMisconfigurationException($"Unsupported output format: {input.FileFormat}")
+        };
+
         var memoryStream = new MemoryStream();
-        await stream.CopyToAsync(memoryStream);
+        await outputStream.CopyToAsync(memoryStream);
         memoryStream.Position = 0;
 
         return memoryStream;

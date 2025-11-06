@@ -17,6 +17,7 @@ using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Filters.Transformations;
 using Blackbird.Filters.Xliff.Xliff2;
 using RestSharp;
+using System.Net.Mime;
 using System.Text;
 
 namespace Apps.Webflow.Actions;
@@ -49,15 +50,23 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
         [ActionParameter] SiteRequest site,
         [ActionParameter] DownloadComponentContentRequest input)
     {
+        string fileFormat = input.FileFormat ?? MediaTypeNames.Text.Html;
+
         var downloadRequest = new DownloadContentRequest
         {
             Locale = input.LocaleId,
-            ContentId = input.ComponentId
+            ContentId = input.ComponentId,
+            FileFormat = fileFormat,
         };
-        var service = _factory.GetContentService(ContentTypes.Component);
-        var htmlStream = await service.DownloadContent(Client.GetSiteId(site.SiteId), downloadRequest);
 
-        var file = await fileManagementClient.UploadAsync(htmlStream, "text/html", $"component_{input.ComponentId}.html");
+        var service = _factory.GetContentService(ContentTypes.Component);
+        var stream = await service.DownloadContent(Client.GetSiteId(site.SiteId), downloadRequest);
+
+        string fileExtension = fileFormat == MediaTypeNames.Text.Html ? "html" : "json";
+        string fileName = $"component_{input.ComponentId}.{fileExtension}";
+        string contentType = fileFormat == MediaTypeNames.Text.Html ? MediaTypeNames.Text.Html : MediaTypeNames.Application.Json;
+
+        var file = await fileManagementClient.UploadAsync(stream, contentType, fileName);
         return new(file);
     }
 

@@ -1,6 +1,5 @@
 ﻿using Apps.Webflow.Conversion.Models;
 using Apps.Webflow.Models.Entities;
-using Blackbird.Applications.Sdk.Common.Exceptions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
@@ -34,17 +33,6 @@ public static class CollectionItemJsonConverter
 
         var jsonString = JsonConvert.SerializeObject(model, settings);
         return new MemoryStream(Encoding.UTF8.GetBytes(jsonString));
-    }
-
-    public static JObject ToUploadRequestBody(string jsonString)
-    {
-        var dto = JsonConvert.DeserializeObject<DownloadedCollectionItem>(jsonString)
-            ?? throw new PluginMisconfigurationException("Invalid Webflow JSON structure");
-
-        var fieldData = dto.CollectionItem.FieldData
-            ?? throw new PluginMisconfigurationException("Missing fieldData in JSON file");
-
-        return fieldData;
     }
 
     public static CollectionItemMetadata GetMetadata(string inputString)

@@ -2,7 +2,7 @@ using Apps.Webflow.Conversion.Constants;
 using Apps.Webflow.Models.Response.Components;
 using HtmlAgilityPack;
 
-namespace Apps.Webflow.Conversion;
+namespace Apps.Webflow.Conversion.Component;
 
 public static class ComponentHtmlConverter
 {

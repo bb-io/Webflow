@@ -54,22 +54,24 @@ public class ComponentsTests : TestBase
     }
 
     [TestMethod]
-    public async Task GetComponentAsHtml_ReturnsFileReference()
+    public async Task DownloadComponent_ReturnsComponent()
     {
-        foreach (var context in InvocationContext)
-        {
-            // Arrange
-            var input = new DownloadComponentContentRequest { ComponentId = SampleComponentId };
+        // Arrange
+        var context = GetInvocationContext(ConnectionTypes.OAuth2);
+        var actions = new ComponentsActions(context, FileManagementClient);
+        
+        var site = new SiteRequest { };
+        var input = new DownloadComponentContentRequest 
+        { 
+            ComponentId = "88a386dd-8f07-0c34-70f0-2d9f87e29718",
+            FileFormat = "original"
+        };
 
-            var actions = new ComponentsActions(context, FileManagementClient);
-            var site = new SiteRequest { SiteId = SampleSiteId };
+        // Act
+        var result = await actions.DownloadComponent(site, input);
 
-            // Act
-            var result = await actions.DownloadComponent(site, input);
-
-            // Assert
-            Assert.IsNotNull(result, "Result should not be null.");
-        }
+        // Assert
+        Assert.IsNotNull(result);
     }
 
     [TestMethod]
