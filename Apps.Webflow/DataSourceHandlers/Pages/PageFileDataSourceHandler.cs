@@ -16,23 +16,26 @@ public class PageFileDataSourceHandler(InvocationContext invocationContext, [Act
 {
     public async Task<IEnumerable<FileDataItem>> GetFolderContentAsync(FolderContentDataSourceContext context, CancellationToken token)
     {
-        var currentFolder = context.FolderId ?? "";
-        var allItems = await ListPages(currentFolder);
+        var currentFolderId = string.IsNullOrEmpty(context.FolderId) || context.FolderId == "root"
+            ? null
+            : context.FolderId;
+
+        var allItems = await ListPages();
         var result = new List<FileDataItem>();
 
         foreach (var item in allItems)
         {
-            if (item.ParentId != null)
-            {
-                var page = await GetPage(item.ParentId);
-                var path = page.PublishedPath?.TrimEnd('/') ?? "/";
-                var lastSlashIndex = path.LastIndexOf('/');
-                bool hasNothingAfter = lastSlashIndex == 0;
-                if (hasNothingAfter)
-                    result.Add(new Folder { Id = item.Id, DisplayName = page.Title, Date = page.LastUpdated, IsSelectable = false });
-            }
-            else
+            if (item.ParentId == currentFolderId)
                 result.Add(new File { Id = item.Id, DisplayName = item.Title, Date = item.LastUpdated, IsSelectable = true });
+        }
+
+        foreach (var parentId in allItems.Where(x => x.ParentId is not null).GroupBy(x => x.ParentId).Select(g => g.Key))
+        {
+            var request = new RestRequest($"pages/{parentId}", Method.Get);
+            var folder = await Client.ExecuteWithErrorHandling<PageEntity>(request);
+
+            if (folder.ParentId == currentFolderId)
+                result.Add(new Folder { Id = folder.Id, DisplayName = folder.Title, Date = folder.LastUpdated, IsSelectable = false });
         }
 
         return result;
@@ -43,16 +46,9 @@ public class PageFileDataSourceHandler(InvocationContext invocationContext, [Act
         throw new NotImplementedException();
     }
 
-    private async Task<IEnumerable<PageEntity>> ListPages(string parentId)
+    private async Task<IEnumerable<PageEntity>> ListPages()
     {
         var request = new RestRequest($"sites/{Client.GetSiteId(site.SiteId)}/pages", Method.Get);
-        var response = await Client.Paginate<PageEntity, PagesPaginationResponse>(request, r => r.Pages);
-        return response;
-    }
-
-    private async Task<PageEntity> GetPage(string pageId)
-    {
-        var request = new RestRequest($"pages/{pageId}", Method.Get);
-        return await Client.ExecuteWithErrorHandling<PageEntity>(request);
+        return await Client.Paginate<PageEntity, PagesPaginationResponse>(request, r => r.Pages);
     }
 }
