@@ -28,7 +28,7 @@ namespace Apps.Webflow.Actions;
 public class CollectionItemActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
     : WebflowInvocable(invocationContext)
 {
-    private readonly ContentServicesFactory _factory = new ContentServicesFactory(invocationContext);
+    private readonly ContentServicesFactory _factory = new(invocationContext);
 
     [Action("Search collection items", Description = "Search all collection items for a specific collection")]
     public async Task<SearchCollectionItemsResponse> SearchCollectionItems(
@@ -61,21 +61,26 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         return new(filtered);
     }
 
-    [Action("Download collection item", Description = "Get content of a specific collection item in HTML format")]
+    [Action("Download collection item", Description = "Get content of a specific collection item")]
     public async Task<DownloadCollectionItemContentResponse> DownloadCollectionItem(
         [ActionParameter] SiteRequest site,
         [ActionParameter] CollectionItemRequest input)
     {
+        string fileFormat = input.FileFormat ?? MediaTypeNames.Text.Html;
+        string fileExtension = fileFormat == MediaTypeNames.Text.Html ? "html" : "json";
+
         var service = _factory.GetContentService(ContentTypes.CollectionItem);
         var contentRequest = new DownloadContentRequest
         {
             CollectionId = input.CollectionId,
             ContentId = input.CollectionItemId,
-            Locale = input.CmsLocaleId
+            Locale = input.CmsLocaleId,
+            FileFormat = fileFormat,
         };
-        var html = await service.DownloadContent(Client.GetSiteId(site.SiteId), contentRequest);
 
-        var file = await fileManagementClient.UploadAsync(html, MediaTypeNames.Text.Html, $"collection_item_{input.CollectionItemId}.html");
+        var stream = await service.DownloadContent(Client.GetSiteId(site.SiteId), contentRequest);
+        var fileName = $"collection_item_{input.CollectionItemId}.{fileExtension}";
+        var file = await fileManagementClient.UploadAsync(stream, fileExtension, fileName);
         return new(file);
     }
 

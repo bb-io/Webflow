@@ -1,10 +1,10 @@
 using System.Web;
-using Apps.Webflow.HtmlConversion.Constants;
+using Apps.Webflow.Conversion.Constants;
 using Apps.Webflow.Models.Entities;
 using HtmlAgilityPack;
 using Newtonsoft.Json.Linq;
 
-namespace Apps.Webflow.HtmlConversion;
+namespace Apps.Webflow.Conversion.CollectionItem;
 
 public static class CollectionItemHtmlConverter
 {

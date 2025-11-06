@@ -1,6 +1,6 @@
 ﻿using Apps.Webflow.Constants;
+using Apps.Webflow.Conversion.CollectionItem;
 using Apps.Webflow.Helper;
-using Apps.Webflow.HtmlConversion;
 using Apps.Webflow.Models.Entities;
 using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Content;
@@ -68,17 +68,28 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
         var itemRequest = new RestRequest(itemEndpoint, Method.Get);
         var item = await Client.ExecuteWithErrorHandling<CollectionItemEntity>(itemRequest);
 
-        var stream = CollectionItemHtmlConverter.ToHtml(
-            item, 
-            collection.Fields, 
-            siteId, 
-            input.CollectionId, 
-            input.ContentId, 
-            item.CmsLocaleId
-        );
+        Stream outputStream = input.FileFormat switch
+        {
+            "text/html" => CollectionItemHtmlConverter.ToHtml(
+                item,
+                collection.Fields,
+                siteId,
+                input.CollectionId,
+                input.ContentId,
+                item.CmsLocaleId
+            ),
+            "original" => CollectionItemJsonConverter.ToJson(
+                item,
+                item.Id,
+                input.CollectionId,
+                siteId,
+                item.CmsLocaleId
+            ),
+            _ => throw new PluginMisconfigurationException($"Unsupported output format: {input.FileFormat}")
+        };
 
         var memoryStream = new MemoryStream();
-        await stream.CopyToAsync(memoryStream);
+        await outputStream.CopyToAsync(memoryStream);
         memoryStream.Position = 0;
 
         return memoryStream;

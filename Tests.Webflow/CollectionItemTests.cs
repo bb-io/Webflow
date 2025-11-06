@@ -12,23 +12,24 @@ namespace Tests.Webflow;
 public class CollectionItemTests : TestBase
 {
     [TestMethod]
-    public async Task GetCollectionItemContent_ReturnsCollectionItems()
+    public async Task DownloadCollectionItem_ReturnsCollectionItem()
     {
-        foreach (var context in InvocationContext)
+        // Arrange
+        var context = GetInvocationContext(ConnectionTypes.OAuth2);
+        var request = new CollectionItemRequest
         {
-            // Arrange
-            var request = new CollectionItemRequest
-            {
-                CollectionId = "68f0bd047d4742cba6c0b30c",
-                CollectionItemId = "68f0bd3f34d5e43fc8d1675c"
-            };
-            var site = new SiteRequest { SiteId = "6773fdfb5a841e3420ebc404" };
-            var actions = new CollectionItemActions(context, FileManagementClient);
-            // Act
-            var result = await actions.DownloadCollectionItem(site, request);
-            // Assert
-            Assert.IsNotNull(result, "Result should not be null.");
-        }
+            CollectionId = "68f8b337cbd1cac54f5b9d9c",
+            CollectionItemId = "68f8b337cbd1cac54f5b9dee",
+            FileFormat = "original"
+        };
+        var site = new SiteRequest { };
+        var actions = new CollectionItemActions(context, FileManagementClient);
+
+        // Act
+        var result = await actions.DownloadCollectionItem(site, request);
+
+        // Assert
+        Assert.IsNotNull(result);
     }
 
     [TestMethod]

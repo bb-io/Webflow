@@ -1,4 +1,4 @@
-namespace Apps.Webflow.HtmlConversion.Constants;
+namespace Apps.Webflow.Conversion.Constants;
 
 public class HtmlConstants
 {
