@@ -69,11 +69,11 @@ public static class CollectionItemHtmlConverter
 
         return result;
     }
-    
-    public static JObject ToUploadRequestBody(string html, JObject fieldData, IEnumerable<FieldEntity> collectionFields)
+
+    public static JObject ToJson(Stream fileStream, JObject fieldData, IEnumerable<FieldEntity> collectionFields)
     {
         var doc = new HtmlDocument();
-        doc.Load(html);
+        doc.Load(fileStream);
 
         doc.DocumentNode
             .Descendants()
@@ -95,21 +95,6 @@ public static class CollectionItemHtmlConverter
 
         return fieldData;
     }
-
-    public static CollectionItemMetadata GetMetadata(string html)
-    {
-        var doc = new HtmlDocument();
-        doc.Load(html);
-
-        return new CollectionItemMetadata(
-            GetMetaTagContent(doc, "blackbird-collection-id"),
-            GetMetaTagContent(doc, "blackbird-collection-item-id"),
-            GetMetaTagContent(doc, "blackbird-cmslocale-id")
-        );
-    }
-
-    private static string? GetMetaTagContent(HtmlDocument doc, string name) =>
-        doc.DocumentNode.SelectSingleNode($"//meta[@name='{name}']") ?.GetAttributeValue("content", "");
 
     private static (HtmlDocument document, HtmlNode bodyNode) PrepareEmptyHtmlDocument()
     {
