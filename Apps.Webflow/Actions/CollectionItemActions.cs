@@ -1,6 +1,4 @@
 using Apps.Webflow.Constants;
-using Apps.Webflow.Conversion;
-using Apps.Webflow.Conversion.CollectionItem;
 using Apps.Webflow.Helper;
 using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Entities;
@@ -20,7 +18,6 @@ using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Filters.Transformations;
 using Blackbird.Filters.Xliff.Xliff2;
-using Newtonsoft.Json.Linq;
 using RestSharp;
 using System.Net.Mime;
 using System.Text;
@@ -111,7 +108,7 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
 
         string? M(string name) =>
             doc.DocumentNode.SelectSingleNode($"//meta[@name='{name}']")
-               ?.GetAttributeValue("content", "");
+                ?.GetAttributeValue("content", "");
 
         input.CollectionId ??= M("blackbird-collection-id");
         input.CollectionItemId ??= M("blackbird-collection-item-id");
@@ -166,28 +163,5 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
             }, JsonConfig.Settings);
 
         await Client.ExecuteWithErrorHandling(request);
-    }
-
-
-    private async Task<string> GetCmsLocale(string siteId, string localeId)
-    {
-        var siteRequest = new RestRequest($"/sites/{siteId}", Method.Get);
-        var siteEntity = await Client.ExecuteWithErrorHandling<SiteEntity>(siteRequest);
-
-        if (siteEntity.Locales == null)
-            throw new PluginApplicationException("Site locales are not available");
-
-        var cmsLocale = siteEntity.Locales.Secondary?.FirstOrDefault(x => x.CmsLocaleId == localeId);
-        if (cmsLocale != null)
-            return localeId;
-
-        if (siteEntity.Locales.Primary?.Id == localeId || siteEntity.Locales.Primary?.CmsLocaleId == localeId)
-            return siteEntity.Locales.Primary.CmsLocaleId;
-
-        var secondaryLocale = siteEntity.Locales.Secondary?.FirstOrDefault(x => x.Id == localeId);
-        if (secondaryLocale != null)
-            return secondaryLocale.CmsLocaleId;
-
-        throw new PluginApplicationException("Can't match the input locale with available collection item locale ID");
     }
 }
