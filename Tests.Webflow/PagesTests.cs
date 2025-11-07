@@ -55,7 +55,7 @@ public class PagesTests : TestBase
     }
 
     [TestMethod]
-    public async Task UploadPageFromHtml_SuccessOperation()
+    public async Task UploadPage_SuccessOperation()
     {
         // Arrange
         var context = GetInvocationContext(ConnectionTypes.OAuth2);
@@ -66,6 +66,6 @@ public class PagesTests : TestBase
         var action = new PagesActions(context, FileManagementClient);
 
         //Act 
-        await action.UpdatePageContentAsHtml(site, input);
+        await action.UploadPage(site, input);
     }
 }

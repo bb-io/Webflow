@@ -81,7 +81,7 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
     }
 
     [Action("Upload page", Description = "Update page content using HTML file")]
-    public async Task UpdatePageContentAsHtml(
+    public async Task UploadPage(
         [ActionParameter] SiteRequest site,
         [ActionParameter] UpdatePageContentRequest input)
     {
