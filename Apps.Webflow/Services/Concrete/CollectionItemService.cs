@@ -1,4 +1,5 @@
 ﻿using Apps.Webflow.Constants;
+using Apps.Webflow.Conversion;
 using Apps.Webflow.Conversion.CollectionItem;
 using Apps.Webflow.Helper;
 using Apps.Webflow.Models.Entities;
@@ -10,7 +11,9 @@ using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using Blackbird.Applications.Sdk.Utils.Extensions.String;
+using Newtonsoft.Json.Linq;
 using RestSharp;
+using System.Text;
 
 namespace Apps.Webflow.Services.Concrete;
 
@@ -95,10 +98,23 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
 
     public override async Task UploadContent(Stream content, string siteId, UploadContentRequest input)
     {
-        var memoryStream = new MemoryStream();
+        using var memoryStream = new MemoryStream();
         await content.CopyToAsync(memoryStream);
         memoryStream.Position = 0;
 
+        string contentText;
+        using (var reader = new StreamReader(memoryStream, Encoding.UTF8, leaveOpen: true))
+            contentText = await reader.ReadToEndAsync();
+
+        memoryStream.Position = 0;
+
+        if (OriginalJsonValidator.IsJson(contentText))
+        {
+            await UploadJsonContent(contentText, siteId, input);
+            return;
+        }
+
+        // --- Otherwise, handle HTML/XLIFF as before ---
         var itemEndpoint = $"collections/{input.CollectionId}/items/{input.ContentId}";
 
         string fetchedCmsLocaleId = await GetCmsLocale(siteId, input.Locale!);
@@ -119,6 +135,41 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
         await Client.ExecuteWithErrorHandling(request);
     }
 
+    private async Task UploadJsonContent(string contentText, string siteId, UploadContentRequest input)
+    {
+        var json = JObject.Parse(contentText);
+
+        // Extract required fields
+        string? collectionId = input.CollectionId ?? json["collectionId"]?.ToString();
+        string? itemId = input.ContentId ?? json["collectionItem"]?["id"]?.ToString();
+        string? cmsLocaleId = input.Locale ?? json["collectionItem"]?["cmsLocaleId"]?.ToString();
+
+        if (string.IsNullOrWhiteSpace(collectionId))
+            throw new PluginMisconfigurationException("Missing 'collectionId' in JSON upload.");
+        if (string.IsNullOrWhiteSpace(itemId))
+            throw new PluginMisconfigurationException("Missing 'collectionItem.id' in JSON upload.");
+        if (string.IsNullOrWhiteSpace(cmsLocaleId))
+            throw new PluginMisconfigurationException("Missing 'collectionItem.cmsLocaleId' in JSON upload.");
+
+        var colItem = json["collectionItem"];
+        var fieldData = colItem?["fieldData"] as JObject;
+        if (fieldData == null)
+            throw new PluginMisconfigurationException("Missing 'collectionItem.fieldData' in JSON upload.");
+
+        string fetchedCmsLocaleId = await GetCmsLocale(siteId, cmsLocaleId);
+
+        var endpoint = $"collections/{collectionId}/items/{itemId}";
+        endpoint = endpoint.SetQueryParameter("cmsLocaleId", fetchedCmsLocaleId);
+        var request = new RestRequest(endpoint, Method.Patch)
+            .WithJsonBody(new
+            {
+                fieldData,
+                cmsLocaleId = fetchedCmsLocaleId
+            }, JsonConfig.Settings);
+
+        await Client.ExecuteWithErrorHandling(request);
+    }
+
     private async Task<string> GetCmsLocale(string siteId, string localeId)
     {
         var siteRequest = new RestRequest($"/sites/{siteId}", Method.Get);
@@ -131,7 +182,7 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
         if (cmsLocale != null)
             return localeId;
         
-        if (siteEntity.Locales.Primary?.Id == localeId)
+        if (siteEntity.Locales.Primary?.Id == localeId || siteEntity.Locales.Primary?.CmsLocaleId == localeId)
             return siteEntity.Locales.Primary.CmsLocaleId;
 
         var secondaryLocale = siteEntity.Locales.Secondary?.FirstOrDefault(x => x.Id == localeId);

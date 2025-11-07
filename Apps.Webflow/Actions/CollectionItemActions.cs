@@ -1,4 +1,5 @@
 using Apps.Webflow.Constants;
+using Apps.Webflow.Conversion;
 using Apps.Webflow.Helper;
 using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Entities;
@@ -18,6 +19,7 @@ using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Filters.Transformations;
 using Blackbird.Filters.Xliff.Xliff2;
+using Newtonsoft.Json.Linq;
 using RestSharp;
 using System.Net.Mime;
 using System.Text;
@@ -92,15 +94,21 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         [ActionParameter] UpdateCollectionItemRequest input)
     {
         await using var source = await fileManagementClient.DownloadAsync(input.File);
-        var html = Encoding.UTF8.GetString(await source.GetByteData());
+        var fileText = Encoding.UTF8.GetString(await source.GetByteData());
 
-        if (Xliff2Serializer.IsXliff2(html))
+        if (OriginalJsonValidator.IsJson(fileText))
         {
-            html = Transformation.Parse(html, input.File.Name).Target().Serialize();
-            if (html == null) throw new PluginMisconfigurationException("XLIFF did not contain files");
+            await HandleJsonUpload(site, input, fileText);
+            return;
         }
 
-        await using var ms = new MemoryStream(Encoding.UTF8.GetBytes(html));
+        if (Xliff2Serializer.IsXliff2(fileText))
+        {
+            fileText = Transformation.Parse(fileText, input.File.Name).Target().Serialize();
+            if (fileText == null) throw new PluginMisconfigurationException("XLIFF did not contain files");
+        }
+
+        await using var ms = new MemoryStream(Encoding.UTF8.GetBytes(fileText));
         var doc = new HtmlAgilityPack.HtmlDocument();
         doc.Load(ms);
         ms.Position = 0;
@@ -163,4 +171,48 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
 
         await Client.ExecuteWithErrorHandling(request);
     }
+
+    private async Task HandleJsonUpload(SiteRequest site, UpdateCollectionItemRequest input, string fileText)
+    {
+        var json = JObject.Parse(fileText);
+
+        input.CollectionId ??= json["collectionId"]?.ToString();
+        input.CollectionItemId ??= json["collectionItem"]?["id"]?.ToString();
+        input.CmsLocaleId ??= json["collectionItem"]?["cmsLocaleId"]?.ToString();
+
+        if (string.IsNullOrWhiteSpace(input.CollectionId))
+            throw new PluginMisconfigurationException("Collection ID is missing in JSON.");
+        if (string.IsNullOrWhiteSpace(input.CollectionItemId))
+            throw new PluginMisconfigurationException("Collection item ID is missing in JSON.");
+        if (string.IsNullOrWhiteSpace(input.CmsLocaleId))
+            throw new PluginMisconfigurationException("CMS locale ID is missing in JSON.");
+
+        var fieldData = (JObject?)json["collectionItem"]?["fieldData"];
+        if (fieldData == null)
+            throw new PluginMisconfigurationException("Missing 'fieldData' in JSON collection item.");
+
+        var service = _factory.GetContentService(ContentTypes.CollectionItem);
+        var request = new UploadContentRequest
+        {
+            CollectionId = input.CollectionId,
+            Locale = input.CmsLocaleId,
+            ContentId = input.CollectionItemId
+        };
+
+        var ms = new MemoryStream(Encoding.UTF8.GetBytes(fileText));
+
+        await service.UploadContent(ms, Client.GetSiteId(site.SiteId), request);
+
+        if (input.Publish is true)
+        {
+            var publishRequest = new PublishItemRequest
+            {
+                CollectionId = input.CollectionId,
+                CollectionItemId = input.CollectionItemId,
+                CmsLocaleIds = [input.CmsLocaleId]
+            };
+            await PublishItem(site, publishRequest);
+        }
+    }
+
 }
