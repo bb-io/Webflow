@@ -55,7 +55,7 @@ public class ComponentService(InvocationContext invocationContext) : BaseContent
         Stream outputStream = input.FileFormat switch
         {
             "text/html" => ComponentHtmlConverter.ToHtml(componentDom, siteId, input.ContentId, input.Locale),
-            "original" => ComponentJsonConverter.ToJson(componentDom, siteId, input.ContentId, input.Locale),
+            "original" => ComponentJsonConverter.ToJson(componentDom, siteId, input.Locale),
             _ => throw new PluginMisconfigurationException($"Unsupported output format: {input.FileFormat}")
         };
 

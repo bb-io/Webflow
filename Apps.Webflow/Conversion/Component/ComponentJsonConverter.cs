@@ -17,7 +17,6 @@ public class ComponentJsonConverter
     public static Stream ToJson(
         ComponentDomEntity component,
         string siteId,
-        string contentId,
         string? localeId)
     {
         var model = new DownloadedComponent
