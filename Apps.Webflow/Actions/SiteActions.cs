@@ -20,7 +20,8 @@ public class SiteActions(InvocationContext invocationContext) : WebflowInvocable
         [ActionParameter] SearchSitesRequest input,
         [ActionParameter] BasicDateFilter dateFilter)
     {
-        ValidateInputDates(input, dateFilter);
+        ValidatorHelper.ValidateInputDates(dateFilter);
+        ValidatorHelper.ValidatePublishedInputDates(input.LastPublishedBefore, input.LastPublishedAfter);
 
         var request = new RestRequest("sites", Method.Get);
         var result = await Client.ExecuteWithErrorHandling<SiteEntitiesList>(request);
@@ -51,12 +52,6 @@ public class SiteActions(InvocationContext invocationContext) : WebflowInvocable
             request.AddJsonBody(new { publishToWebflowSubdomain = true });
 
         return await Client.ExecuteWithErrorHandling<CustomDomainsResponse>(request);
-    }
-
-    private static void ValidateInputDates(SearchSitesRequest input, BasicDateFilter date)
-    {
-        ValidatorHelper.ValidateInputDates(date);
-        ValidatorHelper.ValidatePublishedInputDates(input.LastPublishedBefore, input.LastPublishedAfter);
     }
 
     private static List<SiteEntity> ApplySiteFilters(SearchSitesRequest input, BasicDateFilter date, SiteEntitiesList result)
