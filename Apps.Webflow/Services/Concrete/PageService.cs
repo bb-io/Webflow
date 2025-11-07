@@ -1,6 +1,6 @@
 ﻿using Apps.Webflow.Constants;
-using Apps.Webflow.Conversion;
 using Apps.Webflow.Conversion.Constants;
+using Apps.Webflow.Conversion.Page;
 using Apps.Webflow.Helper;
 using Apps.Webflow.Models.Entities;
 using Apps.Webflow.Models.Request;
@@ -9,6 +9,7 @@ using Apps.Webflow.Models.Request.Pages;
 using Apps.Webflow.Models.Response.Content;
 using Apps.Webflow.Models.Response.Pages;
 using Apps.Webflow.Models.Response.Pagination;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using RestSharp;
 using System.Web;
@@ -53,9 +54,15 @@ public class PageService(InvocationContext invocationContext) : BaseContentServi
 
         var pageDom = await Client.ExecuteWithErrorHandling<PageDomEntity>(domRequest);
 
-        var stream = PageHtmlConverter.ToHtml(pageDom, siteId, input.ContentId, input.Locale);
+        Stream outputStream = input.FileFormat switch
+        {
+            "text/html" => PageHtmlConverter.ToHtml(pageDom, siteId, input.ContentId, input.Locale),
+            "original" => PageJsonConverter.ToJson(pageDom, siteId, input.Locale),
+            _ => throw new PluginMisconfigurationException($"Unsupported output format: {input.FileFormat}")
+        };
+
         var memoryStream = new MemoryStream();
-        await stream.CopyToAsync(memoryStream);
+        await outputStream.CopyToAsync(memoryStream);
         memoryStream.Position = 0;
 
         return memoryStream;

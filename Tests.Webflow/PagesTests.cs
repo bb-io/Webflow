@@ -32,12 +32,17 @@ public class PagesTests : TestBase
     }
 
     [TestMethod]
-    public async Task GetPageAsHtml_ReturnsFileReference()
+    public async Task DownloadPage_ReturnsFileReference()
     {
         // Arrange
         var context = GetInvocationContext(ConnectionTypes.OAuth2);
         var site = new SiteRequest { };
-        var input = new DownloadPageRequest { PageId = "68f8b337cbd1cac54f5b9d80", LocaleId = "69007d6cf09bd27cf732e155" };
+        var input = new DownloadPageRequest 
+        { 
+            FileFormat = "text/html",
+            PageId = "68f8b337cbd1cac54f5b9d80", 
+            LocaleId = "69007d6cf09bd27cf732e155"
+        };
 
         var actions = new PagesActions(context, FileManagementClient);
 
@@ -46,7 +51,7 @@ public class PagesTests : TestBase
 
         // Assert
         PrintJsonResult(result);
-        Assert.IsNotNull(result, "Result should not be null.");
+        Assert.IsNotNull(result);
     }
 
     [TestMethod]
