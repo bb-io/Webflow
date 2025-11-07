@@ -47,7 +47,10 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
             request.AddParameter("lastPublished[gte]", input.LastPublishedAfter.Value.ToString("O"));
 
         if (!string.IsNullOrEmpty(input.CmsLocale))
-            request.AddParameter("cmsLocaleId", input.CmsLocale);
+        {
+            var cmsLocaleId = await LocaleHelper.GetCmsLocaleId(input.CmsLocale, Client.GetSiteId(site.SiteId), Client);
+            request.AddParameter("cmsLocaleId", cmsLocaleId);
+        }
 
         var items = await Client.Paginate<CollectionItemEntity, CollectionItemPaginationResponse>(request, r => r.Items);
 
