@@ -17,15 +17,11 @@ public static class CollectionItemJsonConverter
 
     public static Stream ToJson(
         CollectionItemEntity item,
-        string collectionItemId,
         string collectionId,
-        string siteId,
-        string? cmsLocaleId)
+        string siteId)
     {
         var model = new DownloadedCollectionItem
         {
-            CmsLocaleId = cmsLocaleId,
-            CollectionItemId = collectionItemId,
             CollectionId = collectionId,
             SiteId = siteId,
             CollectionItem = item

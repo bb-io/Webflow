@@ -23,8 +23,7 @@ public class ComponentJsonConverter
         {
             Component = component,
             SiteId = siteId,
-            LocaleId = localeId,
-            ComponentId = component.ComponentId,
+            LocaleId = localeId
         };
 
         var jsonString = JsonConvert.SerializeObject(model, settings);

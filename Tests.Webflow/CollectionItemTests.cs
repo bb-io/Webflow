@@ -20,7 +20,7 @@ public class CollectionItemTests : TestBase
         {
             CollectionId = "68f8b337cbd1cac54f5b9d9c",
             CollectionItemId = "68f8b337cbd1cac54f5b9dee",
-            FileFormat = "text/html"
+            FileFormat = "original"
         };
         var site = new SiteRequest { };
         var actions = new CollectionItemActions(context, FileManagementClient);
@@ -81,7 +81,7 @@ public class CollectionItemTests : TestBase
         var request = new UpdateCollectionItemRequest
         {
             File = new FileReference { Name = "12345.xlf" },
-            Publish = true
+            Publish = false,
         };
         var site = new SiteRequest { };
         var actions = new CollectionItemActions(context, FileManagementClient);

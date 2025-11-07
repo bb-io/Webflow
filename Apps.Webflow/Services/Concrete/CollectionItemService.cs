@@ -80,10 +80,8 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
             ),
             "original" => CollectionItemJsonConverter.ToJson(
                 item,
-                item.Id,
                 input.CollectionId,
-                siteId,
-                item.CmsLocaleId
+                siteId
             ),
             _ => throw new PluginMisconfigurationException($"Unsupported output format: {input.FileFormat}")
         };
