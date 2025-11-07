@@ -80,7 +80,7 @@ public class CollectionItemTests : TestBase
         var context = GetInvocationContext(ConnectionTypes.OAuth2);
         var request = new UpdateCollectionItemRequest
         {
-            File = new FileReference { Name = "colitem.json" },
+            File = new FileReference { Name = "colitem.html" },
             Publish = false,
         };
         var site = new SiteRequest { };

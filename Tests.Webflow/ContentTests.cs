@@ -352,12 +352,12 @@ public class ContentTests : TestBase
         // Arrange
         var context = GetInvocationContext(ConnectionTypes.OAuth2);
         var action = new ContentActions(context, FileManagementClient);
-        var site = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
+        var site = new SiteRequest { };
         var request = new UploadContentRequest
         {
-            Content = new FileReference { Name = "swedish-smth.html", ContentType = "text/html" },
-            Locale = "69007d6cf09bd27cf732e155",
-            CollectionId = "68f8b337cbd1cac54f5b9d9c",
+            Content = new FileReference { Name = "colitem.html" },
+            //Locale = "69007d6cf09bd27cf732e155",
+            //CollectionId = "68f8b337cbd1cac54f5b9d9c",
         };
 
         // Act

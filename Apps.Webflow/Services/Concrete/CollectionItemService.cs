@@ -1,6 +1,7 @@
 ﻿using Apps.Webflow.Constants;
 using Apps.Webflow.Conversion;
 using Apps.Webflow.Conversion.CollectionItem;
+using Apps.Webflow.Conversion.Models;
 using Apps.Webflow.Helper;
 using Apps.Webflow.Models.Entities;
 using Apps.Webflow.Models.Request;
@@ -11,7 +12,9 @@ using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using Blackbird.Applications.Sdk.Utils.Extensions.String;
-using Newtonsoft.Json.Linq;
+using Blackbird.Filters.Transformations;
+using Blackbird.Filters.Xliff.Xliff2;
+using Newtonsoft.Json;
 using RestSharp;
 using System.Text;
 
@@ -102,21 +105,56 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
         await content.CopyToAsync(memoryStream);
         memoryStream.Position = 0;
 
-        string contentText;
+        string fileText;
         using (var reader = new StreamReader(memoryStream, Encoding.UTF8, leaveOpen: true))
-            contentText = await reader.ReadToEndAsync();
+            fileText = await reader.ReadToEndAsync();
 
         memoryStream.Position = 0;
 
-        if (OriginalJsonValidator.IsJson(contentText))
+        if (OriginalJsonValidator.IsJson(fileText))
         {
-            await UploadJsonContent(contentText, siteId, input);
+            await UploadJsonContent(fileText, siteId, input);
             return;
         }
+        else
+        {
+            if (Xliff2Serializer.IsXliff2(fileText))
+            {
+                fileText = Transformation.Parse(fileText, "collectionItem.xlf").Target().Serialize();
+                if (fileText == null)
+                    throw new PluginMisconfigurationException("XLIFF did not contain files");
 
-        // --- Otherwise, handle HTML/XLIFF as before ---
+                memoryStream.SetLength(0);
+                await memoryStream.WriteAsync(Encoding.UTF8.GetBytes(fileText));
+                memoryStream.Position = 0;
+            }
+
+            await UploadHtmlContent(memoryStream, siteId, input);
+        }
+    }
+
+    private async Task UploadHtmlContent(Stream stream, string siteId, UploadContentRequest input)
+    {
+        var doc = new HtmlAgilityPack.HtmlDocument();
+        doc.Load(stream);
+        stream.Position = 0;
+
+        string? Meta(string name) =>
+            doc.DocumentNode.SelectSingleNode($"//meta[@name='{name}']")
+                ?.GetAttributeValue("content", "");
+
+        input.CollectionId ??= Meta("blackbird-collection-id");
+        input.ContentId ??= Meta("blackbird-collection-item-id");
+        input.Locale ??= Meta("blackbird-cmslocale-id");
+
+        if (string.IsNullOrWhiteSpace(input.CollectionId))
+            throw new PluginMisconfigurationException("Collection ID is missing. Provide it or include it in the HTML file.");
+        if (string.IsNullOrWhiteSpace(input.ContentId))
+            throw new PluginMisconfigurationException("Collection item ID is missing. Provide it or include it in the HTML file.");
+        if (string.IsNullOrWhiteSpace(input.Locale))
+            throw new PluginMisconfigurationException("CMS locale ID is missing. Provide it or include it in the HTML file.");
+
         var itemEndpoint = $"collections/{input.CollectionId}/items/{input.ContentId}";
-
         string fetchedCmsLocaleId = await GetCmsLocale(siteId, input.Locale!);
         itemEndpoint = itemEndpoint.SetQueryParameter("cmsLocaleId", fetchedCmsLocaleId);
 
@@ -126,7 +164,7 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
         var collectionRequest = new RestRequest($"collections/{input.CollectionId}", Method.Get);
         var collection = await Client.ExecuteWithErrorHandling<CollectionEntity>(collectionRequest);
 
-        var fieldData = CollectionItemHtmlConverter.ToJson(memoryStream, item.FieldData, collection.Fields);
+        var fieldData = CollectionItemHtmlConverter.ToJson(stream, item.FieldData, collection.Fields);
 
         var endpoint = $"collections/{input.CollectionId}/items/{input.ContentId}";
         var request = new RestRequest(endpoint, Method.Patch)
@@ -137,12 +175,12 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
 
     private async Task UploadJsonContent(string contentText, string siteId, UploadContentRequest input)
     {
-        var json = JObject.Parse(contentText);
+        var item = JsonConvert.DeserializeObject<DownloadedCollectionItem>(contentText)
+            ?? throw new PluginMisconfigurationException("Invalid JSON format for collection item upload.");
 
-        // Extract required fields
-        string? collectionId = input.CollectionId ?? json["collectionId"]?.ToString();
-        string? itemId = input.ContentId ?? json["collectionItem"]?["id"]?.ToString();
-        string? cmsLocaleId = input.Locale ?? json["collectionItem"]?["cmsLocaleId"]?.ToString();
+        var collectionId = input.CollectionId ?? item.CollectionId;
+        var itemId = input.ContentId ?? item.CollectionItem.Id;
+        var cmsLocaleId = input.Locale ?? item.CollectionItem.CmsLocaleId;
 
         if (string.IsNullOrWhiteSpace(collectionId))
             throw new PluginMisconfigurationException("Missing 'collectionId' in JSON upload.");
@@ -150,20 +188,16 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
             throw new PluginMisconfigurationException("Missing 'collectionItem.id' in JSON upload.");
         if (string.IsNullOrWhiteSpace(cmsLocaleId))
             throw new PluginMisconfigurationException("Missing 'collectionItem.cmsLocaleId' in JSON upload.");
-
-        var colItem = json["collectionItem"];
-        var fieldData = colItem?["fieldData"] as JObject;
-        if (fieldData == null)
+        if (item.CollectionItem.FieldData == null)
             throw new PluginMisconfigurationException("Missing 'collectionItem.fieldData' in JSON upload.");
 
         string fetchedCmsLocaleId = await GetCmsLocale(siteId, cmsLocaleId);
 
-        var endpoint = $"collections/{collectionId}/items/{itemId}";
-        endpoint = endpoint.SetQueryParameter("cmsLocaleId", fetchedCmsLocaleId);
+        var endpoint = $"collections/{collectionId}/items/{itemId}".SetQueryParameter("cmsLocaleId", fetchedCmsLocaleId);
         var request = new RestRequest(endpoint, Method.Patch)
             .WithJsonBody(new
             {
-                fieldData,
+                fieldData = item.CollectionItem.FieldData,
                 cmsLocaleId = fetchedCmsLocaleId
             }, JsonConfig.Settings);
 

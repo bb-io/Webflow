@@ -78,7 +78,7 @@ public class ContentActions(InvocationContext invocationContext, IFileManagement
 
         using var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(html));
         var service = _factory.GetContentService(request.ContentType);
-        await service.UploadContent(memoryStream, site.SiteId, request);
+        await service.UploadContent(memoryStream, Client.GetSiteId(site.SiteId), request);
     }
 
     private static string GetContentType(string html)
