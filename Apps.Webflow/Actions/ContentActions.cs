@@ -1,5 +1,6 @@
 ﻿using Apps.Webflow.Constants;
 using Apps.Webflow.Extensions;
+using Apps.Webflow.Helper;
 using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Content;
@@ -45,10 +46,15 @@ public class ContentActions(InvocationContext invocationContext, IFileManagement
         [ActionParameter] DownloadContentRequest request,
         [ActionParameter] ContentFilter contentFilter)
     {
+        request.FileFormat = request.FileFormat is null ? MediaTypeNames.Text.Html : request.FileFormat;
         var service = _factory.GetContentService(contentFilter.ContentType);
+
         var stream = await service.DownloadContent(Client.GetSiteId(site.SiteId), request);
-        var fileName = $"{contentFilter.ContentType.Replace(' ', '_').ToLower()}_{request.ContentId}.html";
-        var fileReference = await fileManagementClient.UploadAsync(stream, MediaTypeNames.Text.Html, fileName);
+
+        string fileName = FileHelper.GetDownloadedFileName(request.FileFormat, request.ContentId, contentFilter.ContentType);
+        string contentType = request.FileFormat == MediaTypeNames.Text.Html ? MediaTypeNames.Text.Html : MediaTypeNames.Application.Json;
+
+        var fileReference = await fileManagementClient.UploadAsync(stream, contentType, fileName);
         return new DownloadContentResponse(fileReference);
     }
 
@@ -72,7 +78,7 @@ public class ContentActions(InvocationContext invocationContext, IFileManagement
 
         using var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(html));
         var service = _factory.GetContentService(request.ContentType);
-        await service.UploadContent(memoryStream, site.SiteId, request);
+        await service.UploadContent(memoryStream, Client.GetSiteId(site.SiteId), request);
     }
 
     private static string GetContentType(string html)

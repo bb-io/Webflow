@@ -17,6 +17,7 @@ using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Filters.Transformations;
 using Blackbird.Filters.Xliff.Xliff2;
 using RestSharp;
+using System.Net.Mime;
 using System.Text;
 
 namespace Apps.Webflow.Actions;
@@ -25,7 +26,7 @@ namespace Apps.Webflow.Actions;
 public class PagesActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
     : WebflowInvocable(invocationContext)
 {
-    private readonly ContentServicesFactory _factory = new ContentServicesFactory(invocationContext);
+    private readonly ContentServicesFactory _factory = new(invocationContext);
 
     [Action("Search pages", Description = "Search pages using filters")]
     public async Task<SearchPagesResponse> SearchPages(
@@ -51,14 +52,21 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
         [ActionParameter] SiteRequest site,
         [ActionParameter] DownloadPageRequest input)
     {
+        string fileFormat = input.FileFormat ?? MediaTypeNames.Text.Html;
+
         var service = _factory.GetContentService(ContentTypes.Page);
         var request = new DownloadContentRequest
         {
             Locale = input.LocaleId,
-            ContentId = input.PageId
+            ContentId = input.PageId,
+            FileFormat = fileFormat,
         };
-        var htmlStream = await service.DownloadContent(Client.GetSiteId(site.SiteId), request);
-        var fileReference = await fileManagementClient.UploadAsync(htmlStream, "text/html", $"page_{input.PageId}.html");
+
+        var stream = await service.DownloadContent(Client.GetSiteId(site.SiteId), request);
+        string fileName = FileHelper.GetDownloadedFileName(fileFormat, input.PageId, ContentTypes.Page);
+        string contentType = fileFormat == MediaTypeNames.Text.Html ? MediaTypeNames.Text.Html : MediaTypeNames.Application.Json;
+
+        var fileReference = await fileManagementClient.UploadAsync(stream, contentType, fileName);
 
         PageEntity? metadata = null;
 
