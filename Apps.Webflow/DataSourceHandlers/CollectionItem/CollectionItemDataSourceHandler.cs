@@ -26,9 +26,9 @@ public class CollectionItemDataSourceHandler : WebflowInvocable, IAsyncDataSourc
 
         var endpoint = $"collections/{Request.CollectionId}/items";
 
-        endpoint = string.IsNullOrEmpty(Request.CmsLocaleId)
+        endpoint = string.IsNullOrEmpty(Request.CmsLocale)
             ? endpoint
-            : endpoint.SetQueryParameter("cmsLocaleIds", Request.CmsLocaleId);
+            : endpoint.SetQueryParameter("cmsLocaleIds", Request.CmsLocale);
         var request = new RestRequest(endpoint, Method.Get);
         var response = await Client.Paginate<CollectionItemEntity>(request);
 

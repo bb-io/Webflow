@@ -12,9 +12,9 @@ public class CollectionItemWebhookRequest
     [DataSource(typeof(SiteDataSourceHandler))]
     public string? SiteId { get; set; }
 
-    [Display("Locale ID")]
-    [DataSource(typeof(SiteCmsLocaleDataSourceHandler))]
-    public string? LocaleId { get; set; }
+    [Display("Locale")]
+    [DataSource(typeof(SiteLocaleDataSourceHandler))]
+    public string? Locale { get; set; }
 
     [Display("Collection ID")]
     [DataSource(typeof(CollectionDataSourceHandler))]

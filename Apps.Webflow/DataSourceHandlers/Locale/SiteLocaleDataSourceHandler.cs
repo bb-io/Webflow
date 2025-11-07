@@ -1,6 +1,6 @@
 ﻿using Apps.Webflow.Invocables;
+using Apps.Webflow.Models.Entities;
 using Apps.Webflow.Models.Request;
-using Apps.Webflow.Models.Response.Pages;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Exceptions;
@@ -19,21 +19,14 @@ public class SiteLocaleDataSourceHandler(InvocationContext invocationContext, [A
 
         var endpoint = $"sites/{Client.GetSiteId(site.SiteId)}";
         var request = new RestRequest(endpoint, Method.Get);
+        var siteResponse = await Client.ExecuteWithErrorHandling<SiteEntity>(request);
 
-        var siteResponse = await Client.ExecuteWithErrorHandling<SiteLocales>(request);
+        var result = new List<DataSourceItem>();
+        var primaryLocale = new DataSourceItem(siteResponse.Locales.Primary.Tag, siteResponse.Locales.Primary.DisplayName);
+        var secondaryLocales = siteResponse.Locales.Secondary.Select(l => new DataSourceItem(l.Tag, l.DisplayName));
 
-        if (siteResponse.Locales == null)
-            return Enumerable.Empty<DataSourceItem>();
-
-        var localeItems = siteResponse.Locales.Secondary
-            .Append(siteResponse.Locales.Primary)
-            .Where(locale => locale != null)
-            .Select(locale => new DataSourceItem
-            {
-                Value = locale.Id,
-                DisplayName = locale.DisplayName
-            });
-
-        return localeItems;
+        result.Add(primaryLocale);
+        result.AddRange(secondaryLocales);
+        return result;
     }
 }

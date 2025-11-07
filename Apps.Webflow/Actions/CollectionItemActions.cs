@@ -46,8 +46,8 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         if (input.LastPublishedAfter.HasValue)
             request.AddParameter("lastPublished[gte]", input.LastPublishedAfter.Value.ToString("O"));
 
-        if (!string.IsNullOrEmpty(input.CmsLocaleId))
-            request.AddParameter("cmsLocaleId", input.CmsLocaleId);
+        if (!string.IsNullOrEmpty(input.CmsLocale))
+            request.AddParameter("cmsLocaleId", input.CmsLocale);
 
         var items = await Client.Paginate<CollectionItemEntity, CollectionItemPaginationResponse>(request, r => r.Items);
 
@@ -70,7 +70,7 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         {
             CollectionId = input.CollectionId,
             ContentId = input.CollectionItemId,
-            Locale = input.CmsLocaleId,
+            Locale = input.CmsLocale,
             FileFormat = fileFormat,
         };
 
@@ -110,7 +110,7 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
             {
                 CollectionId = input.CollectionId,
                 CollectionItemId = input.CollectionItemId,
-                CmsLocaleIds = [input.CmsLocaleId]
+                CmsLocales = [input.CmsLocaleId]
             };
             await PublishItem(site, publishRequest);
         }
@@ -130,7 +130,7 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
                     new
                     {
                         id = input.CollectionItemId,
-                        cmsLocaleIds = input.CmsLocaleIds ?? Array.Empty<string>()
+                        cmsLocaleIds = input.CmsLocales ?? Array.Empty<string>()
                     }
                 },
             }, JsonConfig.Settings);

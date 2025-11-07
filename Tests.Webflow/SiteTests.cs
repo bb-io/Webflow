@@ -10,7 +10,7 @@ namespace Tests.Webflow;
 public class SiteTests : TestBase
 {
     [TestMethod]
-    public async Task SearchSites_NoFilters_ReturnsSites()
+    public async Task SearchSites_WithoutFilters_ReturnsSites()
     {
         foreach (var context in InvocationContext)
         {

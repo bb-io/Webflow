@@ -97,7 +97,7 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
     {
         var data = webhookRequest.GetPayload<CollectionWebhookResponse>();
 
-        if (input.LocaleId != null && data.FieldData["_locale"]!.ToString() != input.LocaleId)
+        if (input.Locale != null && data.FieldData["_locale"]!.ToString() != input.Locale)
             return Preflight<CollectionItemResponse>();
 
         if (input.CollectionId != null && data.CollectionId != input.CollectionId)
@@ -117,7 +117,7 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
     {
         var data = webhookRequest.GetPayload<CollectionWebhookResponse>();
 
-        if (input.LocaleId != null && data.FieldData["_locale"]!.ToString() != input.LocaleId)
+        if (input.Locale != null && data.FieldData["_locale"]!.ToString() != input.Locale)
             return Preflight<CollectionItemResponse>();
 
         if (input.CollectionId != null && data.CollectionId != input.CollectionId)
@@ -140,7 +140,7 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
         if (input.CollectionId != null && data.CollectionId != input.CollectionId)
             return Preflight<CollectionItemResponse>();
 
-        if (input.LocaleId != null && data.FieldData["_locale"]!.ToString() != input.LocaleId)
+        if (input.Locale != null && data.FieldData["_locale"]!.ToString() != input.Locale)
             return Preflight<CollectionItemResponse>();
 
         return Task.FromResult<WebhookResponse<CollectionItemResponse>>(new()
@@ -157,7 +157,7 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
     {
         var data = webhookRequest.GetPayload<CollectionItemPublishedResponse>();
 
-        if (input.LocaleId != null && data.Items.First().FieldData["_locale"]!.ToString() != input.LocaleId)
+        if (input.Locale != null && data.Items.First().FieldData["_locale"]!.ToString() != input.Locale)
             return Preflight<CollectionItemResponse>();
 
         if (input.CollectionId != null && data.Items.First().CollectionId != input.CollectionId)
@@ -177,7 +177,7 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
     {
         var data = webhookRequest.GetPayload<CollectionWebhookResponse>();
 
-        if (input.LocaleId != null && data.FieldData["_locale"]!.ToString() != input.LocaleId)
+        if (input.Locale != null && data.FieldData["_locale"]!.ToString() != input.Locale)
             return Preflight<CollectionItemResponse>();
 
         if (input.CollectionId != null && data.CollectionId != input.CollectionId)

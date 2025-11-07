@@ -16,7 +16,7 @@ public class PublishItemRequest
     [DataSource(typeof(PublishCollectionItemDataSourceHandler))]
     public string CollectionItemId { get; set; }
 
-    [Display("Locale IDs")]
-    [DataSource(typeof(CollectionItemLocaleDataSourceHandler))]
-    public IEnumerable<string>? CmsLocaleIds { get; set; }
+    [Display("Locale")]
+    [DataSource(typeof(SiteLocaleDataSourceHandler))]
+    public IEnumerable<string>? CmsLocales { get; set; }
 }

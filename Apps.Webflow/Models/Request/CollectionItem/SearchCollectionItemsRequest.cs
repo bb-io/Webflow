@@ -12,9 +12,9 @@ public class SearchCollectionItemsRequest
     [Display("Slug contains")]
     public string? SlugContains { get; set; }
 
-    [Display("Locale ID")]
-    [DataSource(typeof(CollectionItemLocaleDataSourceHandler))]
-    public string? CmsLocaleId { get; set; }
+    [Display("Locale")]
+    [DataSource(typeof(SiteLocaleDataSourceHandler))]
+    public string? CmsLocale { get; set; }
 
     [Display("Last published before")]
     public DateTime? LastPublishedBefore { get; set; }
