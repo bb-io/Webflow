@@ -236,7 +236,7 @@ public class ContentTests : TestBase
         var context = GetInvocationContext(ConnectionTypes.OAuth2);
         var action = new ContentActions(context, FileManagementClient);
         var site = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
-        var request = new DownloadContentRequest { ContentId = "68f8b337cbd1cac54f5b9d81" };
+        var request = new DownloadContentRequest { ContentId = "68f8b337cbd1cac54f5b9d81", FileFormat = "text/html" };
         var contentFilter = new ContentFilter { ContentType = ContentTypes.Page };
 
         // Act
@@ -254,7 +254,7 @@ public class ContentTests : TestBase
         var context = GetInvocationContext(ConnectionTypes.SiteToken);
         var action = new ContentActions(context, FileManagementClient);
         var site = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
-        var request = new DownloadContentRequest { ContentId = "88a386dd-8f07-0c34-70f0-2d9f87e29718" };
+        var request = new DownloadContentRequest { ContentId = "88a386dd-8f07-0c34-70f0-2d9f87e29718", FileFormat = "original" };
         var contentFilter = new ContentFilter { ContentType = ContentTypes.Component };
 
         // Act
@@ -276,6 +276,7 @@ public class ContentTests : TestBase
         {
             CollectionId = "68f8b337cbd1cac54f5b9d9c",
             ContentId = "68f8b337cbd1cac54f5b9dee",
+            FileFormat = "original"
         };
         var contentFilter = new ContentFilter { ContentType = ContentTypes.CollectionItem };
 

@@ -45,10 +45,15 @@ public class ContentActions(InvocationContext invocationContext, IFileManagement
         [ActionParameter] DownloadContentRequest request,
         [ActionParameter] ContentFilter contentFilter)
     {
+        request.FileFormat = request.FileFormat is null ? MediaTypeNames.Text.Html : request.FileFormat;
         var service = _factory.GetContentService(contentFilter.ContentType);
+
         var stream = await service.DownloadContent(Client.GetSiteId(site.SiteId), request);
-        var fileName = $"{contentFilter.ContentType.Replace(' ', '_').ToLower()}_{request.ContentId}.html";
-        var fileReference = await fileManagementClient.UploadAsync(stream, MediaTypeNames.Text.Html, fileName);
+        string fileExtension = request.FileFormat == MediaTypeNames.Text.Html ? "html" : "json";
+        string fileName = $"{contentFilter.ContentType.Replace(' ', '_').ToLower()}_{request.ContentId}.{fileExtension}";
+        string contentType = request.FileFormat == MediaTypeNames.Text.Html ? MediaTypeNames.Text.Html : MediaTypeNames.Application.Json;
+
+        var fileReference = await fileManagementClient.UploadAsync(stream, contentType, fileName);
         return new DownloadContentResponse(fileReference);
     }
 
