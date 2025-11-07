@@ -16,7 +16,7 @@ public class BaseCollectionDataSourceHandler(InvocationContext invocationContext
             throw new("You need to specify Site ID first");
 
         var request = new RestRequest($"sites/{Client.GetSiteId(siteId)}/collections", Method.Get);
-        var response = await Client.ExecuteWithErrorHandling<ListCollectionsResponse>(request);
+        var response = await Client.ExecuteWithErrorHandling<SearchCollectionsResponse>(request);
 
         return response.Collections
             .Where(x => context.SearchString is null ||

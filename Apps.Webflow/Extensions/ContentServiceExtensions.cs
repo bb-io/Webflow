@@ -1,6 +1,6 @@
 ﻿using Apps.Webflow.Models.Entities;
-using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Content;
+using Apps.Webflow.Models.Request.Date;
 using Apps.Webflow.Models.Response.Content;
 using Apps.Webflow.Services;
 
@@ -12,7 +12,7 @@ public static class ContentServiceExtensions
         this List<IContentService> contentServices,
         string siteId,
         SearchContentRequest request,
-        DateFilter dateFilter)
+        ContentDateFilter dateFilter)
     {
         var result = new List<ContentItemEntity>();
 

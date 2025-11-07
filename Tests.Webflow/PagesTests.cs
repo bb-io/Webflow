@@ -1,6 +1,7 @@
 ﻿using Apps.Webflow.Actions;
 using Apps.Webflow.Constants;
 using Apps.Webflow.Models.Request;
+using Apps.Webflow.Models.Request.Date;
 using Apps.Webflow.Models.Request.Pages;
 using Blackbird.Applications.Sdk.Common.Files;
 using Tests.Webflow.Base;
@@ -18,7 +19,7 @@ public class PagesTests : TestBase
             // Arrange
             var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
             var request = new SearchPagesRequest { };
-            var dates = new DateFilter { };
+            var dates = new BasicDateFilter { };
 
             var actions = new PagesActions(context, FileManagementClient);
 
@@ -55,7 +56,7 @@ public class PagesTests : TestBase
     }
 
     [TestMethod]
-    public async Task UploadPageFromHtml_SuccessOperation()
+    public async Task UploadPage_SuccessOperation()
     {
         // Arrange
         var context = GetInvocationContext(ConnectionTypes.OAuth2);
@@ -66,6 +67,6 @@ public class PagesTests : TestBase
         var action = new PagesActions(context, FileManagementClient);
 
         //Act 
-        await action.UpdatePageContentAsHtml(site, input);
+        await action.UploadPage(site, input);
     }
 }

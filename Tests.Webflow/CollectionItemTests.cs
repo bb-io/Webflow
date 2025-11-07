@@ -3,6 +3,7 @@ using Apps.Webflow.Constants;
 using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Collection;
 using Apps.Webflow.Models.Request.CollectionItem;
+using Apps.Webflow.Models.Request.Date;
 using Blackbird.Applications.Sdk.Common.Files;
 using Tests.Webflow.Base;
 
@@ -40,7 +41,7 @@ public class CollectionItemTests : TestBase
         var actions = new CollectionItemActions(context, FileManagementClient);
         var request = new SearchCollectionItemsRequest { };
         var site = new SiteRequest { };
-        var dateFilter = new DateFilter { };
+        var dateFilter = new BasicDateFilter { };
         var collection = new CollectionRequest { CollectionId = "68f8b337cbd1cac54f5b9d9c" };
 
         // Act
@@ -63,7 +64,7 @@ public class CollectionItemTests : TestBase
             CmsLocaleId = "69007d6cf09bd27cf732e15a"
         };
         var site = new SiteRequest { };
-        var dateFilter = new DateFilter { };
+        var dateFilter = new BasicDateFilter { };
         var collection = new CollectionRequest { CollectionId = "68f8b337cbd1cac54f5b9d9c" };
 
         // Act

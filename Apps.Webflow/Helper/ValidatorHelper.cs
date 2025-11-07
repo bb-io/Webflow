@@ -1,11 +1,11 @@
-﻿using Apps.Webflow.Models.Request;
+﻿using Apps.Webflow.Models.Request.Date;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 
 namespace Apps.Webflow.Helper;
 
 public static class ValidatorHelper
 {
-    public static void ValidateInputDates(DateFilter date)
+    public static void ValidateInputDates(IDateFilter date)
     {
         if (!IsCorrectDateRange(date.CreatedBefore, date.CreatedAfter))
             throw new PluginMisconfigurationException("Please specify a valid date range. 'Created after' date cannot be later than the 'Created before' date");

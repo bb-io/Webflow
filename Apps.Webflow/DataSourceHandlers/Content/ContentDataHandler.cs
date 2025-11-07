@@ -1,6 +1,7 @@
 ﻿using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Content;
+using Apps.Webflow.Models.Request.Date;
 using Apps.Webflow.Services;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Dynamic;
@@ -26,8 +27,8 @@ public class ContentDataHandler(InvocationContext invocationContext,
             throw new PluginMisconfigurationException("Please specify the 'Site ID' input");
 
         var service = _factory.GetContentService(contentFilter.ContentType);
-        var input = new SearchContentRequest { ContentTypes = [contentFilter.ContentType], CollectionId = CollectionId };
-        var dateFilter = new DateFilter { };
+        var input = new SearchContentRequest { ContentTypes = [contentFilter.ContentType], CollectionIds = [CollectionId] };
+        var dateFilter = new ContentDateFilter { };
 
         var result = await service.SearchContent(Client.GetSiteId(site.SiteId), input, dateFilter);
         return result.Items.Select(x => new DataSourceItem(x.ContentId, x.Name));

@@ -3,9 +3,9 @@ using Apps.Webflow.Conversion.Component;
 using Apps.Webflow.Conversion.Constants;
 using Apps.Webflow.Helper;
 using Apps.Webflow.Models.Entities;
-using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Components;
 using Apps.Webflow.Models.Request.Content;
+using Apps.Webflow.Models.Request.Date;
 using Apps.Webflow.Models.Response.Components;
 using Apps.Webflow.Models.Response.Content;
 using Apps.Webflow.Models.Response.Pagination;
@@ -21,7 +21,7 @@ public class ComponentService(InvocationContext invocationContext) : BaseContent
 {
     private const string ContentType = ContentTypes.Component;
 
-    public override async Task<SearchContentResponse> SearchContent(string siteId, SearchContentRequest input, DateFilter dateFilter)
+    public override async Task<SearchContentResponse> SearchContent(string siteId, SearchContentRequest input, ContentDateFilter dateFilter)
     {
         ThrowForDateInputs(dateFilter, ContentType);
         ThrowForPublishedDateInputs(input, ContentType);

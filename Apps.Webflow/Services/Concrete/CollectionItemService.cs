@@ -4,8 +4,8 @@ using Apps.Webflow.Conversion.CollectionItem;
 using Apps.Webflow.Conversion.Models;
 using Apps.Webflow.Helper;
 using Apps.Webflow.Models.Entities;
-using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Content;
+using Apps.Webflow.Models.Request.Date;
 using Apps.Webflow.Models.Response.Content;
 using Apps.Webflow.Models.Response.Pagination;
 using Blackbird.Applications.Sdk.Common.Exceptions;
@@ -24,24 +24,30 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
 {
     private const string ContentType = ContentTypes.CollectionItem;
 
-    public async override Task<SearchContentResponse> SearchContent(string siteId, SearchContentRequest input, DateFilter dateFilter)
+    public async override Task<SearchContentResponse> SearchContent(string siteId, SearchContentRequest input, ContentDateFilter dateFilter)
     {
-        if (string.IsNullOrEmpty(input.CollectionId))
-            throw new PluginMisconfigurationException("Please specify collection ID in order to search content items");
+        if (input.CollectionIds is null || input.CollectionIds.Count() == 0)
+            throw new PluginMisconfigurationException("Please specify at least one collection ID in order to search content items");
 
         ValidatorHelper.ValidateInputDates(dateFilter);
         ValidatorHelper.ValidatePublishedInputDates(input.LastPublishedBefore, input.LastPublishedAfter);
 
-        var endpoint = $"collections/{input.CollectionId}/items";
-        var request = new RestRequest(endpoint, Method.Get);
+        List<CollectionItemEntity> items = [];
+        foreach (var collectionId in input.CollectionIds)
+        {
+            var endpoint = $"collections/{collectionId}/items";
+            var request = new RestRequest(endpoint, Method.Get);
 
-        if (input.LastPublishedBefore.HasValue)
-            request.AddParameter("lastPublished[lte]", input.LastPublishedBefore.Value.ToString("O"));
+            if (input.LastPublishedBefore.HasValue)
+                request.AddParameter("lastPublished[lte]", input.LastPublishedBefore.Value.ToString("O"));
 
-        if (input.LastPublishedAfter.HasValue)
-            request.AddParameter("lastPublished[gte]", input.LastPublishedAfter.Value.ToString("O"));
+            if (input.LastPublishedAfter.HasValue)
+                request.AddParameter("lastPublished[gte]", input.LastPublishedAfter.Value.ToString("O"));
 
-        var items = await Client.Paginate<CollectionItemEntity, CollectionItemPaginationResponse>(request, r => r.Items);
+            var response = await Client.Paginate<CollectionItemEntity, CollectionItemPaginationResponse>(request, r => r.Items);
+            items.AddRange(response);
+        }
+
         IEnumerable<CollectionItemEntity> filtered = FilterHelper.ApplyDateFilters(items, dateFilter);
         filtered = FilterHelper.ApplyContainsFilter(filtered, input.NameContains, r => r.Name);
 

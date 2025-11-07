@@ -97,6 +97,7 @@ Navigate to Apps, and identify the **Webflow** app. You can use search to find i
 ### Collections
 
 - **Get collection** gets details of a specific collection.
+- **Search collections** searches all collections for a specific site.
 - **Create collection** creates a new collection.
 - **Delete collection** deletes a specific collection.
 

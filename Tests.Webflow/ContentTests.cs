@@ -2,6 +2,7 @@
 using Apps.Webflow.Constants;
 using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Content;
+using Apps.Webflow.Models.Request.Date;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Files;
 using Tests.Webflow.Base;
@@ -21,9 +22,9 @@ public class ContentTests : TestBase
             var site = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
             var input = new SearchContentRequest 
             { 
-                CollectionId = "68f8b337cbd1cac54f5b9d9c",
+                CollectionIds = ["68f8b337cbd1cac54f5b9d9c"],
             };
-            var dates = new DateFilter { };
+            var dates = new ContentDateFilter { };
 
             // Act
             var result = await action.SearchContent(site, input, dates);
@@ -47,7 +48,7 @@ public class ContentTests : TestBase
                 /*NameContains = "Pay"*/ 
                 ContentTypes = [ContentTypes.Page]
             };
-            var dates = new DateFilter { CreatedAfter = new DateTime(2019, 10, 1, 10, 0, 0, DateTimeKind.Utc) };
+            var dates = new ContentDateFilter { CreatedAfter = new DateTime(2019, 10, 1, 10, 0, 0, DateTimeKind.Utc) };
 
             // Act
             var result = await action.SearchContent(site, input, dates);
@@ -72,7 +73,7 @@ public class ContentTests : TestBase
                 LastPublishedAfter = new DateTime(2025, 10, 10) 
                 /*NameContains = "Pay"*/ 
             };
-            var dates = new DateFilter { };
+            var dates = new ContentDateFilter { };
 
             // Act
             var ex = await Assert.ThrowsExactlyAsync<PluginMisconfigurationException>(
@@ -97,7 +98,7 @@ public class ContentTests : TestBase
             { 
                 ContentTypes = [ContentTypes.Component]            
             };
-            var dates = new DateFilter { };
+            var dates = new ContentDateFilter { };
 
             // Act
             var result = await action.SearchContent(site, input, dates);
@@ -121,7 +122,7 @@ public class ContentTests : TestBase
                 ContentTypes = [ContentTypes.Component],
                 NameContains = "Navigation" 
             };
-            var dates = new DateFilter { };
+            var dates = new ContentDateFilter { };
 
             // Act
             var result = await action.SearchContent(site, input, dates);
@@ -144,7 +145,7 @@ public class ContentTests : TestBase
             {
                 ContentTypes = [ContentTypes.Component]            
             };
-            var dates = new DateFilter { CreatedAfter = DateTime.UtcNow };
+            var dates = new ContentDateFilter { CreatedAfter = DateTime.UtcNow };
 
             // Act
             var ex = await Assert.ThrowsExactlyAsync<PluginMisconfigurationException>(
@@ -166,10 +167,10 @@ public class ContentTests : TestBase
             var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
             var input = new SearchContentRequest 
             { 
-                CollectionId = "68f88700e2a4dba6d693cc90",
+                CollectionIds = ["68f88700e2a4dba6d693cc90"],
                 ContentTypes = [ContentTypes.CollectionItem]
             };
-            var dates = new DateFilter { };
+            var dates = new ContentDateFilter { };
 
             // Act
             var result = await action.SearchContent(site, input, dates);
@@ -191,9 +192,9 @@ public class ContentTests : TestBase
         {
             ContentTypes = [ContentTypes.CollectionItem], 
             LastPublishedBefore = new DateTime(2025, 11, 3, 5, 0, 0, DateTimeKind.Utc),
-            CollectionId = "68f8b337cbd1cac54f5b9d9c",
+            CollectionIds = ["68f8b337cbd1cac54f5b9d9c"],
         };
-        var dates = new DateFilter { LastUpdatedAfter = new DateTime(2025, 1, 1, 10, 0, 0, DateTimeKind.Utc) };
+        var dates = new ContentDateFilter { LastUpdatedAfter = new DateTime(2025, 1, 1, 10, 0, 0, DateTimeKind.Utc) };
 
         // Act
         var result = await action.SearchContent(site, input, dates);
@@ -215,9 +216,9 @@ public class ContentTests : TestBase
             {
                 ContentTypes = [ContentTypes.CollectionItem],
                 LastPublishedAfter = new DateTime(2025, 10, 22, 5, 0, 0, DateTimeKind.Utc),
-                CollectionId = "",
+                CollectionIds = [],
             };
-            var dates = new DateFilter { LastUpdatedAfter = new DateTime(2025, 1, 1, 10, 0, 0, DateTimeKind.Utc) };
+            var dates = new ContentDateFilter { LastUpdatedAfter = new DateTime(2025, 1, 1, 10, 0, 0, DateTimeKind.Utc) };
 
             // Act
             var ex = await Assert.ThrowsExactlyAsync<PluginMisconfigurationException>(
@@ -225,7 +226,7 @@ public class ContentTests : TestBase
             );
 
             // Assert
-            StringAssert.Contains(ex.Message, "Please specify collection ID in order to search content items");
+            StringAssert.Contains(ex.Message, "Please specify at least one collection ID in order to search content items");
         }
     }
 

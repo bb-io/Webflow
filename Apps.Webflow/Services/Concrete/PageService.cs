@@ -3,8 +3,8 @@ using Apps.Webflow.Conversion.Constants;
 using Apps.Webflow.Conversion.Page;
 using Apps.Webflow.Helper;
 using Apps.Webflow.Models.Entities;
-using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Content;
+using Apps.Webflow.Models.Request.Date;
 using Apps.Webflow.Models.Request.Pages;
 using Apps.Webflow.Models.Response.Content;
 using Apps.Webflow.Models.Response.Pages;
@@ -20,7 +20,7 @@ public class PageService(InvocationContext invocationContext) : BaseContentServi
 {
     private const string ContentType = ContentTypes.Page;
 
-    public override async Task<SearchContentResponse> SearchContent(string siteId, SearchContentRequest input, DateFilter dateFilter)
+    public override async Task<SearchContentResponse> SearchContent(string siteId, SearchContentRequest input, ContentDateFilter dateFilter)
     {
         ThrowForPublishedDateInputs(input, ContentType);
 

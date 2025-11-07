@@ -1,5 +1,6 @@
 ﻿using Apps.Webflow.Actions;
 using Apps.Webflow.Models.Request;
+using Apps.Webflow.Models.Request.Date;
 using Apps.Webflow.Models.Request.Site;
 using Tests.Webflow.Base;
 
@@ -16,7 +17,7 @@ public class SiteTests : TestBase
             // Arrange
             var action = new SiteActions(context);
             var input = new SearchSitesRequest { };
-            var dates = new DateFilter { };
+            var dates = new BasicDateFilter { };
 
             // Act
             var result = await action.SearchSites(input, dates);
@@ -35,7 +36,7 @@ public class SiteTests : TestBase
             // Arrange
             var action = new SiteActions(context);
             var input = new SearchSitesRequest { };
-            var dates = new DateFilter
+            var dates = new BasicDateFilter
             {
                 CreatedAfter = new DateTime(2025, 10, 22, 7, 0, 0, DateTimeKind.Utc),
                 CreatedBefore = new DateTime(2025, 10, 22, 10, 0, 0, DateTimeKind.Utc)
@@ -62,7 +63,7 @@ public class SiteTests : TestBase
                 LastPublishedAfter = new DateTime(2025, 10, 22, 10, 0, 0, DateTimeKind.Utc),
                 LastPublishedBefore = new DateTime(2025, 10, 22, 11, 0, 0, DateTimeKind.Utc)
             };
-            var dates = new DateFilter { };
+            var dates = new BasicDateFilter { };
 
             // Act
             var result = await action.SearchSites(input, dates);
@@ -81,7 +82,7 @@ public class SiteTests : TestBase
             // Arrange
             var action = new SiteActions(context);
             var input = new SearchSitesRequest { };
-            var dates = new DateFilter
+            var dates = new BasicDateFilter
             {
                 LastUpdatedAfter = new DateTime(2025, 10, 22, 7, 0, 0, DateTimeKind.Utc),
                 LastUpdatedBefore = new DateTime(2025, 10, 22, 8, 0, 0, DateTimeKind.Utc)
@@ -104,7 +105,7 @@ public class SiteTests : TestBase
             // Arrange
             var action = new SiteActions(context);
             var input = new SearchSitesRequest { DisplayNameContains = "Exceptional" };
-            var dates = new DateFilter { };
+            var dates = new BasicDateFilter { };
 
             // Act
             var result = await action.SearchSites(input, dates);

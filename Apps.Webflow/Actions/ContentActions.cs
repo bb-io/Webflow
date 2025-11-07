@@ -4,6 +4,7 @@ using Apps.Webflow.Helper;
 using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Content;
+using Apps.Webflow.Models.Request.Date;
 using Apps.Webflow.Models.Response.Content;
 using Apps.Webflow.Services;
 using Blackbird.Applications.Sdk.Common;
@@ -32,7 +33,7 @@ public class ContentActions(InvocationContext invocationContext, IFileManagement
     public async Task<SearchContentResponse> SearchContent(
         [ActionParameter] SiteRequest site,
         [ActionParameter] SearchContentRequest request,
-        [ActionParameter] DateFilter dateFilter)
+        [ActionParameter] ContentDateFilter dateFilter)
     {
         request.ContentTypes ??= ContentTypes.SupportedContentTypes;
         var contentServices = _factory.GetContentServices(request.ContentTypes);

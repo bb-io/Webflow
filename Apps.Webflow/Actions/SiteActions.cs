@@ -2,6 +2,7 @@
 using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Entities;
 using Apps.Webflow.Models.Request;
+using Apps.Webflow.Models.Request.Date;
 using Apps.Webflow.Models.Request.Site;
 using Apps.Webflow.Models.Response.Site;
 using Blackbird.Applications.Sdk.Common;
@@ -17,9 +18,10 @@ public class SiteActions(InvocationContext invocationContext) : WebflowInvocable
     [Action("Search sites", Description = "Search sites based on search criteria")]
     public async Task<SearchSitesResponse> SearchSites(
         [ActionParameter] SearchSitesRequest input,
-        [ActionParameter] DateFilter dateFilter)
+        [ActionParameter] BasicDateFilter dateFilter)
     {
-        ValidateInputDates(input, dateFilter);
+        ValidatorHelper.ValidateInputDates(dateFilter);
+        ValidatorHelper.ValidatePublishedInputDates(input.LastPublishedBefore, input.LastPublishedAfter);
 
         var request = new RestRequest("sites", Method.Get);
         var result = await Client.ExecuteWithErrorHandling<SiteEntitiesList>(request);
@@ -52,13 +54,7 @@ public class SiteActions(InvocationContext invocationContext) : WebflowInvocable
         return await Client.ExecuteWithErrorHandling<CustomDomainsResponse>(request);
     }
 
-    private static void ValidateInputDates(SearchSitesRequest input, DateFilter date)
-    {
-        ValidatorHelper.ValidateInputDates(date);
-        ValidatorHelper.ValidatePublishedInputDates(input.LastPublishedBefore, input.LastPublishedAfter);
-    }
-
-    private static List<SiteEntity> ApplySiteFilters(SearchSitesRequest input, DateFilter date, SiteEntitiesList result)
+    private static List<SiteEntity> ApplySiteFilters(SearchSitesRequest input, BasicDateFilter date, SiteEntitiesList result)
     {
         IEnumerable<SiteEntity> sites = result.Sites;
 
