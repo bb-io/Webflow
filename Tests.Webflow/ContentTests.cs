@@ -22,7 +22,7 @@ public class ContentTests : TestBase
             var site = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
             var input = new SearchContentRequest 
             { 
-                CollectionId = "68f8b337cbd1cac54f5b9d9c",
+                CollectionIds = ["68f8b337cbd1cac54f5b9d9c"],
             };
             var dates = new ContentDateFilter { };
 
@@ -167,7 +167,7 @@ public class ContentTests : TestBase
             var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
             var input = new SearchContentRequest 
             { 
-                CollectionId = "68f88700e2a4dba6d693cc90",
+                CollectionIds = ["68f88700e2a4dba6d693cc90"],
                 ContentTypes = [ContentTypes.CollectionItem]
             };
             var dates = new ContentDateFilter { };
@@ -192,7 +192,7 @@ public class ContentTests : TestBase
         {
             ContentTypes = [ContentTypes.CollectionItem], 
             LastPublishedBefore = new DateTime(2025, 11, 3, 5, 0, 0, DateTimeKind.Utc),
-            CollectionId = "68f8b337cbd1cac54f5b9d9c",
+            CollectionIds = ["68f8b337cbd1cac54f5b9d9c"],
         };
         var dates = new ContentDateFilter { LastUpdatedAfter = new DateTime(2025, 1, 1, 10, 0, 0, DateTimeKind.Utc) };
 
@@ -216,7 +216,7 @@ public class ContentTests : TestBase
             {
                 ContentTypes = [ContentTypes.CollectionItem],
                 LastPublishedAfter = new DateTime(2025, 10, 22, 5, 0, 0, DateTimeKind.Utc),
-                CollectionId = "",
+                CollectionIds = [],
             };
             var dates = new ContentDateFilter { LastUpdatedAfter = new DateTime(2025, 1, 1, 10, 0, 0, DateTimeKind.Utc) };
 
@@ -226,7 +226,7 @@ public class ContentTests : TestBase
             );
 
             // Assert
-            StringAssert.Contains(ex.Message, "Please specify collection ID in order to search content items");
+            StringAssert.Contains(ex.Message, "Please specify at least one collection ID in order to search content items");
         }
     }
 

@@ -23,5 +23,5 @@ public class SearchContentRequest
 
     [Display("Collection ID")]
     [DataSource(typeof(CollectionItemCollectionDataSourceHandler))]
-    public string? CollectionId { get; set; }
+    public IEnumerable<string>? CollectionIds { get; set; }
 }

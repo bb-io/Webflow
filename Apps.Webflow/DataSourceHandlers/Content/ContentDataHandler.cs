@@ -27,7 +27,7 @@ public class ContentDataHandler(InvocationContext invocationContext,
             throw new PluginMisconfigurationException("Please specify the 'Site ID' input");
 
         var service = _factory.GetContentService(contentFilter.ContentType);
-        var input = new SearchContentRequest { ContentTypes = [contentFilter.ContentType], CollectionId = CollectionId };
+        var input = new SearchContentRequest { ContentTypes = [contentFilter.ContentType], CollectionIds = [CollectionId] };
         var dateFilter = new ContentDateFilter { };
 
         var result = await service.SearchContent(Client.GetSiteId(site.SiteId), input, dateFilter);
