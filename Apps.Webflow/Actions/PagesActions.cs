@@ -4,6 +4,7 @@ using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Entities;
 using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Content;
+using Apps.Webflow.Models.Request.Date;
 using Apps.Webflow.Models.Request.Pages;
 using Apps.Webflow.Models.Response.Pages;
 using Apps.Webflow.Models.Response.Pagination;
@@ -32,7 +33,7 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
     public async Task<SearchPagesResponse> SearchPages(
         [ActionParameter] SiteRequest site,
         [ActionParameter] SearchPagesRequest input,
-        [ActionParameter] DateFilter dateFilter)
+        [ActionParameter] BasicDateFilter dateFilter)
     {
         ValidatorHelper.ValidateInputDates(dateFilter);
 
@@ -130,7 +131,7 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
         await service.UploadContent(ms, site.SiteId, uploadRequest);
     }
 
-    private static List<PageEntity> ApplyPageFilters(List<PageEntity> pages, DateFilter dateFilter, SearchPagesRequest input)
+    private static List<PageEntity> ApplyPageFilters(List<PageEntity> pages, BasicDateFilter dateFilter, SearchPagesRequest input)
     {
         IEnumerable<PageEntity> filtered = pages;
 

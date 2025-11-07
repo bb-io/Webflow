@@ -3,6 +3,7 @@ using Apps.Webflow.Actions;
 using Apps.Webflow.Constants;
 using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Collection;
+using Apps.Webflow.Models.Request.Date;
 
 namespace Tests.Webflow;
 
@@ -17,7 +18,7 @@ public class CollectionTests : TestBase
 		var action = new CollectionActions(context);
 		var site = new SiteRequest { };
 		var input = new SearchCollectionsRequest { };
-		var date = new DateFilter { };
+		var date = new BasicDateFilter { };
 
         // Act
         var result = await action.SearchCollections(site, input, date);
@@ -35,7 +36,7 @@ public class CollectionTests : TestBase
         var action = new CollectionActions(context);
         var site = new SiteRequest { };
         var input = new SearchCollectionsRequest { SlugContains = "post" };
-        var date = new DateFilter { LastUpdatedAfter = new DateTime(2025, 11, 7, 10, 00, 00, DateTimeKind.Utc) };
+        var date = new BasicDateFilter { LastUpdatedAfter = new DateTime(2025, 11, 7, 10, 00, 00, DateTimeKind.Utc) };
 
         // Act
         var result = await action.SearchCollections(site, input, date);

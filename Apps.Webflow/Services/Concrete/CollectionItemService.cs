@@ -4,8 +4,8 @@ using Apps.Webflow.Conversion.CollectionItem;
 using Apps.Webflow.Conversion.Models;
 using Apps.Webflow.Helper;
 using Apps.Webflow.Models.Entities;
-using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Content;
+using Apps.Webflow.Models.Request.Date;
 using Apps.Webflow.Models.Response.Content;
 using Apps.Webflow.Models.Response.Pagination;
 using Blackbird.Applications.Sdk.Common.Exceptions;
@@ -24,7 +24,7 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
 {
     private const string ContentType = ContentTypes.CollectionItem;
 
-    public async override Task<SearchContentResponse> SearchContent(string siteId, SearchContentRequest input, DateFilter dateFilter)
+    public async override Task<SearchContentResponse> SearchContent(string siteId, SearchContentRequest input, ContentDateFilter dateFilter)
     {
         if (string.IsNullOrEmpty(input.CollectionId))
             throw new PluginMisconfigurationException("Please specify collection ID in order to search content items");

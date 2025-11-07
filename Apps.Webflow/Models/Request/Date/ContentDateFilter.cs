@@ -1,8 +1,8 @@
 ﻿using Blackbird.Applications.Sdk.Common;
 
-namespace Apps.Webflow.Models.Request;
+namespace Apps.Webflow.Models.Request.Date;
 
-public class DateFilter
+public class ContentDateFilter : IDateFilter
 {
     [Display("Created after (for collection items and pages)")]
     public DateTime? CreatedAfter { get; set; }

@@ -38,7 +38,7 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
 
         IEnumerable<ComponentEntity> pages = await Client.Paginate<ComponentEntity, ComponentsPaginationResponse>(request, r => r.Components);
 
-        pages = FilterHelper.ApplyBooleanFilter(pages, input.InludeReadOnly, c => c.ReadOnly);
+        pages = FilterHelper.ApplyBooleanFilter(pages, input.IncludeReadOnly, c => c.ReadOnly);
         pages = FilterHelper.ApplyContainsFilter(pages, input.NameContains, c => c.Name);
         pages = FilterHelper.ApplyContainsFilter(pages, input.GroupContains, c => c.Group);
 

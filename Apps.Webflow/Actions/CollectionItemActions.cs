@@ -6,6 +6,7 @@ using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Collection;
 using Apps.Webflow.Models.Request.CollectionItem;
 using Apps.Webflow.Models.Request.Content;
+using Apps.Webflow.Models.Request.Date;
 using Apps.Webflow.Models.Response.CollectiomItem;
 using Apps.Webflow.Models.Response.Pagination;
 using Apps.Webflow.Services;
@@ -30,7 +31,7 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
     public async Task<SearchCollectionItemsResponse> SearchCollectionItems(
         [ActionParameter] SiteRequest site,
         [ActionParameter] CollectionRequest collection,
-        [ActionParameter] DateFilter dateFilter,
+        [ActionParameter] BasicDateFilter dateFilter,
         [ActionParameter] SearchCollectionItemsRequest input)
     {
         ValidatorHelper.ValidateInputDates(dateFilter);

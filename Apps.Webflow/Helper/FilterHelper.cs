@@ -1,11 +1,11 @@
 ﻿using Apps.Webflow.Models.Entities;
-using Apps.Webflow.Models.Request;
+using Apps.Webflow.Models.Request.Date;
 
 namespace Apps.Webflow.Helper;
 
 public static class FilterHelper
 {
-    public static IEnumerable<T> ApplyDateFilters<T>(IEnumerable<T> items, DateFilter filter) where T : IDateFilterable
+    public static IEnumerable<T> ApplyDateFilters<T>(IEnumerable<T> items, IDateFilter filter) where T : IDateFilterable
     {
         if (filter.CreatedAfter.HasValue)
             items = items.Where(x => x.CreatedOn >= filter.CreatedAfter.Value);

@@ -11,5 +11,5 @@ public class SearchComponentsRequest
     public string? GroupContains { get; set; }
 
     [Display("Include read only components")]
-    public bool? InludeReadOnly { get; set; }
+    public bool? IncludeReadOnly { get; set; }
 }

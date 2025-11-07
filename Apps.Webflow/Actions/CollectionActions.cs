@@ -4,6 +4,7 @@ using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Entities;
 using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Collection;
+using Apps.Webflow.Models.Request.Date;
 using Apps.Webflow.Models.Response.Collection;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
@@ -29,7 +30,7 @@ public class CollectionActions(InvocationContext invocationContext) : WebflowInv
     public async Task<SearchCollectionsResponse> SearchCollections(
         [ActionParameter] SiteRequest site,
         [ActionParameter] SearchCollectionsRequest input,
-        [ActionParameter] DateFilter dateFilter)
+        [ActionParameter] BasicDateFilter dateFilter)
     {
         var request = new RestRequest($"sites/{Client.GetSiteId(site.SiteId)}/collections", Method.Get);
         var result = await Client.ExecuteWithErrorHandling<SearchCollectionsResponse>(request);
