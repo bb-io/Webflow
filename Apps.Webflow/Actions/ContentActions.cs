@@ -1,5 +1,6 @@
 ﻿using Apps.Webflow.Constants;
 using Apps.Webflow.Extensions;
+using Apps.Webflow.Helper;
 using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Content;
@@ -49,8 +50,8 @@ public class ContentActions(InvocationContext invocationContext, IFileManagement
         var service = _factory.GetContentService(contentFilter.ContentType);
 
         var stream = await service.DownloadContent(Client.GetSiteId(site.SiteId), request);
-        string fileExtension = request.FileFormat == MediaTypeNames.Text.Html ? "html" : "json";
-        string fileName = $"{contentFilter.ContentType.Replace(' ', '_').ToLower()}_{request.ContentId}.{fileExtension}";
+
+        string fileName = FileHelper.GetDownloadedFileName(request.FileFormat, request.ContentId, contentFilter.ContentType);
         string contentType = request.FileFormat == MediaTypeNames.Text.Html ? MediaTypeNames.Text.Html : MediaTypeNames.Application.Json;
 
         var fileReference = await fileManagementClient.UploadAsync(stream, contentType, fileName);

@@ -62,8 +62,7 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
         var service = _factory.GetContentService(ContentTypes.Component);
         var stream = await service.DownloadContent(Client.GetSiteId(site.SiteId), downloadRequest);
 
-        string fileExtension = fileFormat == MediaTypeNames.Text.Html ? "html" : "json";
-        string fileName = $"component_{input.ComponentId}.{fileExtension}";
+        string fileName = FileHelper.GetDownloadedFileName(fileFormat, input.ComponentId, ContentTypes.Component);
         string contentType = fileFormat == MediaTypeNames.Text.Html ? MediaTypeNames.Text.Html : MediaTypeNames.Application.Json;
 
         var file = await fileManagementClient.UploadAsync(stream, contentType, fileName);

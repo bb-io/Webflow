@@ -79,8 +79,7 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
 
         var stream = await service.DownloadContent(Client.GetSiteId(site.SiteId), contentRequest);
 
-        string fileExtension = fileFormat == MediaTypeNames.Text.Html ? "html" : "json";
-        string fileName = $"collection_item_{input.CollectionItemId}.{fileExtension}";
+        string fileName = FileHelper.GetDownloadedFileName(fileFormat, input.CollectionItemId, ContentTypes.CollectionItem);
         string contentType = fileFormat == MediaTypeNames.Text.Html ? MediaTypeNames.Text.Html : MediaTypeNames.Application.Json;
 
         var file = await fileManagementClient.UploadAsync(stream, contentType, fileName);

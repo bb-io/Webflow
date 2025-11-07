@@ -63,8 +63,7 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
         };
 
         var stream = await service.DownloadContent(Client.GetSiteId(site.SiteId), request);
-        string fileExtension = fileFormat == MediaTypeNames.Text.Html ? "html" : "json";
-        string fileName = $"page_{input.PageId}.{fileExtension}";
+        string fileName = FileHelper.GetDownloadedFileName(fileFormat, input.PageId, ContentTypes.Page);
         string contentType = fileFormat == MediaTypeNames.Text.Html ? MediaTypeNames.Text.Html : MediaTypeNames.Application.Json;
 
         var fileReference = await fileManagementClient.UploadAsync(stream, contentType, fileName);
