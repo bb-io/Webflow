@@ -83,18 +83,15 @@ public class DataSources : TestBase
         var context = GetInvocationContext(ConnectionTypes.OAuth2);
         var site = new SiteRequest { };
         var collection = new CollectionRequest { CollectionId = "68f8b337cbd1cac54f5b9d9c" };
+        var locale = new LocaleRequest { Locale = "sv-SE" };
+        var handler = new CollectionItemDataSourceHandler(context, site, collection, locale);
 
         // Act
-        var handler = new CollectionItemDataSourceHandler(context, site, collection, "sv-SE");
+        var data = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);
 
         // Assert
-        var data = await handler.GetDataAsync(
-            new DataSourceContext { SearchString = "" },
-            CancellationToken.None
-        );
-
-        foreach (var locale in data)
-            Console.WriteLine($"Display name: {locale.DisplayName}, Locale ID: {locale.Value}");
+        Assert.IsNotEmpty(data);
+        PrintDataHandlerResult(data);
     }
 
     [TestMethod]
@@ -135,5 +132,11 @@ public class DataSources : TestBase
                 async () => await handler.GetDataAsync(dataContext, CancellationToken.None)
             );
         }
+    }
+
+    private static void PrintDataHandlerResult(IEnumerable<DataSourceItem> items)
+    {
+        foreach (var item in items)
+            Console.WriteLine($"ID: {item.Value}, Display name: {item.DisplayName}");
     }
 }
