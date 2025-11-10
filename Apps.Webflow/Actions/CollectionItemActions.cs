@@ -61,7 +61,7 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         return new(filtered);
     }
 
-    [Action("Download collection item", Description = "Get content of a specific collection item")]
+    [Action("Download collection item", Description = "Download the collection item content")]
     public async Task<DownloadCollectionItemContentResponse> DownloadCollectionItem(
         [ActionParameter] SiteRequest site,
         [ActionParameter] CollectionItemRequest input)
@@ -86,10 +86,10 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         return new(file);
     }
 
-    [Action("Upload collection item", Description = "Update content of a specific collection item from a file")]
+    [Action("Upload collection item", Description = "Update collection item content from a file")]
     public async Task UploadCollectionItem(
-    [ActionParameter] SiteRequest site,
-    [ActionParameter] UpdateCollectionItemRequest input)
+        [ActionParameter] SiteRequest site,
+        [ActionParameter] UpdateCollectionItemRequest input)
     {
         await using var source = await fileManagementClient.DownloadAsync(input.File);
         var bytes = await source.GetByteData();
@@ -113,7 +113,7 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
             {
                 CollectionId = input.CollectionId,
                 CollectionItemId = input.CollectionItemId,
-                CmsLocales = [input.CmsLocale]
+                CmsLocale = input.CmsLocale
             };
             await PublishCollectionItem(site, publishRequest);
         }
@@ -124,29 +124,33 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         [ActionParameter] SiteRequest site,
         [ActionParameter] PublishItemRequest input)
     {
-        var cmsLocaleIds = new List<string>();
-        if (input.CmsLocales is not null && input.CmsLocales.Any())
-        {
-            foreach (var locale in input.CmsLocales)
-            {
-                var cmsLocaleId = await LocaleHelper.GetCmsLocaleId(locale, Client.GetSiteId(site.SiteId), Client);
-                cmsLocaleIds.Add(cmsLocaleId);
-            }
-        }
+        object payload;
 
-        var endpoint = $"collections/{input.CollectionId}/items/publish";
-        var request = new RestRequest(endpoint, Method.Post)
-            .WithJsonBody(new
+        if (!string.IsNullOrEmpty(input.CmsLocale))
+        {
+            var cmsLocaleId = await LocaleHelper.GetCmsLocaleId(input.CmsLocale, Client.GetSiteId(site.SiteId), Client);
+            payload = new
             {
                 items = new[]
                 {
                     new
                     {
                         id = input.CollectionItemId,
-                        cmsLocaleIds
+                        cmsLocaleIds = new[] { cmsLocaleId }
                     }
-                },
-            }, JsonConfig.Settings);
+                }
+            };
+        }
+        else
+        {
+            payload = new
+            {
+                itemIds = new[] { input.CollectionItemId }
+            };
+        }
+
+        var request = new RestRequest($"collections/{input.CollectionId}/items/publish", Method.Post)
+            .WithJsonBody(payload, JsonConfig.Settings);
 
         await Client.ExecuteWithErrorHandling(request);
     }

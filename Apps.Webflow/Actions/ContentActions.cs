@@ -26,7 +26,7 @@ namespace Apps.Webflow.Actions;
 public class ContentActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient) 
     : WebflowInvocable(invocationContext)
 {
-    private readonly ContentServicesFactory _factory = new ContentServicesFactory(invocationContext);
+    private readonly ContentServicesFactory _factory = new(invocationContext);
 
     [BlueprintActionDefinition(BlueprintAction.SearchContent)]
     [Action("Search content", Description = "Search for any type of content")]
@@ -41,7 +41,7 @@ public class ContentActions(InvocationContext invocationContext, IFileManagement
     }
 
     [BlueprintActionDefinition(BlueprintAction.DownloadContent)]
-    [Action("Download content", Description = "Download content as HTML for a specific content type based on its ID")]
+    [Action("Download content", Description = "Download content to a file")]
     public async Task<DownloadContentResponse> DownloadContent(
         [ActionParameter] SiteRequest site,
         [ActionParameter] DownloadContentRequest request,
@@ -60,7 +60,7 @@ public class ContentActions(InvocationContext invocationContext, IFileManagement
     }
 
     [BlueprintActionDefinition(BlueprintAction.UploadContent)]
-    [Action("Upload content", Description = "Update content from an HTML file")]
+    [Action("Upload content", Description = "Update content from a file")]
     public async Task UploadContent(
         [ActionParameter] SiteRequest site,
         [ActionParameter] UploadContentRequest request)

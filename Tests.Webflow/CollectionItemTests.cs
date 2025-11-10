@@ -142,7 +142,7 @@ public class CollectionItemTests : TestBase
         {
             CollectionId = "68f8b337cbd1cac54f5b9d9c",
             CollectionItemId = "6900ef0851221c2ffc49527a",
-            CmsLocales = ["sv-SE"]
+            CmsLocale = "sv-SE"
         };
 
         // Act
