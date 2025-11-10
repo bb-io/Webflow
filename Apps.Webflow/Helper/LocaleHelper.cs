@@ -9,19 +9,32 @@ public static class LocaleHelper
 {
     public async static Task<string> GetCmsLocaleId(string languageCode, string siteId, WebflowClient client)
     {
+        var locale = await GetLocaleEntity(languageCode, siteId, client);
+
+        if (locale?.CmsLocaleId is not null)
+            return locale.CmsLocaleId;
+
+        throw new PluginApplicationException($"Can't match language code {languageCode} to cmsLocaleId");
+    }
+
+    public async static Task<string> GetLocaleId(string languageCode, string siteId, WebflowClient client)
+    {
+        var locale = await GetLocaleEntity(languageCode, siteId, client);
+
+        if (locale?.Id is not null)
+            return locale.Id;
+
+        throw new PluginApplicationException($"Can't match language code {languageCode} to localeId");
+    }
+
+    private async static Task<SiteLocale?> GetLocaleEntity(string languageCode, string siteId, WebflowClient client)
+    {
         var request = new RestRequest($"/sites/{client.GetSiteId(siteId)}", Method.Get);
         var site = await client.ExecuteWithErrorHandling<SiteEntity>(request);
 
-        var primaryLocale = site.Locales?.Primary;
-        var secondaryLocales = site.Locales?.Secondary;
+        if (site.Locales?.Primary?.Tag == languageCode)
+            return site.Locales.Primary;
 
-        if (primaryLocale?.Tag == languageCode)
-            return primaryLocale.CmsLocaleId!;
-
-        var matchingSecondary = secondaryLocales?.FirstOrDefault(l => l.Tag == languageCode);
-        if (matchingSecondary?.CmsLocaleId is not null)
-            return matchingSecondary.CmsLocaleId;
-
-        throw new PluginApplicationException($"Can't match language code {languageCode} to cmsLocaleId");
+        return site.Locales?.Secondary?.FirstOrDefault(l => l.Tag == languageCode);
     }
 }
