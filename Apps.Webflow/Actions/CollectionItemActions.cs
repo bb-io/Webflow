@@ -59,7 +59,8 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         filtered = FilterHelper.ApplyContainsFilter(filtered, input.NameContains, r => r.Name);
         filtered = FilterHelper.ApplyContainsFilter(filtered, input.SlugContains, r => r.FieldData["slug"]?.ToString());
 
-        return new(filtered);
+        var result = filtered.Select(x => new GetCollectionItemResponse(x)).ToList();
+        return new(result);
     }
 
     [Action("Download collection item", Description = "Download the collection item content")]

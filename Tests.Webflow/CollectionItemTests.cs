@@ -83,7 +83,7 @@ public class CollectionItemTests : TestBase
         var site = new SiteRequest { };
         var dateFilter = new BasicDateFilter { };
         var collection = new CollectionRequest { CollectionId = "68f8b337cbd1cac54f5b9d9c" };
-        var locale = new LocaleRequest { };
+        var locale = new LocaleRequest { /*Locale = "sv-SE"*/ };
 
         // Act
         var result = await actions.SearchCollectionItems(site, collection, dateFilter, request, locale);

@@ -41,14 +41,14 @@ public class PagesTests : TestBase
         var input = new DownloadPageRequest 
         { 
             FileFormat = "original",
-            PageId = "68f8b337cbd1cac54f5b9d80",
-            Locale = "sv-SE"
+            PageId = "68f8b337cbd1cac54f5b9d80"
         };
+        var locale = new LocaleRequest { Locale = "sv-SE" };
 
         var actions = new PagesActions(context, FileManagementClient);
 
         // Act
-        var result = await actions.DownloadPage(site, input);
+        var result = await actions.DownloadPage(site, input, locale);
 
         // Assert
         PrintJsonResult(result);
@@ -63,10 +63,11 @@ public class PagesTests : TestBase
         var fileReference = new FileReference { Name = "page.html" };
         var site = new SiteRequest { };
 
-        var input = new UpdatePageContentRequest { File = fileReference, Locale = "sv-SE" };
+        var input = new UpdatePageContentRequest { File = fileReference };
         var action = new PagesActions(context, FileManagementClient);
+        var locale = new LocaleRequest { Locale = "sv-SE" };
 
         //Act 
-        await action.UploadPage(site, input);
+        await action.UploadPage(site, input, locale);
     }
 }
