@@ -16,7 +16,7 @@ public class UpdatePageContentRequest
     [FileDataSource(typeof(PageFileDataSourceHandler))]
     public string? PageId { get; set; }
 
-    [Display("Locale ID")]
+    [Display("Locale")]
     [DataSource(typeof(SiteLocaleDataSourceHandler))]
-    public string? LocaleId { get; set; }
+    public string? Locale { get; set; }
 }

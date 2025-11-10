@@ -12,7 +12,7 @@ namespace Tests.Webflow;
 public class PagesTests : TestBase
 {
     [TestMethod]
-    public async Task SearchPages_ReturnsExpectedPages()
+    public async Task SearchPages_WithoutFilters_ReturnsPages()
     {
         foreach (var context in InvocationContext)
         {
@@ -40,9 +40,9 @@ public class PagesTests : TestBase
         var site = new SiteRequest { };
         var input = new DownloadPageRequest 
         { 
-            FileFormat = "text/html",
-            PageId = "68f8b337cbd1cac54f5b9d80", 
-            LocaleId = "69007d6cf09bd27cf732e155"
+            FileFormat = "original",
+            PageId = "68f8b337cbd1cac54f5b9d80",
+            Locale = "sv-SE"
         };
 
         var actions = new PagesActions(context, FileManagementClient);
@@ -56,14 +56,14 @@ public class PagesTests : TestBase
     }
 
     [TestMethod]
-    public async Task UploadPage_SuccessOperation()
+    public async Task UploadPage_IsSuccess()
     {
         // Arrange
         var context = GetInvocationContext(ConnectionTypes.OAuth2);
-        var fileReference = new FileReference { Name = "page.xlf" };
+        var fileReference = new FileReference { Name = "page.html" };
         var site = new SiteRequest { };
 
-        var input = new UpdatePageContentRequest { File = fileReference };
+        var input = new UpdatePageContentRequest { File = fileReference, Locale = "sv-SE" };
         var action = new PagesActions(context, FileManagementClient);
 
         //Act 

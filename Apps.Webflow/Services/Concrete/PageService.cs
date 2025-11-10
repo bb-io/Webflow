@@ -50,7 +50,10 @@ public class PageService(InvocationContext invocationContext) : BaseContentServi
         var domRequest = new RestRequest(domEndpoint, Method.Get);
 
         if (!string.IsNullOrEmpty(input.Locale))
-            domRequest.AddQueryParameter("localeId", input.Locale);
+        {
+            var localeId = await LocaleHelper.GetLocaleId(input.Locale, siteId, Client);
+            domRequest.AddQueryParameter("localeId", localeId);
+        }
 
         var pageDom = await Client.ExecuteWithErrorHandling<PageDomEntity>(domRequest);
 
@@ -85,6 +88,19 @@ public class PageService(InvocationContext invocationContext) : BaseContentServi
                 input.ContentId = metaPageIdNode.GetAttributeValue("content", string.Empty);
         }
 
+        if (string.IsNullOrEmpty(input.Locale))
+        {
+            var localeIdNode = doc.DocumentNode.SelectSingleNode("//meta[@name='blackbird-locale-id']");
+
+            if (localeIdNode != null && string.IsNullOrEmpty(input.Locale))
+                input.Locale = localeIdNode.GetAttributeValue("content", string.Empty);
+        }
+
+        if (string.IsNullOrEmpty(input.ContentId))
+            throw new PluginMisconfigurationException("Page ID was not found in the file. Please specify it in the input value");
+        if (string.IsNullOrEmpty(input.Locale))
+            throw new PluginMisconfigurationException("Locale was not found in the file. Please specify it in the input value");
+
         var elements = doc.DocumentNode
             .Descendants()
             .Where(x => x.NodeType == HtmlAgilityPack.HtmlNodeType.Element &&
@@ -113,11 +129,13 @@ public class PageService(InvocationContext invocationContext) : BaseContentServi
 
         var endpoint = $"pages/{input.ContentId}/dom";
         var request = new RestRequest(endpoint, Method.Post) { RequestFormat = DataFormat.Json };
+        request.AddJsonBody(body);
 
         if (!string.IsNullOrEmpty(input.Locale))
-            request.AddQueryParameter("localeId", input.Locale);
-
-        request.AddJsonBody(body);
+        {
+            var localeId = await LocaleHelper.GetLocaleId(input.Locale, siteId, Client);
+            request.AddQueryParameter("localeId", localeId);
+        }
 
         await Client.ExecuteWithErrorHandling(request);
     }

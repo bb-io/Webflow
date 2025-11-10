@@ -14,9 +14,9 @@ public class DownloadPageRequest
     [FileDataSource(typeof(PageFileDataSourceHandler))]
     public string PageId { get; set; }
 
-    [Display("Locale ID")]
+    [Display("Locale")]
     [DataSource(typeof(SiteLocaleDataSourceHandler))]
-    public string? LocaleId { get; set; }
+    public string? Locale { get; set; }
 
     [Display("Include page metadata", Description = "Includes page metadata, true by default")]
     public bool? IncludeMetadata { get; set; }

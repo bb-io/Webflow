@@ -44,11 +44,11 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
         if (allPages.Count == 0)
             return new SearchPagesResponse([]);
 
-        var filtered = ApplyPageFilters(allPages, dateFilter, input);
+        var filtered = ApplySearchPageFilters(allPages, dateFilter, input);
         return new SearchPagesResponse(filtered);
     }
 
-    [Action("Download page", Description = "Get the page content in HTML file")]
+    [Action("Download page", Description = "Download the page content")]
     public async Task<DownloadPageResponse> DownloadPage(
         [ActionParameter] SiteRequest site,
         [ActionParameter] DownloadPageRequest input)
@@ -58,7 +58,7 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
         var service = _factory.GetContentService(ContentTypes.Page);
         var request = new DownloadContentRequest
         {
-            Locale = input.LocaleId,
+            Locale = input.Locale,
             ContentId = input.PageId,
             FileFormat = fileFormat,
         };
@@ -81,7 +81,7 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
         return new DownloadPageResponse(fileReference, metadata);
     }
 
-    [Action("Upload page", Description = "Update page content using HTML file")]
+    [Action("Upload page", Description = "Update page content from a file")]
     public async Task UploadPage(
         [ActionParameter] SiteRequest site,
         [ActionParameter] UpdatePageContentRequest input)
@@ -98,40 +98,19 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
         await using var ms = new MemoryStream(Encoding.UTF8.GetBytes(html));
         var doc = new HtmlAgilityPack.HtmlDocument();
         doc.Load(ms);
-        ms.Position = 0;
-
-        if (string.IsNullOrEmpty(input.PageId))
-        {
-            var metaPageIdNode = doc.DocumentNode.SelectSingleNode("//meta[@name='blackbird-page-id']");
-
-            if (metaPageIdNode != null && string.IsNullOrEmpty(input.PageId))
-                input.PageId = metaPageIdNode.GetAttributeValue("content", string.Empty);
-        }
-
-        if (string.IsNullOrEmpty(input.LocaleId))
-        {
-            var localeIdNode = doc.DocumentNode.SelectSingleNode("//meta[@name='blackbird-locale-id']");
-
-            if (localeIdNode != null && string.IsNullOrEmpty(input.LocaleId))
-                input.LocaleId = localeIdNode.GetAttributeValue("content", string.Empty);
-        }
-
-        if (string.IsNullOrEmpty(input.PageId))
-            throw new PluginMisconfigurationException("Page ID was not found in the file. Please specify it in the input value");
-        if (string.IsNullOrEmpty(input.LocaleId))
-            throw new PluginMisconfigurationException("Locale ID was not found in the file. Please specify it in the input value");
+        ms.Position = 0;      
 
         var uploadRequest = new UploadContentRequest
         {
             ContentId = input.PageId,
-            Locale = input.LocaleId
+            Locale = input.Locale
         };
 
         var service = _factory.GetContentService(ContentTypes.Page);
         await service.UploadContent(ms, site.SiteId, uploadRequest);
     }
 
-    private static List<PageEntity> ApplyPageFilters(List<PageEntity> pages, BasicDateFilter dateFilter, SearchPagesRequest input)
+    private static List<PageEntity> ApplySearchPageFilters(List<PageEntity> pages, BasicDateFilter dateFilter, SearchPagesRequest input)
     {
         IEnumerable<PageEntity> filtered = pages;
 

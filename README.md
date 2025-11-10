@@ -111,8 +111,8 @@ Navigate to Apps, and identify the **Webflow** app. You can use search to find i
 ### Pages
 
 - **Search pages** searches pages using filters.
-- **Download page** gets the page content in HTML file.
-- **Upload page** updates page content using HTML file.
+- **Download page** downloads the page content.
+- **Upload page** updates page content from a file.
 
 ### Components
 
