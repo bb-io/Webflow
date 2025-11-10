@@ -12,9 +12,9 @@ public class UpdateComponentContentRequest
     [Display("Component")]
     public FileReference File { get; set; }
 
-    [Display("Locale ID")]
+    [Display("Locale")]
     [DataSource(typeof(SiteLocaleDataSourceHandler))]
-    public string? LocaleId { get; set; }
+    public string? Locale { get; set; }
 
     [Display("Component ID")]
     [FileDataSource(typeof(ComponentFileDataSourceHandler))]

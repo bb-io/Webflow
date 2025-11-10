@@ -14,9 +14,9 @@ public class DownloadComponentContentRequest
     [FileDataSource(typeof(ComponentFileDataSourceHandler))]
     public string ComponentId { get; set; }
 
-    [Display("Locale ID")]
+    [Display("Locale")]
     [DataSource(typeof(SiteLocaleDataSourceHandler))]
-    public string? LocaleId { get; set; }
+    public string? Locale { get; set; }
 
     [Display("File format", Description = "Format of the file to be downloaded, defaults to an interoperable HTML")]
     [StaticDataSource(typeof(DownloadFileFormatHandler))]

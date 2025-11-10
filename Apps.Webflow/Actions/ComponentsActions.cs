@@ -45,7 +45,7 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
         return new SearchComponentsResponse(pages.ToList());
     }
 
-    [Action("Download component", Description = "Get the component content in HTML file")]
+    [Action("Download component", Description = "Download the component content")]
     public async Task<DownloadComponentResponse> DownloadComponent(
         [ActionParameter] SiteRequest site,
         [ActionParameter] DownloadComponentContentRequest input)
@@ -54,7 +54,7 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
 
         var downloadRequest = new DownloadContentRequest
         {
-            Locale = input.LocaleId,
+            Locale = input.Locale,
             ContentId = input.ComponentId,
             FileFormat = fileFormat,
         };
@@ -69,7 +69,7 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
         return new(file);
     }
 
-    [Action("Upload component", Description = "Update component content using HTML file")]
+    [Action("Upload component", Description = "Update component content from a file")]
     public async Task UploadComponent(
         [ActionParameter] SiteRequest site,
         [ActionParameter] UpdateComponentContentRequest input)
@@ -90,7 +90,7 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
 
         var updateRequest = new UploadContentRequest 
         {
-            Locale = input.LocaleId,
+            Locale = input.Locale,
             ContentId = input.ComponentId,
         }; 
 

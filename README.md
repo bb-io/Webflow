@@ -117,8 +117,8 @@ Navigate to Apps, and identify the **Webflow** app. You can use search to find i
 ### Components
 
 - **Search components** searches all components for a site.
-- **Download component** gets the component content in HTML file.
-- **Upload component** updates component content using HTML file.
+- **Download component** downloads the component content.
+- **Upload component** updates component content from a file.
 
 ### Sites
 

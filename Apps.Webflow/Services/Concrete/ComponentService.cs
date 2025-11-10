@@ -48,7 +48,10 @@ public class ComponentService(InvocationContext invocationContext) : BaseContent
         var request = new RestRequest(endpoint, Method.Get);
 
         if (!string.IsNullOrEmpty(input.Locale))
-            request.AddQueryParameter("localeId", input.Locale);
+        {
+            var localeId = await LocaleHelper.GetLocaleId(input.Locale, siteId, Client);
+            request.AddQueryParameter("localeId", localeId);
+        }
 
         var componentDom = await Client.ExecuteWithErrorHandling<ComponentDomEntity>(request);
 
@@ -78,11 +81,11 @@ public class ComponentService(InvocationContext invocationContext) : BaseContent
         if (string.IsNullOrEmpty(input.Locale))
         {
             var metaLocaleIdNode = doc.DocumentNode.SelectSingleNode("//meta[@name='blackbird-locale-id']");
-            input.Locale = metaLocaleIdNode.GetAttributeValue("content", string.Empty);
+            input.Locale = metaLocaleIdNode?.GetAttributeValue("content", string.Empty);
 
             if (string.IsNullOrEmpty(input.Locale))
                 throw new PluginMisconfigurationException(
-                    "Locale ID not found in the HTML file. " +
+                    "Locale not found in the HTML file. " +
                     "Please provide it in input or ensure that file contains <meta name=\"blackbird-locale-id\"> tag."
                 );
         }
@@ -145,9 +148,10 @@ public class ComponentService(InvocationContext invocationContext) : BaseContent
 
         var endpoint = $"sites/{siteId}/components/{input.ContentId}/dom";
         var apiRequest = new RestRequest(endpoint, Method.Post).WithJsonBody(body);
+        var localeId = await LocaleHelper.GetLocaleId(input.Locale, siteId, Client);
 
         apiRequest.RequestFormat = DataFormat.Json;
-        apiRequest.AddQueryParameter("localeId", input.Locale);
+        apiRequest.AddQueryParameter("localeId", localeId);
 
         await Client.ExecuteWithErrorHandling(apiRequest);
     }
