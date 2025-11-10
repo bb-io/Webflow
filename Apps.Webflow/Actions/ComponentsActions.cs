@@ -26,7 +26,7 @@ namespace Apps.Webflow.Actions;
 public class ComponentsActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
     : WebflowInvocable(invocationContext)
 {
-    private readonly ContentServicesFactory _factory = new ContentServicesFactory(invocationContext);
+    private readonly ContentServicesFactory _factory = new(invocationContext);
 
     [Action("Search components", Description = "Search all components for a site")]
     public async Task<SearchComponentsResponse> SearchComponents(
