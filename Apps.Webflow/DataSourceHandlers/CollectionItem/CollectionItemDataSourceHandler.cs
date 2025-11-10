@@ -15,7 +15,7 @@ public class CollectionItemDataSourceHandler(
     InvocationContext invocationContext,
     [ActionParameter] SiteRequest site,
     [ActionParameter] CollectionRequest collection,
-    string? cmsLocale) 
+    [ActionParameter] string? cmsLocale) 
     : WebflowInvocable(invocationContext), IAsyncDataSourceItemHandler
 {
     public async Task<IEnumerable<DataSourceItem>> GetDataAsync(DataSourceContext context, CancellationToken cancellationToken)
