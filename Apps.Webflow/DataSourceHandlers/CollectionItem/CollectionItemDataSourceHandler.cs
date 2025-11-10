@@ -5,21 +5,28 @@ using Apps.Webflow.Models.Entities;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.Sdk.Common;
+using Apps.Webflow.Models.Request;
+using Apps.Webflow.Models.Request.Collection;
 
 namespace Apps.Webflow.DataSourceHandlers.CollectionItem;
 
-public class CollectionItemDataSourceHandler(InvocationContext invocationContext, string siteId, string collectionId, string? cmsLocale) 
+public class CollectionItemDataSourceHandler(
+    InvocationContext invocationContext,
+    [ActionParameter] SiteRequest site,
+    [ActionParameter] CollectionRequest collection,
+    string? cmsLocale) 
     : WebflowInvocable(invocationContext), IAsyncDataSourceItemHandler
 {
     public async Task<IEnumerable<DataSourceItem>> GetDataAsync(DataSourceContext context, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(collectionId))
+        if (string.IsNullOrWhiteSpace(collection.CollectionId))
             throw new PluginMisconfigurationException("You need to specify Collection ID first");
 
-        var request = new RestRequest($"collections/{collectionId}/items", Method.Get);
+        var request = new RestRequest($"collections/{collection.CollectionId}/items", Method.Get);
         if (!string.IsNullOrEmpty(cmsLocale))
         {
-            var cmsLocaleId = await LocaleHelper.GetCmsLocaleId(cmsLocale, siteId, Client);
+            var cmsLocaleId = await LocaleHelper.GetCmsLocaleId(cmsLocale, Client.GetSiteId(site.SiteId), Client);
             request.AddQueryParameter("cmsLocaleId", cmsLocaleId);
         }
 
