@@ -1,7 +1,6 @@
 ﻿using Apps.Webflow.Conversion.Models;
 using Apps.Webflow.Models.Entities;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using System.Text;
 
@@ -31,16 +30,5 @@ public static class CollectionItemJsonConverter
 
         var jsonString = JsonConvert.SerializeObject(model, settings);
         return new MemoryStream(Encoding.UTF8.GetBytes(jsonString));
-    }
-
-    public static CollectionItemMetadata GetMetadata(string inputString)
-    {
-        var json = JObject.Parse(inputString);
-
-        return new CollectionItemMetadata(
-            json["collectionId"]?.ToString(),
-            json["collectionItemId"]?.ToString(),
-            json["cmsLocaleId"]?.ToString()
-        );
     }
 }
