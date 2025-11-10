@@ -1,4 +1,3 @@
-using Apps.Webflow.Models.Response;
 using Blackbird.Applications.Sdk.Common;
 
 namespace Apps.Webflow.Models.Entities;
@@ -21,8 +20,8 @@ public class SiteEntity
     public DateTime? CreatedOn { get; set; }
 
     [Display("Locales")]
-    public LocalesResponse? Locales { get; set; }
+    public SiteLocales? Locales { get; set; }
 
     [Display("Custom domains")]
-    public IEnumerable<CustomDomainEntity> CustomDomains { get; set; }
+    public IEnumerable<CustomDomainEntity>? CustomDomains { get; set; }
 }

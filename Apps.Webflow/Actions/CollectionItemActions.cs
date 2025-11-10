@@ -32,7 +32,8 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         [ActionParameter] SiteRequest site,
         [ActionParameter] CollectionRequest collection,
         [ActionParameter] BasicDateFilter dateFilter,
-        [ActionParameter] SearchCollectionItemsRequest input)
+        [ActionParameter] SearchCollectionItemsRequest input,
+        [ActionParameter] LocaleRequest locale)
     {
         ValidatorHelper.ValidateInputDates(dateFilter);
         ValidatorHelper.ValidatePublishedInputDates(input.LastPublishedBefore, input.LastPublishedAfter);
@@ -46,8 +47,11 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         if (input.LastPublishedAfter.HasValue)
             request.AddParameter("lastPublished[gte]", input.LastPublishedAfter.Value.ToString("O"));
 
-        if (!string.IsNullOrEmpty(input.CmsLocaleId))
-            request.AddParameter("cmsLocaleId", input.CmsLocaleId);
+        if (!string.IsNullOrEmpty(locale.Locale))
+        {
+            var cmsLocaleId = await LocaleHelper.GetCmsLocaleId(locale.Locale, Client.GetSiteId(site.SiteId), Client);
+            request.AddParameter("cmsLocaleId", cmsLocaleId);
+        }
 
         var items = await Client.Paginate<CollectionItemEntity, CollectionItemPaginationResponse>(request, r => r.Items);
 
@@ -58,10 +62,11 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         return new(filtered);
     }
 
-    [Action("Download collection item", Description = "Get content of a specific collection item")]
+    [Action("Download collection item", Description = "Download the collection item content")]
     public async Task<DownloadCollectionItemContentResponse> DownloadCollectionItem(
         [ActionParameter] SiteRequest site,
-        [ActionParameter] CollectionItemRequest input)
+        [ActionParameter] CollectionItemRequest input,
+        [ActionParameter] LocaleRequest locale)
     {
         string fileFormat = input.FileFormat ?? MediaTypeNames.Text.Html;
 
@@ -70,7 +75,7 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         {
             CollectionId = input.CollectionId,
             ContentId = input.CollectionItemId,
-            Locale = input.CmsLocaleId,
+            Locale = locale.Locale,
             FileFormat = fileFormat,
         };
 
@@ -83,10 +88,11 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         return new(file);
     }
 
-    [Action("Upload collection item", Description = "Update content of a specific collection item from a file")]
+    [Action("Upload collection item", Description = "Update collection item content from a file")]
     public async Task UploadCollectionItem(
-    [ActionParameter] SiteRequest site,
-    [ActionParameter] UpdateCollectionItemRequest input)
+        [ActionParameter] SiteRequest site,
+        [ActionParameter] UpdateCollectionItemRequest input,
+        [ActionParameter] LocaleRequest locale)
     {
         await using var source = await fileManagementClient.DownloadAsync(input.File);
         var bytes = await source.GetByteData();
@@ -97,7 +103,7 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         var request = new UploadContentRequest
         {
             CollectionId = input.CollectionId,
-            Locale = input.CmsLocaleId,
+            Locale = locale.Locale,
             ContentId = input.CollectionItemId
         };
 
@@ -106,34 +112,46 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         // should be reworked to get metadata and pass it here
         if (input.Publish.HasValue && input.Publish.Value)
         {
-            var publishRequest = new PublishItemRequest
-            {
-                CollectionId = input.CollectionId,
-                CollectionItemId = input.CollectionItemId,
-                CmsLocaleIds = [input.CmsLocaleId]
-            };
-            await PublishItem(site, publishRequest);
+            var collection = new CollectionRequest { CollectionId = input.CollectionId };
+            var publishRequest = new PublishItemRequest { CollectionItemId = input.CollectionItemId };
+            await PublishCollectionItem(site, collection, publishRequest, locale);
         }
     }
 
     [Action("Publish collection item", Description = "Publish a specific collection item")]
-    public async Task PublishItem(
+    public async Task PublishCollectionItem(
         [ActionParameter] SiteRequest site,
-        [ActionParameter] PublishItemRequest input)
+        [ActionParameter] CollectionRequest collection,
+        [ActionParameter] PublishItemRequest input,
+        [ActionParameter] LocaleRequest locale)
     {
-        var endpoint = $"collections/{input.CollectionId}/items/publish";
-        var request = new RestRequest(endpoint, Method.Post)
-            .WithJsonBody(new
+        object payload;
+
+        if (!string.IsNullOrEmpty(locale.Locale))
+        {
+            var cmsLocaleId = await LocaleHelper.GetCmsLocaleId(locale.Locale, Client.GetSiteId(site.SiteId), Client);
+            payload = new
             {
                 items = new[]
                 {
                     new
                     {
                         id = input.CollectionItemId,
-                        cmsLocaleIds = input.CmsLocaleIds ?? Array.Empty<string>()
+                        cmsLocaleIds = new[] { cmsLocaleId }
                     }
-                },
-            }, JsonConfig.Settings);
+                }
+            };
+        }
+        else
+        {
+            payload = new
+            {
+                itemIds = new[] { input.CollectionItemId }
+            };
+        }
+
+        var request = new RestRequest($"collections/{collection.CollectionId}/items/publish", Method.Post)
+            .WithJsonBody(payload, JsonConfig.Settings);
 
         await Client.ExecuteWithErrorHandling(request);
     }

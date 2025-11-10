@@ -1,10 +1,11 @@
 ﻿using Apps.Webflow.Constants;
-using Apps.Webflow.DataSourceHandlers;
 using Apps.Webflow.DataSourceHandlers.Collection;
 using Apps.Webflow.DataSourceHandlers.CollectionItem;
 using Apps.Webflow.DataSourceHandlers.Locale;
 using Apps.Webflow.DataSourceHandlers.Site;
 using Apps.Webflow.Models.Request;
+using Apps.Webflow.Models.Request.Collection;
+using Apps.Webflow.Models.Request.CollectionItem;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Tests.Webflow.Base;
@@ -42,16 +43,13 @@ public class DataSources : TestBase
     {
         //Arange
         var context = GetInvocationContext(ConnectionTypes.OAuth2);
-        var siteId = "68f8b336cbd1cac54f5b9d2c";
-        var request = new SiteRequest { SiteId = siteId };
+        var request = new SiteRequest { };
+
         // Act
         var handler = new SiteLocaleDataSourceHandler(context, request);
 
         // Assert
-        var data = await handler.GetDataAsync(
-            new DataSourceContext { SearchString = "" },
-            CancellationToken.None
-        );
+        var data = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);
 
         foreach (var locale in data)
             Console.WriteLine($"Display name: {locale.DisplayName}, Locale ID: {locale.Value}");
@@ -62,8 +60,7 @@ public class DataSources : TestBase
     {
         // Arrange
         var context = GetInvocationContext(ConnectionTypes.OAuth2);
-        var siteId = "";
-        var request = new Apps.Webflow.Models.Request.CollectionItem.CollectionItemRequest { };
+        var request = new CollectionItemRequest { };
         var site = new SiteRequest { };
 
         // Act
@@ -84,42 +81,17 @@ public class DataSources : TestBase
     {
         //Arange
         var context = GetInvocationContext(ConnectionTypes.OAuth2);
-        var request = new Apps.Webflow.Models.Request.CollectionItem.CollectionItemRequest
-        {
-            CollectionId = "68f8b337cbd1cac54f5b9d9c"
-        };
+        var site = new SiteRequest { };
+        var collection = new CollectionRequest { CollectionId = "68f8b337cbd1cac54f5b9d9c" };
+        var locale = new LocaleRequest { Locale = "sv-SE" };
+        var handler = new CollectionItemDataSourceHandler(context, site, collection, locale);
 
         // Act
-        var handler = new CollectionItemDataSourceHandler(context, request);
+        var data = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);
 
         // Assert
-        var data = await handler.GetDataAsync(
-            new DataSourceContext { SearchString = "" },
-            CancellationToken.None
-        );
-
-        foreach (var locale in data)
-            Console.WriteLine($"Display name: {locale.Key}, Locale ID: {locale.Value}");
-    }
-
-    [TestMethod]
-    public async Task CollectionItemLocaleDataSourceHandler_IsSuccess()
-    {
-        //Arange
-        var context = GetInvocationContext(ConnectionTypes.OAuth2);
-        var site = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
-
-        // Act
-        var handler = new UpdateCollectionItemLocaleDataSourceHandler(context, site);
-
-        // Assert
-        var data = await handler.GetDataAsync(
-            new DataSourceContext { SearchString = "" },
-            CancellationToken.None
-        );
-
-        foreach (var locale in data)
-            Console.WriteLine($"Display name: {locale.Key}, Locale ID: {locale.Value}");
+        Assert.IsNotEmpty(data);
+        PrintDataHandlerResult(data);
     }
 
     [TestMethod]
@@ -160,5 +132,11 @@ public class DataSources : TestBase
                 async () => await handler.GetDataAsync(dataContext, CancellationToken.None)
             );
         }
+    }
+
+    private static void PrintDataHandlerResult(IEnumerable<DataSourceItem> items)
+    {
+        foreach (var item in items)
+            Console.WriteLine($"ID: {item.Value}, Display name: {item.DisplayName}");
     }
 }

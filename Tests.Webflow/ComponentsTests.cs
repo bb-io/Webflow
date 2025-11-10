@@ -10,11 +10,6 @@ namespace Tests.Webflow;
 [TestClass]
 public class ComponentsTests : TestBase
 {
-    // https://webflow.com/dashboard/sites/blackbird-io-blog-news-2d97205311f5fdf6/general
-    private const string SampleSiteId = "661d37f0bdd59efaf8124722";
-    private const string SampleComponentId = "ece52c30-84e9-6ccc-7181-eb186cf93c46"; // Footer
-    private const string SampleTargetLocaleId = "667e7f0ca4540c2dc643af76"; // German
-
     [TestMethod]
     public async Task SearchComponents_WithoutFilters_ReturnsComponents()
     {
@@ -54,7 +49,7 @@ public class ComponentsTests : TestBase
     }
 
     [TestMethod]
-    public async Task DownloadComponent_ReturnsComponent()
+    public async Task DownloadComponent_WithLocale_ReturnsComponent()
     {
         // Arrange
         var context = GetInvocationContext(ConnectionTypes.OAuth2);
@@ -64,52 +59,30 @@ public class ComponentsTests : TestBase
         var input = new DownloadComponentContentRequest 
         { 
             ComponentId = "88a386dd-8f07-0c34-70f0-2d9f87e29718",
-            FileFormat = "original"
+            FileFormat = "text/html"
         };
+        var locale = new LocaleRequest { Locale = "sv-SE" };
 
         // Act
-        var result = await actions.DownloadComponent(site, input);
+        var result = await actions.DownloadComponent(site, input, locale);
 
         // Assert
         Assert.IsNotNull(result);
     }
 
     [TestMethod]
-    public async Task UpdateComponentFromHtml_SuccessOperation()
+    public async Task UploadComponent_IsSuccess()
     {
         // Arrange
         var context = GetInvocationContext(ConnectionTypes.OAuth2);
-        var fileReference = new FileReference { Name = "component.xlf" };
-
-        var input = new UpdateComponentContentRequest { File = fileReference };
-
         var site = new SiteRequest { };
         var action = new ComponentsActions(context, FileManagementClient);
 
+        var fileReference = new FileReference { Name = "comp.html" };
+        var input = new UpdateComponentContentRequest { File = fileReference };
+        var locale = new LocaleRequest { Locale = "sv-SE" };
+
         // Act
-        await action.UploadComponent(site, input);
-    }
-
-    // Helpful to test how well the update worked
-    [TestMethod]
-    public async Task GetComponentLocaleVersion_ReturnsFileReference()
-    {
-        foreach (var context in InvocationContext)
-        {
-            // Arrange
-            var input = new DownloadComponentContentRequest
-            {
-                ComponentId = SampleComponentId,
-                LocaleId = SampleTargetLocaleId,
-            };
-            var site = new SiteRequest { SiteId = SampleSiteId };
-            var actions = new ComponentsActions(context, FileManagementClient);
-
-            // Act
-            var result = await actions.DownloadComponent(site, input);
-
-            // Assert
-            Assert.IsNotNull(result, "Result should not be null.");
-        }
+        await action.UploadComponent(site, input, locale);
     }
 }

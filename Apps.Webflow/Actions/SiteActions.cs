@@ -28,7 +28,7 @@ public class SiteActions(InvocationContext invocationContext) : WebflowInvocable
 
         var filteredResult = ApplySiteFilters(input, dateFilter, result);
         var sites = filteredResult.Select(entity => new GetSiteResponse(entity));
-        return new SearchSitesResponse(sites);
+        return new(sites);
     }
 
     [Action("Get site", Description = "Get details of a site")]
@@ -36,7 +36,7 @@ public class SiteActions(InvocationContext invocationContext) : WebflowInvocable
     {
         var request = new RestRequest($"sites/{Client.GetSiteId(site.SiteId)}", Method.Get);
         var result = await Client.ExecuteWithErrorHandling<SiteEntity>(request);
-        return new GetSiteResponse(result);
+        return new(result);
     }
 
     [Action("Publish site", Description = "Publishes a site to one or more more domains")]

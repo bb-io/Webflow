@@ -26,7 +26,7 @@ namespace Apps.Webflow.Actions;
 public class ComponentsActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
     : WebflowInvocable(invocationContext)
 {
-    private readonly ContentServicesFactory _factory = new ContentServicesFactory(invocationContext);
+    private readonly ContentServicesFactory _factory = new(invocationContext);
 
     [Action("Search components", Description = "Search all components for a site")]
     public async Task<SearchComponentsResponse> SearchComponents(
@@ -45,16 +45,17 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
         return new SearchComponentsResponse(pages.ToList());
     }
 
-    [Action("Download component", Description = "Get the component content in HTML file")]
+    [Action("Download component", Description = "Download the component content")]
     public async Task<DownloadComponentResponse> DownloadComponent(
         [ActionParameter] SiteRequest site,
-        [ActionParameter] DownloadComponentContentRequest input)
+        [ActionParameter] DownloadComponentContentRequest input,
+        [ActionParameter] LocaleRequest locale)
     {
         string fileFormat = input.FileFormat ?? MediaTypeNames.Text.Html;
 
         var downloadRequest = new DownloadContentRequest
         {
-            Locale = input.LocaleId,
+            Locale = locale.Locale,
             ContentId = input.ComponentId,
             FileFormat = fileFormat,
         };
@@ -69,10 +70,11 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
         return new(file);
     }
 
-    [Action("Upload component", Description = "Update component content using HTML file")]
+    [Action("Upload component", Description = "Update component content from a file")]
     public async Task UploadComponent(
         [ActionParameter] SiteRequest site,
-        [ActionParameter] UpdateComponentContentRequest input)
+        [ActionParameter] UpdateComponentContentRequest input,
+        [ActionParameter] LocaleRequest locale)
     {
         await using var source = await fileManagementClient.DownloadAsync(input.File);
         var html = Encoding.UTF8.GetString(await source.GetByteData());
@@ -90,7 +92,7 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
 
         var updateRequest = new UploadContentRequest 
         {
-            Locale = input.LocaleId,
+            Locale = locale.Locale,
             ContentId = input.ComponentId,
         }; 
 

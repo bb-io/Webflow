@@ -104,21 +104,21 @@ Navigate to Apps, and identify the **Webflow** app. You can use search to find i
 ### Collection items
 
 - **Search collection items** searches all collection items for a specific collection.
-- **Download collection item** returns content of a specific collection item in HTML format.
+- **Download collection item** downloads the collection item content.
 - **Publish collection item** publishes a specific collection item. This actions can only publish an item of the default locale, because of the Webflow API limitation.
-- **Upload collection item** updates content of a specific collection item from HTML file.
+- **Upload collection item** updates collection item content from a file.
 
 ### Pages
 
 - **Search pages** searches pages using filters.
-- **Download page** gets the page content in HTML file.
-- **Upload page** updates page content using HTML file.
+- **Download page** downloads the page content.
+- **Upload page** updates page content from a file.
 
 ### Components
 
 - **Search components** searches all components for a site.
-- **Download component** gets the component content in HTML file.
-- **Upload component** updates component content using HTML file.
+- **Download component** downloads the component content.
+- **Upload component** updates component content from a file.
 
 ### Sites
 
@@ -129,8 +129,8 @@ Navigate to Apps, and identify the **Webflow** app. You can use search to find i
 ### Content
 
 - **Search content** searches for any type of content. If the 'Content type' value is not specified, all supported content types will be fetched.
-- **Download content** downloads content as HTML for a specific content type based on its ID.
-- **Upload content** updates content from an HTML file.
+- **Download content** downloads content to a file.
+- **Upload content** updates content from a file.
 	
 ## Events
 

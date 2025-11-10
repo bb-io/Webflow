@@ -18,13 +18,15 @@ public static class CollectionItemJsonConverter
     public static Stream ToJson(
         CollectionItemEntity item,
         string collectionId,
-        string siteId)
+        string siteId,
+        string? locale)
     {
         var model = new DownloadedCollectionItem
         {
             CollectionId = collectionId,
             SiteId = siteId,
-            CollectionItem = item
+            CollectionItem = item,
+            Locale = locale
         };
 
         var jsonString = JsonConvert.SerializeObject(model, settings);
