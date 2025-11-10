@@ -18,7 +18,7 @@ public class UploadContentRequest : IUploadContentInput
     [StaticDataSource(typeof(ContentTypeStaticDataHandler))]
     public string? ContentType { get; set; }
 
-    [Display("Locale ID")]
+    [Display("Locale")]
     [DataSource(typeof(SiteLocaleDataSourceHandler))]
     public string? Locale { get; set; }
 

@@ -15,7 +15,7 @@ public class DownloadContentRequest : IDownloadContentInput
     [DataSource(typeof(ContentDataHandler))]
     public string ContentId { get; set; }
 
-    [Display("Locale ID")]
+    [Display("Locale")]
     [DataSource(typeof(SiteLocaleDataSourceHandler))]
     public string? Locale { get; set; }
 
