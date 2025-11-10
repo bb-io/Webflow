@@ -4,7 +4,7 @@ namespace Apps.Webflow.Conversion.Models;
 
 public class DownloadedPage
 {
-    public string? LocaleId { get; set; }
+    public string? Locale { get; set; }
     public required string SiteId { get; set; }
     public required PageDomEntity Page { get; set; }
 }

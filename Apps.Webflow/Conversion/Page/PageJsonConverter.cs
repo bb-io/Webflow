@@ -20,7 +20,7 @@ public static class PageJsonConverter
         {
             Page = page,
             SiteId = siteId,
-            LocaleId = localeId,
+            Locale = localeId,
         };
 
         var jsonString = JsonConvert.SerializeObject(model, settings);
