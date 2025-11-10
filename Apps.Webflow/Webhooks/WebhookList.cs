@@ -1,4 +1,5 @@
 using Apps.Webflow.Extensions;
+using Apps.Webflow.Helper;
 using Apps.Webflow.Invocables;
 using Apps.Webflow.Webhooks.Handlers;
 using Apps.Webflow.Webhooks.Models.Request;
@@ -92,22 +93,26 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
     [BlueprintEventDefinition(BlueprintEvent.ContentCreatedOrUpdated)]
     [Webhook("On collection item created", typeof(CollectionItemCreatedWebhookHandler),
         Description = "Triggers when specific collection item was created")]
-    public Task<WebhookResponse<CollectionItemResponse>> OnCollectionItemCreated(WebhookRequest webhookRequest,
+    public async Task<WebhookResponse<CollectionItemResponse>> OnCollectionItemCreated(WebhookRequest webhookRequest,
         [WebhookParameter] CollectionItemWebhookRequest input)
     {
         var data = webhookRequest.GetPayload<CollectionWebhookResponse>();
 
-        if (input.Locale != null && data.FieldData["_locale"]!.ToString() != input.Locale)
-            return Preflight<CollectionItemResponse>();
+        if (!string.IsNullOrEmpty(input.Locale))
+        {
+            var cmsLocaleId = await LocaleHelper.GetCmsLocaleId(input.Locale, Client.GetSiteId(input.SiteId), Client);
+            if (data.CmsLocaleId != cmsLocaleId)
+                return await Preflight<CollectionItemResponse>();
+        }
 
-        if (input.CollectionId != null && data.CollectionId != input.CollectionId)
-            return Preflight<CollectionItemResponse>();
+        if (input.CollectionId is not null && data.CollectionId != input.CollectionId)
+            return await Preflight<CollectionItemResponse>();
 
-        return Task.FromResult<WebhookResponse<CollectionItemResponse>>(new()
+        return new WebhookResponse<CollectionItemResponse>
         {
             HttpResponseMessage = null,
             Result = data
-        });
+        };
     }
 
     [Webhook("On collection item updated", typeof(CollectionItemChangedWebhookHandler),
