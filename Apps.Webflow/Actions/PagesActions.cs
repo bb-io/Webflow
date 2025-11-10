@@ -51,14 +51,15 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
     [Action("Download page", Description = "Download the page content")]
     public async Task<DownloadPageResponse> DownloadPage(
         [ActionParameter] SiteRequest site,
-        [ActionParameter] DownloadPageRequest input)
+        [ActionParameter] DownloadPageRequest input,
+        [ActionParameter] LocaleRequest locale)
     {
         string fileFormat = input.FileFormat ?? MediaTypeNames.Text.Html;
 
         var service = _factory.GetContentService(ContentTypes.Page);
         var request = new DownloadContentRequest
         {
-            Locale = input.Locale,
+            Locale = locale.Locale,
             ContentId = input.PageId,
             FileFormat = fileFormat,
         };
@@ -84,7 +85,8 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
     [Action("Upload page", Description = "Update page content from a file")]
     public async Task UploadPage(
         [ActionParameter] SiteRequest site,
-        [ActionParameter] UpdatePageContentRequest input)
+        [ActionParameter] UpdatePageContentRequest input,
+        [ActionParameter] LocaleRequest locale)
     {
         await using var source = await fileManagementClient.DownloadAsync(input.File);
         var html = Encoding.UTF8.GetString(await source.GetByteData());
@@ -103,7 +105,7 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
         var uploadRequest = new UploadContentRequest
         {
             ContentId = input.PageId,
-            Locale = input.Locale
+            Locale = locale.Locale
         };
 
         var service = _factory.GetContentService(ContentTypes.Page);
