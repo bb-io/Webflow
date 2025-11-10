@@ -54,23 +54,19 @@ public class CollectionItemTests : TestBase
     [TestMethod]
     public async Task UploadCollectionItem_WithPublishing_IsSuccess()
     {
-        foreach (var context in InvocationContext)
+        // Arrange
+        var context = GetInvocationContext(ConnectionTypes.OAuth2);
+        var request = new UpdateCollectionItemRequest
         {
-            // Arrange
-            var request = new UpdateCollectionItemRequest
-            {
-                CollectionId = "68f88700e2a4dba6d693cc90",
-                CollectionItemId = "68f88700e2a4dba6d693ccc4",
-                Publish = true,
-                File = new FileReference { Name = "test_en.html" }
-            };
-            var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
-            var actions = new CollectionItemActions(context, FileManagementClient);
-            var locale = new LocaleRequest { };
+            Publish = true,
+            File = new FileReference { Name = "colitem.json" }
+        };
+        var site = new SiteRequest { };
+        var actions = new CollectionItemActions(context, FileManagementClient);
+        var locale = new LocaleRequest { };
 
-            // Act
-            await actions.UploadCollectionItem(site, request, locale);
-        }
+        // Act
+        await actions.UploadCollectionItem(site, request, locale);
     }
 
     [TestMethod]

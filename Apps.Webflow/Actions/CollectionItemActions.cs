@@ -1,4 +1,5 @@
 using Apps.Webflow.Constants;
+using Apps.Webflow.Conversion.CollectionItem;
 using Apps.Webflow.Helper;
 using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Entities;
@@ -110,11 +111,11 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
 
         await service.UploadContent(stream, Client.GetSiteId(site.SiteId), request);
 
-        // should be reworked to get metadata and pass it here
         if (input.Publish.HasValue && input.Publish.Value)
         {
-            var collection = new CollectionRequest { CollectionId = input.CollectionId };
-            var publishRequest = new PublishItemRequest { CollectionItemId = input.CollectionItemId };
+            var metadata = await CollectionItemMetadataParser.Parse(stream);
+            var collection = new CollectionRequest { CollectionId = metadata.CollectionId! };
+            var publishRequest = new PublishItemRequest { CollectionItemId = metadata.CollectionItemId! };
             await PublishCollectionItem(site, collection, publishRequest, locale);
         }
     }
