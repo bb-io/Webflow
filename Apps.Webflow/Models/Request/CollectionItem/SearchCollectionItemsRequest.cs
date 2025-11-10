@@ -1,6 +1,4 @@
-﻿using Apps.Webflow.DataSourceHandlers.Locale;
-using Blackbird.Applications.Sdk.Common;
-using Blackbird.Applications.Sdk.Common.Dynamic;
+﻿using Blackbird.Applications.Sdk.Common;
 
 namespace Apps.Webflow.Models.Request.CollectionItem;
 
@@ -11,10 +9,6 @@ public class SearchCollectionItemsRequest
 
     [Display("Slug contains")]
     public string? SlugContains { get; set; }
-
-    [Display("Locale")]
-    [DataSource(typeof(SiteLocaleDataSourceHandler))]
-    public string? CmsLocale { get; set; }
 
     [Display("Last published before")]
     public DateTime? LastPublishedBefore { get; set; }

@@ -1,4 +1,4 @@
-﻿using Apps.Webflow.DataSourceHandlers.CollectionItem;
+﻿using Apps.Webflow.DataSourceHandlers.Collection;
 using Apps.Webflow.DataSourceHandlers.Content;
 using Apps.Webflow.DataSourceHandlers.Locale;
 using Blackbird.Applications.Sdk.Common;
@@ -27,6 +27,6 @@ public class UploadContentRequest : IUploadContentInput
     public string? ContentId { get; set; }
 
     [Display("Collection ID")]
-    [DataSource(typeof(UpdateCollectionItemCollectionDataSourceHandler))]
+    [DataSource(typeof(CollectionItemCollectionDataSourceHandler))]
     public string? CollectionId { get; set; }
 }

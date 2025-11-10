@@ -32,7 +32,8 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         [ActionParameter] SiteRequest site,
         [ActionParameter] CollectionRequest collection,
         [ActionParameter] BasicDateFilter dateFilter,
-        [ActionParameter] SearchCollectionItemsRequest input)
+        [ActionParameter] SearchCollectionItemsRequest input,
+        [ActionParameter] LocaleRequest locale)
     {
         ValidatorHelper.ValidateInputDates(dateFilter);
         ValidatorHelper.ValidatePublishedInputDates(input.LastPublishedBefore, input.LastPublishedAfter);
@@ -46,9 +47,9 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         if (input.LastPublishedAfter.HasValue)
             request.AddParameter("lastPublished[gte]", input.LastPublishedAfter.Value.ToString("O"));
 
-        if (!string.IsNullOrEmpty(input.CmsLocale))
+        if (!string.IsNullOrEmpty(locale.Locale))
         {
-            var cmsLocaleId = await LocaleHelper.GetCmsLocaleId(input.CmsLocale, Client.GetSiteId(site.SiteId), Client);
+            var cmsLocaleId = await LocaleHelper.GetCmsLocaleId(locale.Locale, Client.GetSiteId(site.SiteId), Client);
             request.AddParameter("cmsLocaleId", cmsLocaleId);
         }
 
@@ -90,7 +91,8 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
     [Action("Upload collection item", Description = "Update collection item content from a file")]
     public async Task UploadCollectionItem(
         [ActionParameter] SiteRequest site,
-        [ActionParameter] UpdateCollectionItemRequest input)
+        [ActionParameter] UpdateCollectionItemRequest input,
+        [ActionParameter] LocaleRequest locale)
     {
         await using var source = await fileManagementClient.DownloadAsync(input.File);
         var bytes = await source.GetByteData();
@@ -101,7 +103,7 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         var request = new UploadContentRequest
         {
             CollectionId = input.CollectionId,
-            Locale = input.CmsLocale,
+            Locale = locale.Locale,
             ContentId = input.CollectionItemId
         };
 
@@ -110,26 +112,24 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         // should be reworked to get metadata and pass it here
         if (input.Publish.HasValue && input.Publish.Value)
         {
-            var publishRequest = new PublishItemRequest
-            {
-                CollectionId = input.CollectionId,
-                CollectionItemId = input.CollectionItemId,
-                CmsLocale = input.CmsLocale
-            };
-            await PublishCollectionItem(site, publishRequest);
+            var collection = new CollectionRequest { CollectionId = input.CollectionId };
+            var publishRequest = new PublishItemRequest { CollectionItemId = input.CollectionItemId };
+            await PublishCollectionItem(site, collection, publishRequest, locale);
         }
     }
 
     [Action("Publish collection item", Description = "Publish a specific collection item")]
     public async Task PublishCollectionItem(
         [ActionParameter] SiteRequest site,
-        [ActionParameter] PublishItemRequest input)
+        [ActionParameter] CollectionRequest collection,
+        [ActionParameter] PublishItemRequest input,
+        [ActionParameter] LocaleRequest locale)
     {
         object payload;
 
-        if (!string.IsNullOrEmpty(input.CmsLocale))
+        if (!string.IsNullOrEmpty(locale.Locale))
         {
-            var cmsLocaleId = await LocaleHelper.GetCmsLocaleId(input.CmsLocale, Client.GetSiteId(site.SiteId), Client);
+            var cmsLocaleId = await LocaleHelper.GetCmsLocaleId(locale.Locale, Client.GetSiteId(site.SiteId), Client);
             payload = new
             {
                 items = new[]
@@ -150,7 +150,7 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
             };
         }
 
-        var request = new RestRequest($"collections/{input.CollectionId}/items/publish", Method.Post)
+        var request = new RestRequest($"collections/{collection.CollectionId}/items/publish", Method.Post)
             .WithJsonBody(payload, JsonConfig.Settings);
 
         await Client.ExecuteWithErrorHandling(request);

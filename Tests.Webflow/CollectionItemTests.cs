@@ -41,14 +41,14 @@ public class CollectionItemTests : TestBase
         var request = new UpdateCollectionItemRequest
         {
             File = new FileReference { Name = "colitem.html" },
-            CmsLocale = "en",
             Publish = false,
         };
         var site = new SiteRequest { };
         var actions = new CollectionItemActions(context, FileManagementClient);
+        var locale = new LocaleRequest { Locale = "en" };
 
         // Act
-        await actions.UploadCollectionItem(site, request);
+        await actions.UploadCollectionItem(site, request, locale);
     }
 
     [TestMethod]
@@ -66,9 +66,10 @@ public class CollectionItemTests : TestBase
             };
             var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
             var actions = new CollectionItemActions(context, FileManagementClient);
+            var locale = new LocaleRequest { };
 
             // Act
-            await actions.UploadCollectionItem(site, request);
+            await actions.UploadCollectionItem(site, request, locale);
         }
     }
 
@@ -82,9 +83,10 @@ public class CollectionItemTests : TestBase
         var site = new SiteRequest { };
         var dateFilter = new BasicDateFilter { };
         var collection = new CollectionRequest { CollectionId = "68f8b337cbd1cac54f5b9d9c" };
+        var locale = new LocaleRequest { };
 
         // Act
-        var result = await actions.SearchCollectionItems(site, collection, dateFilter, request);
+        var result = await actions.SearchCollectionItems(site, collection, dateFilter, request, locale);
 
         // Assert
         Assert.IsNotNull(result);
@@ -100,14 +102,14 @@ public class CollectionItemTests : TestBase
         var request = new SearchCollectionItemsRequest
         {
             LastPublishedAfter = new DateTime(2025, 11, 03, 10, 0, 0, DateTimeKind.Utc),
-            CmsLocale = "69007d6cf09bd27cf732e15a"
         };
         var site = new SiteRequest { };
         var dateFilter = new BasicDateFilter { };
         var collection = new CollectionRequest { CollectionId = "68f8b337cbd1cac54f5b9d9c" };
+        var locale = new LocaleRequest { };
 
         // Act
-        var result = await actions.SearchCollectionItems(site, collection, dateFilter, request);
+        var result = await actions.SearchCollectionItems(site, collection, dateFilter, request, locale);
 
         // Assert
         Assert.IsNotNull(result);
@@ -121,14 +123,12 @@ public class CollectionItemTests : TestBase
         var context = GetInvocationContext(ConnectionTypes.OAuth2);
         var action = new CollectionItemActions(context, FileManagementClient);
         var site = new SiteRequest { };
-        var input = new PublishItemRequest 
-        { 
-            CollectionId = "68f8b337cbd1cac54f5b9d9c",
-            CollectionItemId = "6900eecfd830d0978a6efd65"
-        };
+        var collection = new CollectionRequest { CollectionId = "68f8b337cbd1cac54f5b9d9c" };
+        var input = new PublishItemRequest { CollectionItemId = "6900eecfd830d0978a6efd65" };
+        var locale = new LocaleRequest { };
 
         // Act
-        await action.PublishCollectionItem(site, input);
+        await action.PublishCollectionItem(site, collection, input, locale);
     }
 
     [TestMethod]
@@ -138,14 +138,11 @@ public class CollectionItemTests : TestBase
         var context = GetInvocationContext(ConnectionTypes.OAuth2);
         var action = new CollectionItemActions(context, FileManagementClient);
         var site = new SiteRequest { };
-        var input = new PublishItemRequest
-        {
-            CollectionId = "68f8b337cbd1cac54f5b9d9c",
-            CollectionItemId = "6900ef0851221c2ffc49527a",
-            CmsLocale = "sv-SE"
-        };
+        var input = new PublishItemRequest { CollectionItemId = "6900ef0851221c2ffc49527a" };
+        var locale = new LocaleRequest { Locale = "sv-SE" };
+        var collection = new CollectionRequest { CollectionId = "68f8b337cbd1cac54f5b9d9c" };
 
         // Act
-        await action.PublishCollectionItem(site, input);
+        await action.PublishCollectionItem(site, collection, input, locale);
     }
 }
