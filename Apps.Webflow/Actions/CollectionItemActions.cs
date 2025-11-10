@@ -64,7 +64,8 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
     [Action("Download collection item", Description = "Download the collection item content")]
     public async Task<DownloadCollectionItemContentResponse> DownloadCollectionItem(
         [ActionParameter] SiteRequest site,
-        [ActionParameter] CollectionItemRequest input)
+        [ActionParameter] CollectionItemRequest input,
+        [ActionParameter] LocaleRequest locale)
     {
         string fileFormat = input.FileFormat ?? MediaTypeNames.Text.Html;
 
@@ -73,7 +74,7 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         {
             CollectionId = input.CollectionId,
             ContentId = input.CollectionItemId,
-            Locale = input.CmsLocale,
+            Locale = locale.Locale,
             FileFormat = fileFormat,
         };
 

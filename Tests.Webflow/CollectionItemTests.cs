@@ -22,13 +22,13 @@ public class CollectionItemTests : TestBase
             CollectionId = "68f8b337cbd1cac54f5b9d9c",
             CollectionItemId = "6900ef5e244b95de8a4b7a3c",
             FileFormat = "text/html",
-            CmsLocale = "en"
         };
+        var locale = new LocaleRequest { Locale = "en" };
         var site = new SiteRequest { };
         var actions = new CollectionItemActions(context, FileManagementClient);
 
         // Act
-        var result = await actions.DownloadCollectionItem(site, request);
+        var result = await actions.DownloadCollectionItem(site, request, locale);
 
         // Assert
         Assert.IsNotNull(result);
