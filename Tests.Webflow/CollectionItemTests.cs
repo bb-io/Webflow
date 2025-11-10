@@ -20,8 +20,9 @@ public class CollectionItemTests : TestBase
         var request = new CollectionItemRequest
         {
             CollectionId = "68f8b337cbd1cac54f5b9d9c",
-            CollectionItemId = "68f8b337cbd1cac54f5b9dee",
-            FileFormat = "original"
+            CollectionItemId = "6900ef5e244b95de8a4b7a3c",
+            FileFormat = "text/html",
+            CmsLocale = "en"
         };
         var site = new SiteRequest { };
         var actions = new CollectionItemActions(context, FileManagementClient);
@@ -31,6 +32,44 @@ public class CollectionItemTests : TestBase
 
         // Assert
         Assert.IsNotNull(result);
+    }
+
+    [TestMethod]
+    public async Task UploadCollectionItem_WithoutPublishing_IsSuccess()
+    {
+        var context = GetInvocationContext(ConnectionTypes.OAuth2);
+        var request = new UpdateCollectionItemRequest
+        {
+            File = new FileReference { Name = "colitem.html" },
+            CmsLocale = "en",
+            Publish = false,
+        };
+        var site = new SiteRequest { };
+        var actions = new CollectionItemActions(context, FileManagementClient);
+
+        // Act
+        await actions.UploadCollectionItem(site, request);
+    }
+
+    [TestMethod]
+    public async Task UploadCollectionItem_WithPublishing_IsSuccess()
+    {
+        foreach (var context in InvocationContext)
+        {
+            // Arrange
+            var request = new UpdateCollectionItemRequest
+            {
+                CollectionId = "68f88700e2a4dba6d693cc90",
+                CollectionItemId = "68f88700e2a4dba6d693ccc4",
+                Publish = true,
+                File = new FileReference { Name = "test_en.html" }
+            };
+            var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
+            var actions = new CollectionItemActions(context, FileManagementClient);
+
+            // Act
+            await actions.UploadCollectionItem(site, request);
+        }
     }
 
     [TestMethod]
@@ -73,43 +112,6 @@ public class CollectionItemTests : TestBase
         // Assert
         Assert.IsNotNull(result);
         PrintJsonResult(result);
-    }
-
-    [TestMethod]
-    public async Task UpdateCollectionItemContent_WithoutPublishing_IsSuccess()
-    {
-        var context = GetInvocationContext(ConnectionTypes.OAuth2);
-        var request = new UpdateCollectionItemRequest
-        {
-            File = new FileReference { Name = "colitem.html" },
-            Publish = false,
-        };
-        var site = new SiteRequest { };
-        var actions = new CollectionItemActions(context, FileManagementClient);
-
-        // Act
-        await actions.UploadCollectionItem(site, request);
-    }
-
-    [TestMethod]
-    public async Task UpdateCollectionItemContent_WithPublishing_IsSuccess()
-    {
-        foreach (var context in InvocationContext)
-        {
-            // Arrange
-            var request = new UpdateCollectionItemRequest
-            {
-                CollectionId = "68f88700e2a4dba6d693cc90",
-                CollectionItemId = "68f88700e2a4dba6d693ccc4",
-                Publish = true,
-                File = new FileReference { Name = "test_en.html" }
-            };
-            var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
-            var actions = new CollectionItemActions(context, FileManagementClient);
-
-            // Act
-            await actions.UploadCollectionItem(site, request);
-        }
     }
 
     [TestMethod]

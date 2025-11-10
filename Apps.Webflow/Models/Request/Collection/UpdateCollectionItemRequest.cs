@@ -18,7 +18,7 @@ public class UpdateCollectionItemRequest
 
     [Display("Locale")]
     [DataSource(typeof(SiteLocaleDataSourceHandler))]
-    public string? CmsLocaleId { get; set; }
+    public string? CmsLocale { get; set; }
 
     [Display("Collection item ID")]
     [DataSource(typeof(UpdateCollectionItemDataSourceHandler))]

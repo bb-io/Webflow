@@ -100,7 +100,7 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         var request = new UploadContentRequest
         {
             CollectionId = input.CollectionId,
-            Locale = input.CmsLocaleId,
+            Locale = input.CmsLocale,
             ContentId = input.CollectionItemId
         };
 
@@ -113,7 +113,7 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
             {
                 CollectionId = input.CollectionId,
                 CollectionItemId = input.CollectionItemId,
-                CmsLocales = [input.CmsLocaleId]
+                CmsLocales = [input.CmsLocale]
             };
             await PublishCollectionItem(site, publishRequest);
         }

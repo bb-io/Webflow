@@ -73,8 +73,8 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
 
         if (!string.IsNullOrEmpty(input.Locale))
         {
-            string fetchedCmsLocaleId = await GetCmsLocale(siteId, input.Locale);
-            itemEndpoint = itemEndpoint.SetQueryParameter("cmsLocaleId", fetchedCmsLocaleId);
+            var cmsLocaleId = await LocaleHelper.GetCmsLocaleId(input.Locale, siteId, Client);
+            itemEndpoint = itemEndpoint.SetQueryParameter("cmsLocaleId", cmsLocaleId);
         }
 
         var itemRequest = new RestRequest(itemEndpoint, Method.Get);
@@ -88,12 +88,13 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
                 siteId,
                 input.CollectionId,
                 input.ContentId,
-                item.CmsLocaleId
+                input.Locale
             ),
             "original" => CollectionItemJsonConverter.ToJson(
                 item,
                 input.CollectionId,
-                siteId
+                siteId,
+                input.Locale
             ),
             _ => throw new PluginMisconfigurationException($"Unsupported output format: {input.FileFormat}")
         };
@@ -151,18 +152,20 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
 
         input.CollectionId ??= Meta("blackbird-collection-id");
         input.ContentId ??= Meta("blackbird-collection-item-id");
-        input.Locale ??= Meta("blackbird-cmslocale-id");
+
+        input.Locale ??= Meta("blackbird-cmslocale");
+        if (!string.IsNullOrEmpty(input.Locale))
+            input.Locale = await LocaleHelper.GetCmsLocaleId(input.Locale, siteId, Client);
 
         if (string.IsNullOrWhiteSpace(input.CollectionId))
             throw new PluginMisconfigurationException("Collection ID is missing. Provide it or include it in the HTML file.");
         if (string.IsNullOrWhiteSpace(input.ContentId))
             throw new PluginMisconfigurationException("Collection item ID is missing. Provide it or include it in the HTML file.");
         if (string.IsNullOrWhiteSpace(input.Locale))
-            throw new PluginMisconfigurationException("CMS locale ID is missing. Provide it or include it in the HTML file.");
+            throw new PluginMisconfigurationException("Locale is missing. Provide it or include it in the HTML file.");
 
         var itemEndpoint = $"collections/{input.CollectionId}/items/{input.ContentId}";
-        string fetchedCmsLocaleId = await GetCmsLocale(siteId, input.Locale!);
-        itemEndpoint = itemEndpoint.SetQueryParameter("cmsLocaleId", fetchedCmsLocaleId);
+        itemEndpoint = itemEndpoint.SetQueryParameter("cmsLocaleId", input.Locale);
 
         var itemRequest = new RestRequest(itemEndpoint, Method.Get);
         var item = await Client.ExecuteWithErrorHandling<CollectionItemEntity>(itemRequest);
@@ -174,7 +177,7 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
 
         var endpoint = $"collections/{input.CollectionId}/items/{input.ContentId}";
         var request = new RestRequest(endpoint, Method.Patch)
-            .WithJsonBody(new { fieldData, cmsLocaleId = fetchedCmsLocaleId }, JsonConfig.Settings);
+            .WithJsonBody(new { fieldData, cmsLocaleId = input.Locale }, JsonConfig.Settings);
 
         await Client.ExecuteWithErrorHandling(request);
     }
@@ -186,49 +189,27 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
 
         var collectionId = input.CollectionId ?? item.CollectionId;
         var itemId = input.ContentId ?? item.CollectionItem.Id;
-        var cmsLocaleId = input.Locale ?? item.CollectionItem.CmsLocaleId;
+
+        var cmsLocaleId = input.Locale ?? item.Locale;
+        if (!string.IsNullOrEmpty(cmsLocaleId))
+            cmsLocaleId = await LocaleHelper.GetCmsLocaleId(cmsLocaleId, siteId, Client);
 
         if (string.IsNullOrWhiteSpace(collectionId))
             throw new PluginMisconfigurationException("Missing 'collectionId' in JSON upload.");
         if (string.IsNullOrWhiteSpace(itemId))
             throw new PluginMisconfigurationException("Missing 'collectionItem.id' in JSON upload.");
         if (string.IsNullOrWhiteSpace(cmsLocaleId))
-            throw new PluginMisconfigurationException("Missing 'collectionItem.cmsLocaleId' in JSON upload.");
+            throw new PluginMisconfigurationException("Missing 'locale' in JSON upload.");
         if (item.CollectionItem.FieldData == null)
             throw new PluginMisconfigurationException("Missing 'collectionItem.fieldData' in JSON upload.");
 
-        string fetchedCmsLocaleId = await GetCmsLocale(siteId, cmsLocaleId);
-
-        var endpoint = $"collections/{collectionId}/items/{itemId}".SetQueryParameter("cmsLocaleId", fetchedCmsLocaleId);
-        var request = new RestRequest(endpoint, Method.Patch)
+        var request = new RestRequest($"collections/{collectionId}/items/{itemId}", Method.Patch)
             .WithJsonBody(new
             {
                 fieldData = item.CollectionItem.FieldData,
-                cmsLocaleId = fetchedCmsLocaleId
+                cmsLocaleId
             }, JsonConfig.Settings);
 
         await Client.ExecuteWithErrorHandling(request);
-    }
-
-    private async Task<string> GetCmsLocale(string siteId, string localeId)
-    {
-        var siteRequest = new RestRequest($"/sites/{siteId}", Method.Get);
-        var siteEntity = await Client.ExecuteWithErrorHandling<SiteEntity>(siteRequest);
-
-        if (siteEntity.Locales == null)
-            throw new PluginApplicationException("Site locales are not available");
-
-        var cmsLocale = siteEntity.Locales.Secondary?.FirstOrDefault(x => x.CmsLocaleId == localeId);
-        if (cmsLocale != null)
-            return localeId;
-        
-        if (siteEntity.Locales.Primary?.Id == localeId || siteEntity.Locales.Primary?.CmsLocaleId == localeId)
-            return siteEntity.Locales.Primary.CmsLocaleId;
-
-        var secondaryLocale = siteEntity.Locales.Secondary?.FirstOrDefault(x => x.Id == localeId);
-        if (secondaryLocale != null)
-            return secondaryLocale.CmsLocaleId;
-
-        throw new PluginApplicationException("Can't match the input locale with available collection item locale ID");
     }
 }

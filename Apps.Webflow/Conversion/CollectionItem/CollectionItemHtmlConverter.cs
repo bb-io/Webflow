@@ -38,7 +38,7 @@ public static class CollectionItemHtmlConverter
             if (!string.IsNullOrEmpty(cmsLocaleId))
             {
                 var mLoc = doc.CreateElement("meta");
-                mLoc.SetAttributeValue("name", "blackbird-cmslocale-id");
+                mLoc.SetAttributeValue("name", "blackbird-cmslocale");
                 mLoc.SetAttributeValue("content", cmsLocaleId);
                 head.AppendChild(mLoc);
             }
