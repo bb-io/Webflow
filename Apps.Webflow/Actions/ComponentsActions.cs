@@ -48,13 +48,14 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
     [Action("Download component", Description = "Download the component content")]
     public async Task<DownloadComponentResponse> DownloadComponent(
         [ActionParameter] SiteRequest site,
-        [ActionParameter] DownloadComponentContentRequest input)
+        [ActionParameter] DownloadComponentContentRequest input,
+        [ActionParameter] LocaleRequest locale)
     {
         string fileFormat = input.FileFormat ?? MediaTypeNames.Text.Html;
 
         var downloadRequest = new DownloadContentRequest
         {
-            Locale = input.Locale,
+            Locale = locale.Locale,
             ContentId = input.ComponentId,
             FileFormat = fileFormat,
         };
@@ -72,7 +73,8 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
     [Action("Upload component", Description = "Update component content from a file")]
     public async Task UploadComponent(
         [ActionParameter] SiteRequest site,
-        [ActionParameter] UpdateComponentContentRequest input)
+        [ActionParameter] UpdateComponentContentRequest input,
+        [ActionParameter] LocaleRequest locale)
     {
         await using var source = await fileManagementClient.DownloadAsync(input.File);
         var html = Encoding.UTF8.GetString(await source.GetByteData());
@@ -90,7 +92,7 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
 
         var updateRequest = new UploadContentRequest 
         {
-            Locale = input.Locale,
+            Locale = locale.Locale,
             ContentId = input.ComponentId,
         }; 
 

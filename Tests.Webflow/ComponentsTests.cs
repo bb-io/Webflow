@@ -59,12 +59,12 @@ public class ComponentsTests : TestBase
         var input = new DownloadComponentContentRequest 
         { 
             ComponentId = "88a386dd-8f07-0c34-70f0-2d9f87e29718",
-            FileFormat = "text/html",
-            Locale = "sv-SE"
+            FileFormat = "text/html"
         };
+        var locale = new LocaleRequest { Locale = "sv-SE" };
 
         // Act
-        var result = await actions.DownloadComponent(site, input);
+        var result = await actions.DownloadComponent(site, input, locale);
 
         // Assert
         Assert.IsNotNull(result);
@@ -79,9 +79,10 @@ public class ComponentsTests : TestBase
         var action = new ComponentsActions(context, FileManagementClient);
 
         var fileReference = new FileReference { Name = "comp.html" };
-        var input = new UpdateComponentContentRequest { File = fileReference, Locale = "sv-SE" };
+        var input = new UpdateComponentContentRequest { File = fileReference };
+        var locale = new LocaleRequest { Locale = "sv-SE" };
 
         // Act
-        await action.UploadComponent(site, input);
+        await action.UploadComponent(site, input, locale);
     }
 }
