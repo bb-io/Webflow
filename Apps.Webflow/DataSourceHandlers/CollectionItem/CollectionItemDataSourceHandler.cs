@@ -15,7 +15,7 @@ public class CollectionItemDataSourceHandler(
     InvocationContext invocationContext,
     [ActionParameter] SiteRequest site,
     [ActionParameter] CollectionRequest collection,
-    [ActionParameter] string? cmsLocale) 
+    [ActionParameter] LocaleRequest cmsLocale) 
     : WebflowInvocable(invocationContext), IAsyncDataSourceItemHandler
 {
     public async Task<IEnumerable<DataSourceItem>> GetDataAsync(DataSourceContext context, CancellationToken cancellationToken)
@@ -24,9 +24,9 @@ public class CollectionItemDataSourceHandler(
             throw new PluginMisconfigurationException("You need to specify Collection ID first");
 
         var request = new RestRequest($"collections/{collection.CollectionId}/items", Method.Get);
-        if (!string.IsNullOrEmpty(cmsLocale))
+        if (!string.IsNullOrEmpty(cmsLocale.Locale))
         {
-            var cmsLocaleId = await LocaleHelper.GetCmsLocaleId(cmsLocale, Client.GetSiteId(site.SiteId), Client);
+            var cmsLocaleId = await LocaleHelper.GetCmsLocaleId(cmsLocale.Locale, Client.GetSiteId(site.SiteId), Client);
             request.AddQueryParameter("cmsLocaleId", cmsLocaleId);
         }
 
