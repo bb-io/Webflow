@@ -115,15 +115,25 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
                 CollectionItemId = input.CollectionItemId,
                 CmsLocales = [input.CmsLocaleId]
             };
-            await PublishItem(site, publishRequest);
+            await PublishCollectionItem(site, publishRequest);
         }
     }
 
     [Action("Publish collection item", Description = "Publish a specific collection item")]
-    public async Task PublishItem(
+    public async Task PublishCollectionItem(
         [ActionParameter] SiteRequest site,
         [ActionParameter] PublishItemRequest input)
     {
+        var cmsLocaleIds = new List<string>();
+        if (input.CmsLocales is not null && input.CmsLocales.Any())
+        {
+            foreach (var locale in input.CmsLocales)
+            {
+                var cmsLocaleId = await LocaleHelper.GetCmsLocaleId(locale, Client.GetSiteId(site.SiteId), Client);
+                cmsLocaleIds.Add(cmsLocaleId);
+            }
+        }
+
         var endpoint = $"collections/{input.CollectionId}/items/publish";
         var request = new RestRequest(endpoint, Method.Post)
             .WithJsonBody(new
@@ -133,7 +143,7 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
                     new
                     {
                         id = input.CollectionItemId,
-                        cmsLocaleIds = input.CmsLocales ?? Array.Empty<string>()
+                        cmsLocaleIds
                     }
                 },
             }, JsonConfig.Settings);

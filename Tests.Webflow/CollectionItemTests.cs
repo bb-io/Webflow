@@ -111,4 +111,39 @@ public class CollectionItemTests : TestBase
             await actions.UploadCollectionItem(site, request);
         }
     }
+
+    [TestMethod]
+    public async Task PublishCollectionItem_WithoutCmsLocales_IsSuccess()
+    {
+        // Arrange
+        var context = GetInvocationContext(ConnectionTypes.OAuth2);
+        var action = new CollectionItemActions(context, FileManagementClient);
+        var site = new SiteRequest { };
+        var input = new PublishItemRequest 
+        { 
+            CollectionId = "68f8b337cbd1cac54f5b9d9c",
+            CollectionItemId = "6900eecfd830d0978a6efd65"
+        };
+
+        // Act
+        await action.PublishCollectionItem(site, input);
+    }
+
+    [TestMethod]
+    public async Task PublishCollectionItem_WithCmsLocales_IsSuccess()
+    {
+        // Arrange
+        var context = GetInvocationContext(ConnectionTypes.OAuth2);
+        var action = new CollectionItemActions(context, FileManagementClient);
+        var site = new SiteRequest { };
+        var input = new PublishItemRequest
+        {
+            CollectionId = "68f8b337cbd1cac54f5b9d9c",
+            CollectionItemId = "6900ef0851221c2ffc49527a",
+            CmsLocales = ["sv-SE"]
+        };
+
+        // Act
+        await action.PublishCollectionItem(site, input);
+    }
 }
