@@ -43,19 +43,19 @@ public class DataSources : TestBaseWithContext
         Assert.IsNotNull(data);
     }
 
-    [TestMethod, ContextDataSource]
-    public async Task CollectionItemCollectionDataSourceHandler_ReturnsCollections(InvocationContext context)
+    [TestMethod, ContextDataSource(ConnectionTypes.OAuth2, ConnectionTypes.OAuth2Multiple)]
+    public async Task CollectionDataSourceHandler_ReturnsCollections(InvocationContext context)
     {
         // Arrange
-        var site = new SiteIdentifier { };
-        var handler = new CollectionItemCollectionDataSourceHandler(context, site);
+        var site = new SiteIdentifier { SiteId = "68f8b336cbd1cac54f5b9d2c" };
+        var handler = new CollectionDataSourceHandler(context, site);
 
         // Act
         var data = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);
 
         // Assert
-        foreach (var locale in data)
-            Console.WriteLine($"Display name: {locale.Key}, Locale ID: {locale.Value}");
+        PrintDataHandlerResult(data);
+        Assert.IsNotEmpty(data);
     }
 
     [TestMethod, ContextDataSource]

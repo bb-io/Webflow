@@ -20,7 +20,7 @@ public class DownloadContentRequest : IDownloadContentInput
     public string? Locale { get; set; }
 
     [Display("Collection ID")]
-    [DataSource(typeof(CollectionItemCollectionDataSourceHandler))]
+    [DataSource(typeof(CollectionDataSourceHandler))]
     public string? CollectionId { get; set; }
 
     [Display("File format", Description = "Format of the file to be downloaded, defaults to an interoperable HTML")]

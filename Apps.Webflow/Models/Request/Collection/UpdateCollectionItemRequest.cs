@@ -12,7 +12,7 @@ public class UpdateCollectionItemRequest
     public FileReference File { get; set; }
 
     [Display("Collection ID")]
-    [DataSource(typeof(CollectionItemCollectionDataSourceHandler))]
+    [DataSource(typeof(CollectionDataSourceHandler))]
     public string? CollectionId { get; set; }
 
     [Display("Collection item ID")]

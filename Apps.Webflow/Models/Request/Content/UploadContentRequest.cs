@@ -27,6 +27,6 @@ public class UploadContentRequest : IUploadContentInput
     public string? ContentId { get; set; }
 
     [Display("Collection ID")]
-    [DataSource(typeof(CollectionItemCollectionDataSourceHandler))]
+    [DataSource(typeof(CollectionDataSourceHandler))]
     public string? CollectionId { get; set; }
 }
