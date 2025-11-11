@@ -9,13 +9,12 @@ using Apps.Webflow.Models.Response.Content;
 using Apps.Webflow.Services;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
-using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using Blackbird.Applications.SDK.Blueprints;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
-using HtmlAgilityPack;
 using System.Net.Mime;
+using System.Text;
 
 namespace Apps.Webflow.Actions;
 
@@ -67,38 +66,9 @@ public class ContentActions(InvocationContext invocationContext, IFileManagement
         await using var stream = new MemoryStream(bytes);
 
         if (string.IsNullOrEmpty(request.ContentType))
-            request.ContentType = GetContentType("");
+            request.ContentType = ContentTypeDetector.GetContentType(Encoding.UTF8.GetString(bytes));
 
         var service = _factory.GetContentService(request.ContentType);
         await service.UploadContent(stream, Client.GetSiteId(site.SiteId), request);
-    }
-
-    private static string GetContentType(string html)
-    {
-        var doc = new HtmlDocument();
-        doc.LoadHtml(html);
-
-        var head = doc.DocumentNode.SelectSingleNode("//head") 
-            ?? throw new PluginMisconfigurationException(
-                "HTML file does not have the 'head' attribute to recognize the content type. Please provide in the input"
-            );
-
-        var metaTags = head.SelectNodes("meta") 
-            ?? throw new PluginMisconfigurationException(
-                "HTML file does not have 'meta' attributes in the 'head' part to recognize the content type. Please provide in the input"
-            );
-
-        foreach (var meta in metaTags)
-        {
-            var nameAttr = meta.GetAttributeValue("name", "").Trim();
-
-            if (nameAttr == "blackbird-page-id") return ContentTypes.Page;
-            if (nameAttr == "blackbird-component-id") return ContentTypes.Component;
-            if (nameAttr == "blackbird-collection-item-id") return ContentTypes.CollectionItem;
-        }
-
-        throw new PluginMisconfigurationException(
-            "Unable to recognize the content type. Please provide in the input"
-        );
     }
 }

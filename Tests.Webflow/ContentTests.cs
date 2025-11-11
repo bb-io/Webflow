@@ -317,12 +317,10 @@ public class ContentTests : TestBase
         // Arrange
         var context = GetInvocationContext(ConnectionTypes.OAuth2);
         var action = new ContentActions(context, FileManagementClient);
-        var site = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
+        var site = new SiteRequest { };
         var request = new UploadContentRequest
         {
-            Content = new FileReference { Name = "404.html", ContentType = "text/html" },
-            ContentId = "68f8b337cbd1cac54f5b9d81",
-            Locale = "69007d6cf09bd27cf732e155"
+            Content = new FileReference { Name = "page.json" },
         };
 
         // Act
@@ -338,7 +336,7 @@ public class ContentTests : TestBase
         var site = new SiteRequest { };
         var request = new UploadContentRequest
         {
-            Content = new FileReference { Name = "comp.html", ContentType = "text/html" },
+            Content = new FileReference { Name = "comp.html" },
         };
 
         // Act
@@ -355,8 +353,6 @@ public class ContentTests : TestBase
         var request = new UploadContentRequest
         {
             Content = new FileReference { Name = "colitem.html" },
-            //Locale = "69007d6cf09bd27cf732e155",
-            //CollectionId = "68f8b337cbd1cac54f5b9d9c",
         };
 
         // Act
