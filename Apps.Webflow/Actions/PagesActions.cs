@@ -11,15 +11,11 @@ using Apps.Webflow.Models.Response.Pagination;
 using Apps.Webflow.Services;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
-using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
-using Blackbird.Filters.Transformations;
-using Blackbird.Filters.Xliff.Xliff2;
 using RestSharp;
 using System.Net.Mime;
-using System.Text;
 
 namespace Apps.Webflow.Actions;
 
@@ -89,27 +85,17 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
         [ActionParameter] LocaleRequest locale)
     {
         await using var source = await fileManagementClient.DownloadAsync(input.File);
-        var html = Encoding.UTF8.GetString(await source.GetByteData());
-
-        if (Xliff2Serializer.IsXliff2(html))
-        {
-            html = Transformation.Parse(html, input.File.Name).Target().Serialize();
-            if (html == null) throw new PluginMisconfigurationException("XLIFF did not contain files");
-        }
-
-        await using var ms = new MemoryStream(Encoding.UTF8.GetBytes(html));
-        var doc = new HtmlAgilityPack.HtmlDocument();
-        doc.Load(ms);
-        ms.Position = 0;      
+        var bytes = await source.GetByteData();   
+        await using var stream = new MemoryStream(bytes);
 
         var uploadRequest = new UploadContentRequest
         {
-            ContentId = input.PageId,
-            Locale = locale.Locale
+            Locale = locale.Locale,
+            ContentId = input.PageId
         };
 
         var service = _factory.GetContentService(ContentTypes.Page);
-        await service.UploadContent(ms, site.SiteId, uploadRequest);
+        await service.UploadContent(stream, site.SiteId, uploadRequest);
     }
 
     private static List<PageEntity> ApplySearchPageFilters(List<PageEntity> pages, BasicDateFilter dateFilter, SearchPagesRequest input)

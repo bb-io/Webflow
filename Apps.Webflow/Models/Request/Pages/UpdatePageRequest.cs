@@ -4,9 +4,6 @@ namespace Apps.Webflow.Models.Request.Pages;
 
 public class UpdatePageDomRequest
 {
-    [JsonProperty("localeId")]
-    public string? LocaleId { get; set; }
-
     [JsonProperty("nodes")]
     public IEnumerable<UpdatePageNode> Nodes { get; set; }
 }
