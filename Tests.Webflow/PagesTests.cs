@@ -52,11 +52,11 @@ public class PagesTests : TestBaseWithContext
         Assert.IsNotNull(result);
     }
 
-    [TestMethod, ContextDataSource]
+    [TestMethod, ContextDataSource(ConnectionTypes.OAuth2)]
     public async Task UploadPage_IsSuccess(InvocationContext context)
     {
         // Arrange
-        var fileReference = new FileReference { Name = "page.html" };
+        var fileReference = new FileReference { Name = "page.xlf" };
         var site = new SiteRequest { };
 
         var input = new UpdatePageContentRequest { File = fileReference };

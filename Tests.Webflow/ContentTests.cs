@@ -282,7 +282,7 @@ public class ContentTests : TestBaseWithContext
         Assert.Contains(ex.Message, "Collection ID is required");
     }
 
-    [TestMethod, ContextDataSource]
+    [TestMethod, ContextDataSource(ConnectionTypes.OAuth2)]
     public async Task UploadContent_PageType_IsSuccess(InvocationContext context)
     {
         // Arrange
@@ -290,7 +290,8 @@ public class ContentTests : TestBaseWithContext
         var site = new SiteRequest { };
         var request = new UploadContentRequest
         {
-            Content = new FileReference { Name = "page.json" },
+            Content = new FileReference { Name = "page.xlf" },
+            Locale = "sv-SE"
         };
 
         // Act

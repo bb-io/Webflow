@@ -2,6 +2,8 @@
 using Apps.Webflow.Extensions;
 using Apps.Webflow.Services;
 using Blackbird.Applications.Sdk.Common.Exceptions;
+using Blackbird.Filters.Transformations;
+using Blackbird.Filters.Xliff.Xliff2;
 using HtmlAgilityPack;
 using Newtonsoft.Json;
 
@@ -30,6 +32,9 @@ public static class ContentTypeDetector
         }
         else
         {
+            if (Xliff2Serializer.IsXliff2(fileText))
+                fileText = Transformation.Parse(fileText, "content.xlf").Target().Serialize();
+
             var doc = new HtmlDocument();
             doc.LoadHtml(fileText);
 
