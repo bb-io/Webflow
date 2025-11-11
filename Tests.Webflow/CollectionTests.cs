@@ -1,20 +1,20 @@
-﻿using Tests.Webflow.Base;
-using Apps.Webflow.Actions;
+﻿using Apps.Webflow.Actions;
 using Apps.Webflow.Constants;
 using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Collection;
 using Apps.Webflow.Models.Request.Date;
+using Blackbird.Applications.Sdk.Common.Invocation;
+using Tests.Webflow.Base;
 
 namespace Tests.Webflow;
 
 [TestClass]
 public class CollectionTests : TestBase
 {
-	[TestMethod]
-	public async Task SearchCollections_WithoutFilters_ReturnsCollections()
+	[TestMethod, ContextDataSource]
+	public async Task SearchCollections_WithoutFilters_ReturnsCollections(InvocationContext context)
 	{
 		// Arrange
-		var context = GetInvocationContext(ConnectionTypes.OAuth2);
 		var action = new CollectionActions(context);
 		var site = new SiteRequest { };
 		var input = new SearchCollectionsRequest { };
@@ -23,16 +23,15 @@ public class CollectionTests : TestBase
         // Act
         var result = await action.SearchCollections(site, input, date);
 
-		// Assert
-		PrintJsonResult(result);
+        // Assert
+        PrintResult(result);
 		Assert.IsNotNull(result);
     }
 
-    [TestMethod]
-    public async Task SearchCollections_WithFilters_ReturnsCollections()
+    [TestMethod, ContextDataSource]
+    public async Task SearchCollections_WithFilters_ReturnsCollections(InvocationContext context)
     {
         // Arrange
-        var context = GetInvocationContext(ConnectionTypes.OAuth2);
         var action = new CollectionActions(context);
         var site = new SiteRequest { };
         var input = new SearchCollectionsRequest { SlugContains = "post" };
@@ -42,7 +41,7 @@ public class CollectionTests : TestBase
         var result = await action.SearchCollections(site, input, date);
 
         // Assert
-        PrintJsonResult(result);
+        PrintResult(result);
         Assert.IsNotNull(result);
     }
 }

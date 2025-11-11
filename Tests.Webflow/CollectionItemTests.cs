@@ -5,6 +5,7 @@ using Apps.Webflow.Models.Request.Collection;
 using Apps.Webflow.Models.Request.CollectionItem;
 using Apps.Webflow.Models.Request.Date;
 using Blackbird.Applications.Sdk.Common.Files;
+using Blackbird.Applications.Sdk.Common.Invocation;
 using Tests.Webflow.Base;
 
 namespace Tests.Webflow;
@@ -12,11 +13,10 @@ namespace Tests.Webflow;
 [TestClass]
 public class CollectionItemTests : TestBase
 {
-    [TestMethod]
-    public async Task DownloadCollectionItem_ReturnsCollectionItem()
+    [TestMethod, ContextDataSource(ConnectionTypes.OAuth2Multiple)]
+    public async Task DownloadCollectionItem_ReturnsCollectionItem(InvocationContext context)
     {
         // Arrange
-        var context = GetInvocationContext(ConnectionTypes.OAuth2);
         var request = new CollectionItemRequest
         {
             CollectionId = "68f8b337cbd1cac54f5b9d9c",
@@ -34,10 +34,9 @@ public class CollectionItemTests : TestBase
         Assert.IsNotNull(result);
     }
 
-    [TestMethod]
-    public async Task UploadCollectionItem_WithoutPublishing_IsSuccess()
+    [TestMethod, ContextDataSource]
+    public async Task UploadCollectionItem_WithoutPublishing_IsSuccess(InvocationContext context)
     {
-        var context = GetInvocationContext(ConnectionTypes.OAuth2);
         var request = new UpdateCollectionItemRequest
         {
             File = new FileReference { Name = "colitem.html" },
@@ -51,11 +50,10 @@ public class CollectionItemTests : TestBase
         await actions.UploadCollectionItem(site, request, locale);
     }
 
-    [TestMethod]
-    public async Task UploadCollectionItem_WithPublishing_IsSuccess()
+    [TestMethod, ContextDataSource]
+    public async Task UploadCollectionItem_WithPublishing_IsSuccess(InvocationContext context)
     {
         // Arrange
-        var context = GetInvocationContext(ConnectionTypes.OAuth2);
         var request = new UpdateCollectionItemRequest
         {
             Publish = true,
@@ -69,11 +67,10 @@ public class CollectionItemTests : TestBase
         await actions.UploadCollectionItem(site, request, locale);
     }
 
-    [TestMethod]
-    public async Task SearchCollectionItems_WithoutFilters_ReturnsCollectionItems()
+    [TestMethod, ContextDataSource]
+    public async Task SearchCollectionItems_WithoutFilters_ReturnsCollectionItems(InvocationContext context)
     {
         // Arrange
-        var context = GetInvocationContext(ConnectionTypes.OAuth2);
         var actions = new CollectionItemActions(context, FileManagementClient);
         var request = new SearchCollectionItemsRequest { };
         var site = new SiteRequest { };
@@ -86,14 +83,13 @@ public class CollectionItemTests : TestBase
 
         // Assert
         Assert.IsNotNull(result);
-        PrintJsonResult(result);
+        PrintResult(result);
     }
 
-    [TestMethod]
-    public async Task SearchCollectionItems_WithFilters_ReturnsCollectionItems()
+    [TestMethod, ContextDataSource]
+    public async Task SearchCollectionItems_WithFilters_ReturnsCollectionItems(InvocationContext context)
     {
         // Arrange
-        var context = GetInvocationContext(ConnectionTypes.OAuth2);
         var actions = new CollectionItemActions(context, FileManagementClient);
         var request = new SearchCollectionItemsRequest
         {
@@ -109,14 +105,13 @@ public class CollectionItemTests : TestBase
 
         // Assert
         Assert.IsNotNull(result);
-        PrintJsonResult(result);
+        PrintResult(result);
     }
 
-    [TestMethod]
-    public async Task PublishCollectionItem_WithoutCmsLocales_IsSuccess()
+    [TestMethod, ContextDataSource]
+    public async Task PublishCollectionItem_WithoutCmsLocales_IsSuccess(InvocationContext context)
     {
         // Arrange
-        var context = GetInvocationContext(ConnectionTypes.OAuth2);
         var action = new CollectionItemActions(context, FileManagementClient);
         var site = new SiteRequest { };
         var collection = new CollectionRequest { CollectionId = "68f8b337cbd1cac54f5b9d9c" };
@@ -127,11 +122,10 @@ public class CollectionItemTests : TestBase
         await action.PublishCollectionItem(site, collection, input, locale);
     }
 
-    [TestMethod]
-    public async Task PublishCollectionItem_WithCmsLocales_IsSuccess()
+    [TestMethod, ContextDataSource]
+    public async Task PublishCollectionItem_WithCmsLocales_IsSuccess(InvocationContext context)
     {
         // Arrange
-        var context = GetInvocationContext(ConnectionTypes.OAuth2);
         var action = new CollectionItemActions(context, FileManagementClient);
         var site = new SiteRequest { };
         var input = new PublishItemRequest { CollectionItemId = "6900ef0851221c2ffc49527a" };

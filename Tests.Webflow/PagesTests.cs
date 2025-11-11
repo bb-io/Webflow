@@ -4,6 +4,7 @@ using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Date;
 using Apps.Webflow.Models.Request.Pages;
 using Blackbird.Applications.Sdk.Common.Files;
+using Blackbird.Applications.Sdk.Common.Invocation;
 using Tests.Webflow.Base;
 
 namespace Tests.Webflow;
@@ -11,32 +12,28 @@ namespace Tests.Webflow;
 [TestClass]
 public class PagesTests : TestBase
 {
-    [TestMethod]
-    public async Task SearchPages_WithoutFilters_ReturnsPages()
-    {
-        foreach (var context in InvocationContext)
-        {
-            // Arrange
-            var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
-            var request = new SearchPagesRequest { };
-            var dates = new BasicDateFilter { };
-
-            var actions = new PagesActions(context, FileManagementClient);
-
-            // Act
-            var result = await actions.SearchPages(site, request, dates);
-
-            // Assert
-            PrintJsonResult(result);
-            Assert.IsNotNull(result);
-        }
-    }
-
-    [TestMethod]
-    public async Task DownloadPage_ReturnsFileReference()
+    [TestMethod, ContextDataSource(ConnectionTypes.OAuth2, ConnectionTypes.OAuth2Multiple)]
+    public async Task SearchPages_WithoutFilters_ReturnsPages(InvocationContext context)
     {
         // Arrange
-        var context = GetInvocationContext(ConnectionTypes.OAuth2);
+        var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
+        var request = new SearchPagesRequest { };
+        var dates = new BasicDateFilter { };
+
+        var actions = new PagesActions(context, FileManagementClient);
+
+        // Act
+        var result = await actions.SearchPages(site, request, dates);
+
+        // Assert
+        PrintResult(result);
+        Assert.IsNotNull(result);
+    }
+
+    [TestMethod, ContextDataSource]
+    public async Task DownloadPage_ReturnsFileReference(InvocationContext context)
+    {
+        // Arrange
         var site = new SiteRequest { };
         var input = new DownloadPageRequest 
         { 
@@ -51,15 +48,14 @@ public class PagesTests : TestBase
         var result = await actions.DownloadPage(site, input, locale);
 
         // Assert
-        PrintJsonResult(result);
+        PrintResult(result);
         Assert.IsNotNull(result);
     }
 
-    [TestMethod]
-    public async Task UploadPage_IsSuccess()
+    [TestMethod, ContextDataSource]
+    public async Task UploadPage_IsSuccess(InvocationContext context)
     {
         // Arrange
-        var context = GetInvocationContext(ConnectionTypes.OAuth2);
         var fileReference = new FileReference { Name = "page.html" };
         var site = new SiteRequest { };
 
