@@ -9,7 +9,7 @@ using Tests.Webflow.Base;
 namespace Tests.Webflow;
 
 [TestClass]
-public class FileDataSources : TestBase
+public class FileDataSources : TestBaseWithContext
 {
     [TestMethod, ContextDataSource(ConnectionTypes.OAuth2)]
     public async Task ComponentFileDataSourceHandler_GetFolderPathAsync_ReturnsComponentGroups(InvocationContext context)
@@ -23,6 +23,7 @@ public class FileDataSources : TestBase
         var data = await handler.GetFolderPathAsync(folderContext, CancellationToken.None);
 
         // Assert
+        PrintResult(data);
         Assert.IsNotNull(data);
 
         foreach (var item in data)

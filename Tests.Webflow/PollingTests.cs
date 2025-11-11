@@ -11,7 +11,7 @@ using Tests.Webflow.Base;
 namespace Tests.Webflow;
 
 [TestClass]
-public class PollingTests : TestBase
+public class PollingTests : TestBaseWithContext
 {
     [TestMethod, ContextDataSource]
     public async Task OnPageUpdated_WithoutNameFilter_ReturnsUpdatedPages(InvocationContext context)

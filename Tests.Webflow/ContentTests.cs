@@ -11,7 +11,7 @@ using Tests.Webflow.Base;
 namespace Tests.Webflow;
 
 [TestClass]
-public class ContentTests : TestBase
+public class ContentTests : TestBaseWithContext
 {
     [TestMethod, ContextDataSource]
     public async Task SearchContent_AllTypesWithoutFilters_ReturnsPageMetadata(InvocationContext context)

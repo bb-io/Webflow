@@ -10,7 +10,7 @@ using Tests.Webflow.Base;
 namespace Tests.Webflow;
 
 [TestClass]
-public class PagesTests : TestBase
+public class PagesTests : TestBaseWithContext
 {
     [TestMethod, ContextDataSource(ConnectionTypes.OAuth2, ConnectionTypes.OAuth2Multiple)]
     public async Task SearchPages_WithoutFilters_ReturnsPages(InvocationContext context)

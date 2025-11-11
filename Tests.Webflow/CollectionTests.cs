@@ -9,7 +9,7 @@ using Tests.Webflow.Base;
 namespace Tests.Webflow;
 
 [TestClass]
-public class CollectionTests : TestBase
+public class CollectionTests : TestBaseWithContext
 {
 	[TestMethod, ContextDataSource]
 	public async Task SearchCollections_WithoutFilters_ReturnsCollections(InvocationContext context)
@@ -28,7 +28,7 @@ public class CollectionTests : TestBase
 		Assert.IsNotNull(result);
     }
 
-    [TestMethod, ContextDataSource]
+    [TestMethod, ContextDataSource(ConnectionTypes.OAuth2)]
     public async Task SearchCollections_WithFilters_ReturnsCollections(InvocationContext context)
     {
         // Arrange

@@ -5,7 +5,6 @@ using Apps.Webflow.DataSourceHandlers.Locale;
 using Apps.Webflow.DataSourceHandlers.Site;
 using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Collection;
-using Apps.Webflow.Models.Request.CollectionItem;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
@@ -14,10 +13,10 @@ using Tests.Webflow.Base;
 namespace Tests.Webflow;
 
 [TestClass]
-public class DataSources : TestBase
+public class DataSources : TestBaseWithContext
 {
     [TestMethod, ContextDataSource]
-    public async Task SiteDataHandler_EmptySearchString_ReturnsSites(InvocationContext context)
+    public async Task SiteDataHandler_ReturnsSites(InvocationContext context)
     {
         // Arrange
         var handler = new SiteDataSourceHandler(context);
@@ -31,7 +30,7 @@ public class DataSources : TestBase
     }
 
     [TestMethod, ContextDataSource(ConnectionTypes.OAuth2)]
-    public async Task SiteLocaleDataSourceHandler_SearchString_FiltersLocales(InvocationContext context)
+    public async Task SiteLocaleDataSourceHandler_ReturnsLocales(InvocationContext context)
     {
         //Arange
         var request = new SiteRequest { };
@@ -46,7 +45,7 @@ public class DataSources : TestBase
     }
 
     [TestMethod, ContextDataSource]
-    public async Task CollectionItemCollectionDataSourceHandler_IsSuccess(InvocationContext context)
+    public async Task CollectionItemCollectionDataSourceHandler_ReturnsCollections(InvocationContext context)
     {
         // Arrange
         var site = new SiteRequest { };
@@ -61,7 +60,7 @@ public class DataSources : TestBase
     }
 
     [TestMethod, ContextDataSource]
-    public async Task CollectionItemDataSourceHandler_IsSuccess(InvocationContext context)
+    public async Task CollectionItemDataSourceHandler_ReturnsCollectionItems(InvocationContext context)
     {
         // Arrange
         var site = new SiteRequest { };
@@ -93,8 +92,8 @@ public class DataSources : TestBase
         Assert.IsNotNull(data);
     }
 
-    [TestMethod, ContextDataSource(ConnectionTypes.OAuth2)]
-    public async Task CustomDomainDataSourceHandler_WithoutSiteId_ReturnsCustomDomains(InvocationContext context)
+    [TestMethod, ContextDataSource]
+    public async Task CustomDomainDataSourceHandler_WithoutSiteId_ThrowsMisconfigException(InvocationContext context)
     {
         // Arrange
         var input = new SiteRequest { SiteId = "" };
@@ -105,11 +104,5 @@ public class DataSources : TestBase
         await Assert.ThrowsExactlyAsync<PluginMisconfigurationException>(
             async () => await handler.GetDataAsync(dataContext, CancellationToken.None)
         );
-    }
-
-    private static void PrintDataHandlerResult(IEnumerable<DataSourceItem> items)
-    {
-        foreach (var item in items)
-            Console.WriteLine($"ID: {item.Value}, Display name: {item.DisplayName}");
     }
 }

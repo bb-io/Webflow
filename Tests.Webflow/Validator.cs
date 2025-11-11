@@ -6,7 +6,7 @@ using Tests.Webflow.Base;
 namespace Tests.Webflow;
 
 [TestClass]
-public class Validator : TestBase
+public class Validator : TestBaseWithContext
 {
     [TestMethod]
     public async Task ValidateConnection_WithCorrectCredentials_ReturnsValidResult()

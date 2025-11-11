@@ -11,7 +11,7 @@ using Tests.Webflow.Base;
 namespace Tests.Webflow;
 
 [TestClass]
-public class CollectionItemTests : TestBase
+public class CollectionItemTests : TestBaseWithContext
 {
     [TestMethod, ContextDataSource(ConnectionTypes.OAuth2Multiple)]
     public async Task DownloadCollectionItem_ReturnsCollectionItem(InvocationContext context)

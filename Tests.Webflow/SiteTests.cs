@@ -9,7 +9,7 @@ using Tests.Webflow.Base;
 namespace Tests.Webflow;
 
 [TestClass]
-public class SiteTests : TestBase
+public class SiteTests : TestBaseWithContext
 {
     [TestMethod, ContextDataSource]
     public async Task SearchSites_WithoutFilters_ReturnsSites(InvocationContext context)
