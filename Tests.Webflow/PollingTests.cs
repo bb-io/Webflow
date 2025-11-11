@@ -4,19 +4,19 @@ using Apps.Webflow.Models.Response.Pages;
 using Apps.Webflow.Polling;
 using Apps.Webflow.Polling.Models;
 using Apps.Webflow.Polling.Models.Requests;
+using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common.Polling;
 using Tests.Webflow.Base;
 
 namespace Tests.Webflow;
 
 [TestClass]
-public class PollingTests : TestBase
+public class PollingTests : TestBaseWithContext
 {
-    [TestMethod]
-    public async Task OnPageUpdated_WithoutNameFilter_ReturnsUpdatedPages()
+    [TestMethod, ContextDataSource]
+    public async Task OnPageUpdated_WithoutNameFilter_ReturnsUpdatedPages(InvocationContext context)
     {
         // Arrange
-        var context = GetInvocationContext(ConnectionTypes.OAuth2);
         var lastPollingTime = DateTime.UtcNow.AddHours(-1);
         var polling = new PagePollingList(context);
 
@@ -36,11 +36,10 @@ public class PollingTests : TestBase
         PrintPollingResult(response);
     }
 
-    [TestMethod]
-    public async Task OnPageUpdated_WithNameFilter_ReturnsUpdatedPages()
+    [TestMethod, ContextDataSource(ConnectionTypes.OAuth2, ConnectionTypes.OAuth2Multiple)]
+    public async Task OnPageUpdated_WithNameFilter_ReturnsUpdatedPages(InvocationContext context)
     {
         // Arrange
-        var context = GetInvocationContext(ConnectionTypes.OAuth2);
         var lastPollingTime = DateTime.UtcNow.AddHours(-1);
         var polling = new PagePollingList(context);
 
@@ -50,7 +49,7 @@ public class PollingTests : TestBase
         };
 
         var input = new PagePollingRequest { NameDoesNotContain = "40" };
-        var site = new SiteRequest { };
+        var site = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
 
         // Act
         var response = await polling.OnPageUpdated(request, site, input);

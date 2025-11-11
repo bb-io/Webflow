@@ -1,4 +1,6 @@
+using Apps.Webflow.Constants;
 using Apps.Webflow.Conversion.Constants;
+using Apps.Webflow.Extensions;
 using Apps.Webflow.Models.Entities;
 using HtmlAgilityPack;
 using Newtonsoft.Json.Linq;
@@ -20,6 +22,11 @@ public static class CollectionItemHtmlConverter
         var head = doc.DocumentNode.SelectSingleNode("//head");
         if (head != null)
         {
+            var mType = doc.CreateElement("meta");
+            mType.SetAttributeValue("name", "blackbird-content-type");
+            mType.SetAttributeValue("content", ContentTypes.CollectionItem.ToKebabCase());
+            head.AppendChild(mType);
+
             var mSite = doc.CreateElement("meta");
             mSite.SetAttributeValue("name", "blackbird-site-id");
             mSite.SetAttributeValue("content", siteId);

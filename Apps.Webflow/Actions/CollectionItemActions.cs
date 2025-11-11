@@ -1,4 +1,5 @@
 using Apps.Webflow.Constants;
+using Apps.Webflow.Conversion.CollectionItem;
 using Apps.Webflow.Helper;
 using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Entities;
@@ -59,7 +60,8 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         filtered = FilterHelper.ApplyContainsFilter(filtered, input.NameContains, r => r.Name);
         filtered = FilterHelper.ApplyContainsFilter(filtered, input.SlugContains, r => r.FieldData["slug"]?.ToString());
 
-        return new(filtered);
+        var result = filtered.Select(x => new GetCollectionItemResponse(x)).ToList();
+        return new(result);
     }
 
     [Action("Download collection item", Description = "Download the collection item content")]
@@ -109,11 +111,11 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
 
         await service.UploadContent(stream, Client.GetSiteId(site.SiteId), request);
 
-        // should be reworked to get metadata and pass it here
         if (input.Publish.HasValue && input.Publish.Value)
         {
-            var collection = new CollectionRequest { CollectionId = input.CollectionId };
-            var publishRequest = new PublishItemRequest { CollectionItemId = input.CollectionItemId };
+            var metadata = await CollectionItemMetadataParser.Parse(stream);
+            var collection = new CollectionRequest { CollectionId = metadata.CollectionId! };
+            var publishRequest = new PublishItemRequest { CollectionItemId = metadata.CollectionItemId! };
             await PublishCollectionItem(site, collection, publishRequest, locale);
         }
     }

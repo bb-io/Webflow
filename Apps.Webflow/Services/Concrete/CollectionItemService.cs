@@ -1,7 +1,7 @@
 ﻿using Apps.Webflow.Constants;
-using Apps.Webflow.Conversion;
 using Apps.Webflow.Conversion.CollectionItem;
 using Apps.Webflow.Conversion.Models;
+using Apps.Webflow.Extensions;
 using Apps.Webflow.Helper;
 using Apps.Webflow.Models.Entities;
 using Apps.Webflow.Models.Request.Content;
@@ -24,7 +24,7 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
 {
     private const string ContentType = ContentTypes.CollectionItem;
 
-    public async override Task<SearchContentResponse> SearchContent(string siteId, SearchContentRequest input, ContentDateFilter dateFilter)
+    public override async Task<SearchContentResponse> SearchContent(string siteId, SearchContentRequest input, ContentDateFilter dateFilter)
     {
         if (input.CollectionIds is null || input.CollectionIds.Count() == 0)
             throw new PluginMisconfigurationException("Please specify at least one collection ID in order to search content items");
@@ -110,105 +110,83 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
     {
         using var memoryStream = new MemoryStream();
         await content.CopyToAsync(memoryStream);
-        memoryStream.Position = 0;
+        string fileText = Encoding.UTF8.GetString(memoryStream.ToArray());
 
-        string fileText;
-        using (var reader = new StreamReader(memoryStream, Encoding.UTF8, leaveOpen: true))
-            fileText = await reader.ReadToEndAsync();
-
-        memoryStream.Position = 0;
-
-        if (OriginalJsonValidator.IsJson(fileText))
+        if (JsonHelper.IsJson(fileText))
         {
             await UploadJsonContent(fileText, siteId, input);
-            return;
         }
         else
         {
             if (Xliff2Serializer.IsXliff2(fileText))
             {
-                fileText = Transformation.Parse(fileText, "collectionItem.xlf").Target().Serialize();
-                if (fileText == null)
-                    throw new PluginMisconfigurationException("XLIFF did not contain files");
-
+                var htmlFromXliff = Transformation.Parse(fileText, "collectionItem.xlf").Target().Serialize() ?? throw new PluginMisconfigurationException("XLIFF did not contain valid content.");
                 memoryStream.SetLength(0);
-                await memoryStream.WriteAsync(Encoding.UTF8.GetBytes(fileText));
-                memoryStream.Position = 0;
+                await memoryStream.WriteAsync(Encoding.UTF8.GetBytes(htmlFromXliff));
             }
 
+            memoryStream.Position = 0;
             await UploadHtmlContent(memoryStream, siteId, input);
         }
     }
 
-    private async Task UploadHtmlContent(Stream stream, string siteId, UploadContentRequest input)
+    private async Task UploadJsonContent(string jsonContent, string siteId, UploadContentRequest input)
     {
-        var doc = new HtmlAgilityPack.HtmlDocument();
-        doc.Load(stream);
-        stream.Position = 0;
+        var item = JsonConvert.DeserializeObject<DownloadedCollectionItem>(jsonContent)
+            ?? throw new PluginMisconfigurationException("Invalid JSON format.");
 
-        string? Meta(string name) =>
-            doc.DocumentNode.SelectSingleNode($"//meta[@name='{name}']")
-                ?.GetAttributeValue("content", "");
+        input.CollectionId ??= item.CollectionId;
+        input.ContentId ??= item.CollectionItem.Id;
+        input.Locale ??= item.Locale;
 
-        input.CollectionId ??= Meta("blackbird-collection-id");
-        input.ContentId ??= Meta("blackbird-collection-item-id");
+        await ValidateAndNormalizeInputs(input, siteId);
 
-        input.Locale ??= Meta("blackbird-cmslocale");
-        if (!string.IsNullOrEmpty(input.Locale))
-            input.Locale = await LocaleHelper.GetCmsLocaleId(input.Locale, siteId, Client);
+        if (item.CollectionItem.FieldData == null)
+            throw new PluginMisconfigurationException("JSON is missing 'collectionItem.fieldData'.");
 
-        if (string.IsNullOrWhiteSpace(input.CollectionId))
-            throw new PluginMisconfigurationException("Collection ID is missing. Provide it or include it in the HTML file.");
-        if (string.IsNullOrWhiteSpace(input.ContentId))
-            throw new PluginMisconfigurationException("Collection item ID is missing. Provide it or include it in the HTML file.");
-        if (string.IsNullOrWhiteSpace(input.Locale))
-            throw new PluginMisconfigurationException("Locale is missing. Provide it or include it in the HTML file.");
-
-        var itemEndpoint = $"collections/{input.CollectionId}/items/{input.ContentId}";
-        itemEndpoint = itemEndpoint.SetQueryParameter("cmsLocaleId", input.Locale);
-
-        var itemRequest = new RestRequest(itemEndpoint, Method.Get);
-        var item = await Client.ExecuteWithErrorHandling<CollectionItemEntity>(itemRequest);
-
-        var collectionRequest = new RestRequest($"collections/{input.CollectionId}", Method.Get);
-        var collection = await Client.ExecuteWithErrorHandling<CollectionEntity>(collectionRequest);
-
-        var fieldData = CollectionItemHtmlConverter.ToJson(stream, item.FieldData, collection.Fields);
-
-        var endpoint = $"collections/{input.CollectionId}/items/{input.ContentId}";
-        var request = new RestRequest(endpoint, Method.Patch)
-            .WithJsonBody(new { fieldData, cmsLocaleId = input.Locale }, JsonConfig.Settings);
-
-        await Client.ExecuteWithErrorHandling(request);
+        await PatchCollectionItem(input.CollectionId!, input.ContentId!, input.Locale!, item.CollectionItem.FieldData);
     }
 
-    private async Task UploadJsonContent(string contentText, string siteId, UploadContentRequest input)
+    private async Task UploadHtmlContent(Stream htmlStream, string siteId, UploadContentRequest input)
     {
-        var item = JsonConvert.DeserializeObject<DownloadedCollectionItem>(contentText)
-            ?? throw new PluginMisconfigurationException("Invalid JSON format for collection item upload.");
+        var doc = new HtmlAgilityPack.HtmlDocument();
+        doc.Load(htmlStream);
+        htmlStream.Position = 0;
 
-        var collectionId = input.CollectionId ?? item.CollectionId;
-        var itemId = input.ContentId ?? item.CollectionItem.Id;
+        input.CollectionId ??= doc.DocumentNode.GetMetaValue("blackbird-collection-id");
+        input.ContentId ??= doc.DocumentNode.GetMetaValue("blackbird-collection-item-id");
+        input.Locale ??= doc.DocumentNode.GetMetaValue("blackbird-cmslocale");
 
-        var cmsLocaleId = input.Locale ?? item.Locale;
-        if (!string.IsNullOrEmpty(cmsLocaleId))
-            cmsLocaleId = await LocaleHelper.GetCmsLocaleId(cmsLocaleId, siteId, Client);
+        await ValidateAndNormalizeInputs(input, siteId);
 
-        if (string.IsNullOrWhiteSpace(collectionId))
-            throw new PluginMisconfigurationException("Missing 'collectionId' in JSON upload.");
-        if (string.IsNullOrWhiteSpace(itemId))
-            throw new PluginMisconfigurationException("Missing 'collectionItem.id' in JSON upload.");
-        if (string.IsNullOrWhiteSpace(cmsLocaleId))
-            throw new PluginMisconfigurationException("Missing 'locale' in JSON upload.");
-        if (item.CollectionItem.FieldData == null)
-            throw new PluginMisconfigurationException("Missing 'collectionItem.fieldData' in JSON upload.");
+        var collection = await Client.ExecuteWithErrorHandling<CollectionEntity>(
+            new RestRequest($"collections/{input.CollectionId}", Method.Get));
 
+        var currentItem = await Client.ExecuteWithErrorHandling<CollectionItemEntity>(
+            new RestRequest($"collections/{input.CollectionId}/items/{input.ContentId}", Method.Get)
+                .AddQueryParameter("cmsLocaleId", input.Locale!));
+
+        var fieldData = CollectionItemHtmlConverter.ToJson(htmlStream, currentItem.FieldData, collection.Fields);
+
+        await PatchCollectionItem(input.CollectionId!, input.ContentId!, input.Locale!, fieldData);
+    }
+
+    private async Task ValidateAndNormalizeInputs(UploadContentRequest input, string siteId)
+    {
+        if (string.IsNullOrWhiteSpace(input.CollectionId))
+            throw new PluginMisconfigurationException("Collection ID is missing. Provide it in the input or file.");
+        if (string.IsNullOrWhiteSpace(input.ContentId))
+            throw new PluginMisconfigurationException("Collection Item ID is missing. Provide it in the input or file.");
+        if (string.IsNullOrWhiteSpace(input.Locale))
+            throw new PluginMisconfigurationException("Locale is missing. Provide it in the input or file.");
+
+        input.Locale = await LocaleHelper.GetCmsLocaleId(input.Locale, siteId, Client);
+    }
+
+    private async Task PatchCollectionItem(string collectionId, string itemId, string cmsLocaleId, object fieldData)
+    {
         var request = new RestRequest($"collections/{collectionId}/items/{itemId}", Method.Patch)
-            .WithJsonBody(new
-            {
-                fieldData = item.CollectionItem.FieldData,
-                cmsLocaleId
-            }, JsonConfig.Settings);
+            .WithJsonBody(new { fieldData, cmsLocaleId }, JsonConfig.Settings);
 
         await Client.ExecuteWithErrorHandling(request);
     }

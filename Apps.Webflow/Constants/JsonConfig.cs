@@ -11,6 +11,7 @@ public static class JsonConfig
         {
             NamingStrategy = new CamelCaseNamingStrategy()
         },
-        NullValueHandling = NullValueHandling.Ignore
+        NullValueHandling = NullValueHandling.Ignore,
+        Formatting = Formatting.Indented,
     };
 }

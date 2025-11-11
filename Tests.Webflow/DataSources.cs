@@ -5,82 +5,64 @@ using Apps.Webflow.DataSourceHandlers.Locale;
 using Apps.Webflow.DataSourceHandlers.Site;
 using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Request.Collection;
-using Apps.Webflow.Models.Request.CollectionItem;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Exceptions;
+using Blackbird.Applications.Sdk.Common.Invocation;
 using Tests.Webflow.Base;
 
 namespace Tests.Webflow;
 
 [TestClass]
-public class DataSources : TestBase
+public class DataSources : TestBaseWithContext
 {
-    [TestMethod]
-    public async Task SiteDataHandler_EmptySearchString_ReturnsSites()
+    [TestMethod, ContextDataSource]
+    public async Task SiteDataHandler_ReturnsSites(InvocationContext context)
     {
-        foreach (var context in InvocationContext)
-        {
-            // Arrange
-            var handler = new SiteDataSourceHandler(context);
+        // Arrange
+        var handler = new SiteDataSourceHandler(context);
 
-            // Act
-            var data = await handler.GetDataAsync(
-                new DataSourceContext { SearchString = "" },
-                CancellationToken.None
-            );
+        // Act
+        var data = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);
 
-            // Assert
-            Assert.IsNotNull(data, "Handler returned null.");
-            Assert.AreNotEqual(0, data.Count(), "No sites were returned.");
-
-            foreach (var item in data)
-                Console.WriteLine($"ID: {item.Value}, Name: {item.DisplayName}");
-        }
+        // Assert
+        PrintDataHandlerResult(data);
+        Assert.IsNotNull(data);
     }
 
-    [TestMethod]
-    public async Task SiteLocaleDataSourceHandler_SearchString_FiltersLocales()
+    [TestMethod, ContextDataSource(ConnectionTypes.OAuth2)]
+    public async Task SiteLocaleDataSourceHandler_ReturnsLocales(InvocationContext context)
     {
         //Arange
-        var context = GetInvocationContext(ConnectionTypes.OAuth2);
         var request = new SiteRequest { };
 
         // Act
         var handler = new SiteLocaleDataSourceHandler(context, request);
-
-        // Assert
         var data = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);
 
-        foreach (var locale in data)
-            Console.WriteLine($"Display name: {locale.DisplayName}, Locale ID: {locale.Value}");
+        // Assert
+        PrintDataHandlerResult(data);
+        Assert.IsNotNull(data);
     }
 
-    [TestMethod]
-    public async Task CollectionItemCollectionDataSourceHandler_IsSuccess()
+    [TestMethod, ContextDataSource]
+    public async Task CollectionItemCollectionDataSourceHandler_ReturnsCollections(InvocationContext context)
     {
         // Arrange
-        var context = GetInvocationContext(ConnectionTypes.OAuth2);
-        var request = new CollectionItemRequest { };
         var site = new SiteRequest { };
-
-        // Act
         var handler = new CollectionItemCollectionDataSourceHandler(context, site);
 
-        // Assert
-        var data = await handler.GetDataAsync(
-            new DataSourceContext { SearchString = "" },
-            CancellationToken.None
-        );
+        // Act
+        var data = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);
 
+        // Assert
         foreach (var locale in data)
             Console.WriteLine($"Display name: {locale.Key}, Locale ID: {locale.Value}");
     }
 
-    [TestMethod]
-    public async Task CollectionItemDataSourceHandler_IsSuccess()
+    [TestMethod, ContextDataSource]
+    public async Task CollectionItemDataSourceHandler_ReturnsCollectionItems(InvocationContext context)
     {
-        //Arange
-        var context = GetInvocationContext(ConnectionTypes.OAuth2);
+        // Arrange
         var site = new SiteRequest { };
         var collection = new CollectionRequest { CollectionId = "68f8b337cbd1cac54f5b9d9c" };
         var locale = new LocaleRequest { Locale = "sv-SE" };
@@ -90,53 +72,37 @@ public class DataSources : TestBase
         var data = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);
 
         // Assert
-        Assert.IsNotEmpty(data);
         PrintDataHandlerResult(data);
+        Assert.IsNotEmpty(data);
     }
 
-    [TestMethod]
-    public async Task CustomDomainDataSourceHandler_WithSiteId_ReturnsCustomDomains()
+    [TestMethod, ContextDataSource]
+    public async Task CustomDomainDataSourceHandler_WithSiteId_ReturnsCustomDomains(InvocationContext context)
     {
-        foreach (var context in InvocationContext)
-        {
-            // Arrange
-            var input = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
-            var dataContext = new DataSourceContext { SearchString = "" };
-            var handler = new CustomDomainDataSourceHandler(context, input);
+        // Arrange
+        var input = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
+        var dataContext = new DataSourceContext { SearchString = "" };
+        var handler = new CustomDomainDataSourceHandler(context, input);
 
-            // Act
-            var data = await handler.GetDataAsync(dataContext, CancellationToken.None);
+        // Act
+        var data = await handler.GetDataAsync(dataContext, CancellationToken.None);
 
-            // Assert
-            Assert.IsNotNull(data, "Handler returned null.");
-
-            foreach (var item in data)
-            {
-                Console.WriteLine($"ID: {item.Value}, Name: {item.DisplayName}");
-            }
-        }
+        // Assert
+        PrintDataHandlerResult(data);
+        Assert.IsNotNull(data);
     }
 
-    [TestMethod]
-    public async Task CustomDomainDataSourceHandler_WithoutSiteId_ReturnsCustomDomains()
+    [TestMethod, ContextDataSource]
+    public async Task CustomDomainDataSourceHandler_WithoutSiteId_ThrowsMisconfigException(InvocationContext context)
     {
-        foreach (var context in InvocationContext)
-        {
-            // Arrange
-            var input = new SiteRequest { SiteId = "" };
-            var dataContext = new DataSourceContext { SearchString = "" };
-            var handler = new CustomDomainDataSourceHandler(context, input);
+        // Arrange
+        var input = new SiteRequest { SiteId = "" };
+        var dataContext = new DataSourceContext { SearchString = "" };
+        var handler = new CustomDomainDataSourceHandler(context, input);
 
-            // Act & Assert
-            await Assert.ThrowsExactlyAsync<PluginMisconfigurationException>(
-                async () => await handler.GetDataAsync(dataContext, CancellationToken.None)
-            );
-        }
-    }
-
-    private static void PrintDataHandlerResult(IEnumerable<DataSourceItem> items)
-    {
-        foreach (var item in items)
-            Console.WriteLine($"ID: {item.Value}, Display name: {item.DisplayName}");
+        // Act & Assert
+        await Assert.ThrowsExactlyAsync<PluginMisconfigurationException>(
+            async () => await handler.GetDataAsync(dataContext, CancellationToken.None)
+        );
     }
 }

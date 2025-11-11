@@ -1,8 +1,8 @@
 ﻿using Newtonsoft.Json;
 
-namespace Apps.Webflow.Conversion;
+namespace Apps.Webflow.Services;
 
-public class OriginalJsonValidator
+public class JsonHelper
 {
     public static bool IsJson(string jsonString)
     {
