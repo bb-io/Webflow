@@ -1,4 +1,6 @@
+using Apps.Webflow.Constants;
 using Apps.Webflow.Conversion.Constants;
+using Apps.Webflow.Extensions;
 using Apps.Webflow.Models.Response.Components;
 using HtmlAgilityPack;
 
@@ -16,6 +18,11 @@ public static class ComponentHtmlConverter
         var head = doc.DocumentNode.SelectSingleNode("//head");
         if (head != null)
         {
+            var mType = doc.CreateElement("meta");
+            mType.SetAttributeValue("name", "blackbird-content-type");
+            mType.SetAttributeValue("content", ContentTypes.Component.ToKebabCase());
+            head.AppendChild(mType);
+
             var metaSiteId = doc.CreateElement("meta");
             metaSiteId.SetAttributeValue("name", "blackbird-site-id");
             metaSiteId.SetAttributeValue("content", siteId);

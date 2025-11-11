@@ -14,11 +14,8 @@ using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using Blackbird.Applications.SDK.Blueprints;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
-using Blackbird.Filters.Transformations;
-using Blackbird.Filters.Xliff.Xliff2;
 using HtmlAgilityPack;
 using System.Net.Mime;
-using System.Text;
 
 namespace Apps.Webflow.Actions;
 
@@ -65,21 +62,15 @@ public class ContentActions(InvocationContext invocationContext, IFileManagement
         [ActionParameter] SiteRequest site,
         [ActionParameter] UploadContentRequest request)
     {
-        var file = await fileManagementClient.DownloadAsync(request.Content);
-
-        var html = Encoding.UTF8.GetString(await file.GetByteData());
-        if (Xliff2Serializer.IsXliff2(html))
-        {
-            html = Transformation.Parse(html, request.Content.Name).Target().Serialize();
-            if (html == null) throw new PluginMisconfigurationException("XLIFF did not contain files");
-        }
+        await using var source = await fileManagementClient.DownloadAsync(request.Content);
+        var bytes = await source.GetByteData();
+        await using var stream = new MemoryStream(bytes);
 
         if (string.IsNullOrEmpty(request.ContentType))
-            request.ContentType = GetContentType(html);
+            request.ContentType = GetContentType("");
 
-        using var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(html));
         var service = _factory.GetContentService(request.ContentType);
-        await service.UploadContent(memoryStream, Client.GetSiteId(site.SiteId), request);
+        await service.UploadContent(stream, Client.GetSiteId(site.SiteId), request);
     }
 
     private static string GetContentType(string html)
