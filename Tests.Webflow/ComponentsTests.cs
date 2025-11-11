@@ -78,9 +78,9 @@ public class ComponentsTests : TestBase
         var site = new SiteRequest { };
         var action = new ComponentsActions(context, FileManagementClient);
 
-        var fileReference = new FileReference { Name = "comp.html" };
+        var fileReference = new FileReference { Name = "comp.json" };
         var input = new UpdateComponentContentRequest { File = fileReference };
-        var locale = new LocaleRequest { Locale = "sv-SE" };
+        var locale = new LocaleRequest { /*Locale = "sv-SE"*/ };
 
         // Act
         await action.UploadComponent(site, input, locale);

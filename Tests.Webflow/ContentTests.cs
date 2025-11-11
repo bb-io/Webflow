@@ -335,12 +335,10 @@ public class ContentTests : TestBase
         // Arrange
         var context = GetInvocationContext(ConnectionTypes.OAuth2);
         var action = new ContentActions(context, FileManagementClient);
-        var site = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
+        var site = new SiteRequest { };
         var request = new UploadContentRequest
         {
-            Content = new FileReference { Name = "footer-se.html", ContentType = "text/html" },
-            ContentId = "88a386dd-8f07-0c34-70f0-2d9f87e29718",
-            Locale = "69007d6cf09bd27cf732e155"
+            Content = new FileReference { Name = "comp.html", ContentType = "text/html" },
         };
 
         // Act

@@ -1,6 +1,8 @@
 ﻿using Apps.Webflow.Constants;
 using Apps.Webflow.Conversion.Component;
 using Apps.Webflow.Conversion.Constants;
+using Apps.Webflow.Conversion.Models;
+using Apps.Webflow.Extensions;
 using Apps.Webflow.Helper;
 using Apps.Webflow.Models.Entities;
 using Apps.Webflow.Models.Request.Components;
@@ -12,7 +14,11 @@ using Apps.Webflow.Models.Response.Pagination;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Extensions.Http;
+using Blackbird.Filters.Transformations;
+using Blackbird.Filters.Xliff.Xliff2;
+using Newtonsoft.Json;
 using RestSharp;
+using System.Text;
 using System.Web;
 
 namespace Apps.Webflow.Services.Concrete;
@@ -71,33 +77,39 @@ public class ComponentService(InvocationContext invocationContext) : BaseContent
 
     public override async Task UploadContent(Stream content, string siteId, UploadContentRequest input)
     {
-        var memoryStream = new MemoryStream();
+        using var memoryStream = new MemoryStream();
         await content.CopyToAsync(memoryStream);
-        memoryStream.Position = 0;
+        string fileText = Encoding.UTF8.GetString(memoryStream.ToArray());
 
+        if (JsonHelper.IsJson(fileText))
+        {
+            await UploadJsonContent(fileText, siteId, input);
+        }
+        else
+        {
+            if (Xliff2Serializer.IsXliff2(fileText))
+            {
+                var htmlFromXliff = Transformation.Parse(fileText, "component.xlf").Target().Serialize()
+                    ?? throw new PluginMisconfigurationException("XLIFF did not contain valid content.");
+
+                memoryStream.SetLength(0);
+                await memoryStream.WriteAsync(Encoding.UTF8.GetBytes(htmlFromXliff));
+            }
+
+            memoryStream.Position = 0;
+            await UploadHtmlContent(memoryStream, siteId, input);
+        }
+    }
+
+    private async Task UploadHtmlContent(Stream htmlStream, string siteId, UploadContentRequest input)
+    {
         var doc = new HtmlAgilityPack.HtmlDocument();
-        doc.Load(memoryStream);
+        doc.Load(htmlStream);
 
-        if (string.IsNullOrEmpty(input.Locale))
-        {
-            var metaLocaleIdNode = doc.DocumentNode.SelectSingleNode("//meta[@name='blackbird-locale-id']");
-            input.Locale = metaLocaleIdNode?.GetAttributeValue("content", string.Empty);
+        input.Locale ??= doc.DocumentNode.GetMetaValue("blackbird-locale-id");
+        input.ContentId ??= doc.DocumentNode.GetMetaValue("blackbird-component-id");
 
-            if (string.IsNullOrEmpty(input.Locale))
-                throw new PluginMisconfigurationException(
-                    "Locale not found in the HTML file. " +
-                    "Please provide it in input or ensure that file contains <meta name=\"blackbird-locale-id\"> tag."
-                );
-        }
-
-        if (string.IsNullOrEmpty(input.ContentId))
-        {
-            var metaComponentIdNode = doc.DocumentNode.SelectSingleNode("//meta[@name='blackbird-component-id']");
-            input.ContentId = metaComponentIdNode?.GetAttributeValue("content", string.Empty);
-
-            if (string.IsNullOrEmpty(input.ContentId))
-                throw new PluginMisconfigurationException("Component ID not found in the HTML file. Please, provide it in input or ensure that file contains <meta name=\"blackbird-component-id\"> tag.");
-        }
+        await ValidateAndNormalizeInputs(input, siteId);
 
         var elements = doc.DocumentNode
             .Descendants()
@@ -106,7 +118,6 @@ public class ComponentService(InvocationContext invocationContext) : BaseContent
             .ToList();
 
         var updateNodes = new List<UpdateComponentNode>();
-
         foreach (var element in elements)
         {
             var nodeId = element.Attributes[ConversionConstants.NodeId].Value;
@@ -115,44 +126,68 @@ public class ComponentService(InvocationContext invocationContext) : BaseContent
 
             if (!string.IsNullOrEmpty(propertyId))
             {
-                // This is a component instance with property overrides
                 var existingNode = updateNodes.FirstOrDefault(n => n.NodeId == nodeId);
                 if (existingNode == null)
                 {
-                    existingNode = new UpdateComponentNode
-                    {
-                        NodeId = nodeId,
-                        PropertyOverrides = []
-                    };
+                    existingNode = new UpdateComponentNode { NodeId = nodeId, PropertyOverrides = [] };
                     updateNodes.Add(existingNode);
                 }
-
-                existingNode.PropertyOverrides?.Add(new ComponentPropertyOverride
-                {
-                    PropertyId = propertyId,
-                    Text = textHtml
-                });
+                existingNode.PropertyOverrides?.Add(new ComponentPropertyOverride { PropertyId = propertyId, Text = textHtml });
             }
             else
             {
-                // This is a text node
-                updateNodes.Add(new UpdateComponentNode
-                {
-                    NodeId = nodeId,
-                    Text = textHtml
-                });
+                updateNodes.Add(new UpdateComponentNode { NodeId = nodeId, Text = textHtml });
             }
         }
 
-        var body = new UpdateComponentDomRequest { Nodes = updateNodes };
+        await PatchComponentDom(siteId, input.ContentId!, input.Locale!, updateNodes);
+    }
 
-        var endpoint = $"sites/{siteId}/components/{input.ContentId}/dom";
-        var apiRequest = new RestRequest(endpoint, Method.Post).WithJsonBody(body);
-        var localeId = await LocaleHelper.GetLocaleId(input.Locale, siteId, Client);
+    private async Task UploadJsonContent(string jsonContent, string siteId, UploadContentRequest input)
+    {
+        var downloadedComponent = JsonConvert.DeserializeObject<DownloadedComponent>(jsonContent)
+            ?? throw new PluginMisconfigurationException("Invalid JSON file format.");
+
+        input.Locale ??= downloadedComponent.Locale;
+        input.ContentId ??= downloadedComponent.Component.ComponentId;
+
+        await ValidateAndNormalizeInputs(input, siteId);
+
+        var updateNodes = downloadedComponent.Component.Nodes.Select(n => new UpdateComponentNode
+        {
+            NodeId = n.Id,
+            Text = n.Text?.Html,
+            PropertyOverrides = n.PropertyOverrides?.Select(p => new ComponentPropertyOverride
+            {
+                PropertyId = p.PropertyId,
+                Text = p.Text.Html
+            }).ToList()
+        });
+
+        await PatchComponentDom(siteId, input.ContentId!, input.Locale!, updateNodes);
+    }
+
+    private async Task ValidateAndNormalizeInputs(UploadContentRequest input, string siteId)
+    {
+        if (string.IsNullOrWhiteSpace(input.ContentId))
+            throw new PluginMisconfigurationException("Component ID is missing. Provide it in the input or file.");
+
+        if (string.IsNullOrWhiteSpace(input.Locale))
+            throw new PluginMisconfigurationException("Locale is missing. Provide it in the input or file.");
+
+        input.Locale = await LocaleHelper.GetLocaleId(input.Locale, siteId, Client);
+    }
+
+    private async Task PatchComponentDom(string siteId, string contentId, string localeId, IEnumerable<UpdateComponentNode> nodes)
+    {
+        var body = new UpdateComponentDomRequest { Nodes = nodes };
+        var endpoint = $"sites/{siteId}/components/{contentId}/dom";
+
+        var apiRequest = new RestRequest(endpoint, Method.Post)
+            .WithJsonBody(body)
+            .AddQueryParameter("localeId", localeId);
 
         apiRequest.RequestFormat = DataFormat.Json;
-        apiRequest.AddQueryParameter("localeId", localeId);
-
         await Client.ExecuteWithErrorHandling(apiRequest);
     }
 }

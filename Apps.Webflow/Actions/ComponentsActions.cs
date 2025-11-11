@@ -77,18 +77,8 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
         [ActionParameter] LocaleRequest locale)
     {
         await using var source = await fileManagementClient.DownloadAsync(input.File);
-        var html = Encoding.UTF8.GetString(await source.GetByteData());
-
-        if (Xliff2Serializer.IsXliff2(html))
-        {
-            html = Transformation.Parse(html, input.File.Name).Target().Serialize();
-            if (html == null) throw new PluginMisconfigurationException("XLIFF did not contain files");
-        }
-
-        await using var ms = new MemoryStream(Encoding.UTF8.GetBytes(html));
-        var doc = new HtmlAgilityPack.HtmlDocument();
-        doc.Load(ms);
-        ms.Position = 0;
+        var bytes = await source.GetByteData();
+        await using var stream = new MemoryStream(bytes);
 
         var updateRequest = new UploadContentRequest 
         {
@@ -97,6 +87,6 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
         }; 
 
         var service = _factory.GetContentService(ContentTypes.Component);
-        await service.UploadContent(ms, Client.GetSiteId(site.SiteId), updateRequest);
+        await service.UploadContent(stream, Client.GetSiteId(site.SiteId), updateRequest);
     }
 }
