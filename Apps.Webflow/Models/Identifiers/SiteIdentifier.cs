@@ -2,9 +2,9 @@ using Apps.Webflow.DataSourceHandlers.Site;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 
-namespace Apps.Webflow.Models.Request;
+namespace Apps.Webflow.Models.Identifiers;
 
-public class SiteRequest
+public class SiteIdentifier
 {
     [Display("Site ID")]
     [DataSource(typeof(SiteDataSourceHandler))]

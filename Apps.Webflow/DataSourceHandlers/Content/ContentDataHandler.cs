@@ -1,5 +1,5 @@
 ﻿using Apps.Webflow.Invocables;
-using Apps.Webflow.Models.Request;
+using Apps.Webflow.Models.Identifiers;
 using Apps.Webflow.Models.Request.Content;
 using Apps.Webflow.Models.Request.Date;
 using Apps.Webflow.Services;
@@ -12,7 +12,7 @@ namespace Apps.Webflow.DataSourceHandlers.Content;
 
 public class ContentDataHandler(InvocationContext invocationContext, 
     [ActionParameter] ContentFilter contentFilter,
-    [ActionParameter] SiteRequest site,
+    [ActionParameter] SiteIdentifier site,
     [ActionParameter] string? CollectionId) 
     : WebflowInvocable(invocationContext), IAsyncDataSourceItemHandler
 {

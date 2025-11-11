@@ -1,6 +1,6 @@
 ﻿using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Entities;
-using Apps.Webflow.Models.Request;
+using Apps.Webflow.Models.Identifiers;
 using Apps.Webflow.Models.Response.Pagination;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Invocation;
@@ -11,7 +11,7 @@ using File = Blackbird.Applications.SDK.Extensions.FileManagement.Models.FileDat
 
 namespace Apps.Webflow.DataSourceHandlers.Pages;
 
-public class PageFileDataSourceHandler(InvocationContext invocationContext, [ActionParameter] SiteRequest site) 
+public class PageFileDataSourceHandler(InvocationContext invocationContext, [ActionParameter] SiteIdentifier site) 
     : WebflowInvocable(invocationContext), IAsyncFileDataSourceItemHandler
 {
     private const string RootFolderDisplayName = "Pages";

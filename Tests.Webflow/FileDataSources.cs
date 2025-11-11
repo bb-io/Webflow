@@ -1,7 +1,7 @@
 ﻿using Apps.Webflow.Constants;
 using Apps.Webflow.DataSourceHandlers.Component;
 using Apps.Webflow.DataSourceHandlers.Pages;
-using Apps.Webflow.Models.Request;
+using Apps.Webflow.Models.Identifiers;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Models.FileDataSourceItems;
 using Tests.Webflow.Base;
@@ -15,7 +15,7 @@ public class FileDataSources : TestBaseWithContext
     public async Task ComponentFileDataSourceHandler_GetFolderPathAsync_ReturnsComponentGroups(InvocationContext context)
     {
         // Arrange
-        var request = new SiteRequest { };
+        var request = new SiteIdentifier { };
         var folderContext = new FolderPathDataSourceContext { FileDataItemId = "2df3695a-ff87-37fa-7ac7-63d4f4891939" };
         var handler = new ComponentFileDataSourceHandler(context, request);
 
@@ -34,7 +34,7 @@ public class FileDataSources : TestBaseWithContext
     public async Task PageFileDataSourceHandler_GetFolderContentAsync_ReturnsComponentIds(InvocationContext context)
     {
         // Arrange
-        var request = new SiteRequest { };
+        var request = new SiteIdentifier { };
         var folderContext = new FolderContentDataSourceContext { FolderId = "690b3264e2ac9b34a3109595" };
         var handler = new PageFileDataSourceHandler(context, request);
 

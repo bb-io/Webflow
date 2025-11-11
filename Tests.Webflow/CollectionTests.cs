@@ -1,6 +1,6 @@
 ﻿using Apps.Webflow.Actions;
 using Apps.Webflow.Constants;
-using Apps.Webflow.Models.Request;
+using Apps.Webflow.Models.Identifiers;
 using Apps.Webflow.Models.Request.Collection;
 using Apps.Webflow.Models.Request.Date;
 using Blackbird.Applications.Sdk.Common.Invocation;
@@ -16,7 +16,7 @@ public class CollectionTests : TestBaseWithContext
 	{
 		// Arrange
 		var action = new CollectionActions(context);
-		var site = new SiteRequest { };
+		var site = new SiteIdentifier { };
 		var input = new SearchCollectionsRequest { };
 		var date = new BasicDateFilter { };
 
@@ -33,7 +33,7 @@ public class CollectionTests : TestBaseWithContext
     {
         // Arrange
         var action = new CollectionActions(context);
-        var site = new SiteRequest { };
+        var site = new SiteIdentifier { };
         var input = new SearchCollectionsRequest { SlugContains = "post" };
         var date = new BasicDateFilter { LastUpdatedAfter = new DateTime(2025, 11, 7, 10, 00, 00, DateTimeKind.Utc) };
 

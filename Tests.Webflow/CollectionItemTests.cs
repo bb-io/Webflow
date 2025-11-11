@@ -1,6 +1,6 @@
 ﻿using Apps.Webflow.Actions;
 using Apps.Webflow.Constants;
-using Apps.Webflow.Models.Request;
+using Apps.Webflow.Models.Identifiers;
 using Apps.Webflow.Models.Request.Collection;
 using Apps.Webflow.Models.Request.CollectionItem;
 using Apps.Webflow.Models.Request.Date;
@@ -17,18 +17,18 @@ public class CollectionItemTests : TestBaseWithContext
     public async Task DownloadCollectionItem_ReturnsCollectionItem(InvocationContext context)
     {
         // Arrange
-        var request = new CollectionItemRequest
+        var request = new DownloadCollectionItemRequest
         {
-            CollectionId = "68f8b337cbd1cac54f5b9d9c",
             CollectionItemId = "6900ef5e244b95de8a4b7a3c",
             FileFormat = "text/html",
         };
-        var locale = new LocaleRequest { Locale = "en" };
-        var site = new SiteRequest { };
+        var locale = new LocaleIdentifier { Locale = "en" };
+        var site = new SiteIdentifier { };
         var actions = new CollectionItemActions(context, FileManagementClient);
+        var collection = new CollectionIdentifier { CollectionId = "68f8b337cbd1cac54f5b9d9c" };
 
         // Act
-        var result = await actions.DownloadCollectionItem(site, request, locale);
+        var result = await actions.DownloadCollectionItem(site, request, collection, locale);
 
         // Assert
         Assert.IsNotNull(result);
@@ -42,9 +42,9 @@ public class CollectionItemTests : TestBaseWithContext
             File = new FileReference { Name = "colitem.html" },
             Publish = false,
         };
-        var site = new SiteRequest { };
+        var site = new SiteIdentifier { };
         var actions = new CollectionItemActions(context, FileManagementClient);
-        var locale = new LocaleRequest { Locale = "en" };
+        var locale = new LocaleIdentifier { Locale = "en" };
 
         // Act
         await actions.UploadCollectionItem(site, request, locale);
@@ -59,24 +59,24 @@ public class CollectionItemTests : TestBaseWithContext
             Publish = true,
             File = new FileReference { Name = "colitem.json" }
         };
-        var site = new SiteRequest { };
+        var site = new SiteIdentifier { };
         var actions = new CollectionItemActions(context, FileManagementClient);
-        var locale = new LocaleRequest { };
+        var locale = new LocaleIdentifier { };
 
         // Act
         await actions.UploadCollectionItem(site, request, locale);
     }
 
-    [TestMethod, ContextDataSource]
+    [TestMethod, ContextDataSource(ConnectionTypes.OAuth2)]
     public async Task SearchCollectionItems_WithoutFilters_ReturnsCollectionItems(InvocationContext context)
     {
         // Arrange
         var actions = new CollectionItemActions(context, FileManagementClient);
         var request = new SearchCollectionItemsRequest { };
-        var site = new SiteRequest { };
+        var site = new SiteIdentifier { };
         var dateFilter = new BasicDateFilter { };
-        var collection = new CollectionRequest { CollectionId = "68f8b337cbd1cac54f5b9d9c" };
-        var locale = new LocaleRequest { /*Locale = "sv-SE"*/ };
+        var collection = new CollectionIdentifier { CollectionId = "68f8b337cbd1cac54f5b9d9c" };
+        var locale = new LocaleIdentifier { /*Locale = "sv-SE"*/ };
 
         // Act
         var result = await actions.SearchCollectionItems(site, collection, dateFilter, request, locale);
@@ -95,10 +95,10 @@ public class CollectionItemTests : TestBaseWithContext
         {
             LastPublishedAfter = new DateTime(2025, 11, 03, 10, 0, 0, DateTimeKind.Utc),
         };
-        var site = new SiteRequest { };
+        var site = new SiteIdentifier { };
         var dateFilter = new BasicDateFilter { };
-        var collection = new CollectionRequest { CollectionId = "68f8b337cbd1cac54f5b9d9c" };
-        var locale = new LocaleRequest { };
+        var collection = new CollectionIdentifier { CollectionId = "68f8b337cbd1cac54f5b9d9c" };
+        var locale = new LocaleIdentifier { };
 
         // Act
         var result = await actions.SearchCollectionItems(site, collection, dateFilter, request, locale);
@@ -113,10 +113,10 @@ public class CollectionItemTests : TestBaseWithContext
     {
         // Arrange
         var action = new CollectionItemActions(context, FileManagementClient);
-        var site = new SiteRequest { };
-        var collection = new CollectionRequest { CollectionId = "68f8b337cbd1cac54f5b9d9c" };
+        var site = new SiteIdentifier { };
+        var collection = new CollectionIdentifier { CollectionId = "68f8b337cbd1cac54f5b9d9c" };
         var input = new PublishItemRequest { CollectionItemId = "6900eecfd830d0978a6efd65" };
-        var locale = new LocaleRequest { };
+        var locale = new LocaleIdentifier { };
 
         // Act
         await action.PublishCollectionItem(site, collection, input, locale);
@@ -127,10 +127,10 @@ public class CollectionItemTests : TestBaseWithContext
     {
         // Arrange
         var action = new CollectionItemActions(context, FileManagementClient);
-        var site = new SiteRequest { };
+        var site = new SiteIdentifier { };
         var input = new PublishItemRequest { CollectionItemId = "6900ef0851221c2ffc49527a" };
-        var locale = new LocaleRequest { Locale = "sv-SE" };
-        var collection = new CollectionRequest { CollectionId = "68f8b337cbd1cac54f5b9d9c" };
+        var locale = new LocaleIdentifier { Locale = "sv-SE" };
+        var collection = new CollectionIdentifier { CollectionId = "68f8b337cbd1cac54f5b9d9c" };
 
         // Act
         await action.PublishCollectionItem(site, collection, input, locale);

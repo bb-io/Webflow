@@ -2,9 +2,9 @@
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 
-namespace Apps.Webflow.Models.Request;
+namespace Apps.Webflow.Models.Identifiers;
 
-public class LocaleRequest
+public class LocaleIdentifier
 {
     [Display("Locale")]
     [DataSource(typeof(SiteLocaleDataSourceHandler))]

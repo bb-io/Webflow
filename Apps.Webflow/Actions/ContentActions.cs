@@ -2,7 +2,7 @@
 using Apps.Webflow.Extensions;
 using Apps.Webflow.Helper;
 using Apps.Webflow.Invocables;
-using Apps.Webflow.Models.Request;
+using Apps.Webflow.Models.Identifiers;
 using Apps.Webflow.Models.Request.Content;
 using Apps.Webflow.Models.Request.Date;
 using Apps.Webflow.Models.Response.Content;
@@ -27,7 +27,7 @@ public class ContentActions(InvocationContext invocationContext, IFileManagement
     [BlueprintActionDefinition(BlueprintAction.SearchContent)]
     [Action("Search content", Description = "Search for any type of content")]
     public async Task<SearchContentResponse> SearchContent(
-        [ActionParameter] SiteRequest site,
+        [ActionParameter] SiteIdentifier site,
         [ActionParameter] SearchContentRequest request,
         [ActionParameter] ContentDateFilter dateFilter)
     {
@@ -39,7 +39,7 @@ public class ContentActions(InvocationContext invocationContext, IFileManagement
     [BlueprintActionDefinition(BlueprintAction.DownloadContent)]
     [Action("Download content", Description = "Download content to a file")]
     public async Task<DownloadContentResponse> DownloadContent(
-        [ActionParameter] SiteRequest site,
+        [ActionParameter] SiteIdentifier site,
         [ActionParameter] DownloadContentRequest request,
         [ActionParameter] ContentFilter contentFilter)
     {
@@ -58,7 +58,7 @@ public class ContentActions(InvocationContext invocationContext, IFileManagement
     [BlueprintActionDefinition(BlueprintAction.UploadContent)]
     [Action("Upload content", Description = "Update content from a file")]
     public async Task UploadContent(
-        [ActionParameter] SiteRequest site,
+        [ActionParameter] SiteIdentifier site,
         [ActionParameter] UploadContentRequest request)
     {
         await using var source = await fileManagementClient.DownloadAsync(request.Content);

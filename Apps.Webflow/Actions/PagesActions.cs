@@ -2,7 +2,7 @@
 using Apps.Webflow.Helper;
 using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Entities;
-using Apps.Webflow.Models.Request;
+using Apps.Webflow.Models.Identifiers;
 using Apps.Webflow.Models.Request.Content;
 using Apps.Webflow.Models.Request.Date;
 using Apps.Webflow.Models.Request.Pages;
@@ -27,7 +27,7 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
 
     [Action("Search pages", Description = "Search pages using filters")]
     public async Task<SearchPagesResponse> SearchPages(
-        [ActionParameter] SiteRequest site,
+        [ActionParameter] SiteIdentifier site,
         [ActionParameter] SearchPagesRequest input,
         [ActionParameter] BasicDateFilter dateFilter)
     {
@@ -46,9 +46,9 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
 
     [Action("Download page", Description = "Download the page content")]
     public async Task<DownloadPageResponse> DownloadPage(
-        [ActionParameter] SiteRequest site,
+        [ActionParameter] SiteIdentifier site,
         [ActionParameter] DownloadPageRequest input,
-        [ActionParameter] LocaleRequest locale)
+        [ActionParameter] LocaleIdentifier locale)
     {
         string fileFormat = input.FileFormat ?? MediaTypeNames.Text.Html;
 
@@ -80,9 +80,9 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
 
     [Action("Upload page", Description = "Update page content from a file")]
     public async Task UploadPage(
-        [ActionParameter] SiteRequest site,
+        [ActionParameter] SiteIdentifier site,
         [ActionParameter] UpdatePageContentRequest input,
-        [ActionParameter] LocaleRequest locale)
+        [ActionParameter] LocaleIdentifier locale)
     {
         await using var source = await fileManagementClient.DownloadAsync(input.File);
         var bytes = await source.GetByteData();   

@@ -3,8 +3,7 @@ using Apps.Webflow.DataSourceHandlers.Collection;
 using Apps.Webflow.DataSourceHandlers.CollectionItem;
 using Apps.Webflow.DataSourceHandlers.Locale;
 using Apps.Webflow.DataSourceHandlers.Site;
-using Apps.Webflow.Models.Request;
-using Apps.Webflow.Models.Request.Collection;
+using Apps.Webflow.Models.Identifiers;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
@@ -33,7 +32,7 @@ public class DataSources : TestBaseWithContext
     public async Task SiteLocaleDataSourceHandler_ReturnsLocales(InvocationContext context)
     {
         //Arange
-        var request = new SiteRequest { };
+        var request = new SiteIdentifier { };
 
         // Act
         var handler = new SiteLocaleDataSourceHandler(context, request);
@@ -48,7 +47,7 @@ public class DataSources : TestBaseWithContext
     public async Task CollectionItemCollectionDataSourceHandler_ReturnsCollections(InvocationContext context)
     {
         // Arrange
-        var site = new SiteRequest { };
+        var site = new SiteIdentifier { };
         var handler = new CollectionItemCollectionDataSourceHandler(context, site);
 
         // Act
@@ -63,9 +62,9 @@ public class DataSources : TestBaseWithContext
     public async Task CollectionItemDataSourceHandler_ReturnsCollectionItems(InvocationContext context)
     {
         // Arrange
-        var site = new SiteRequest { };
-        var collection = new CollectionRequest { CollectionId = "68f8b337cbd1cac54f5b9d9c" };
-        var locale = new LocaleRequest { Locale = "sv-SE" };
+        var site = new SiteIdentifier { };
+        var collection = new CollectionIdentifier { CollectionId = "68f8b337cbd1cac54f5b9d9c" };
+        var locale = new LocaleIdentifier { Locale = "sv-SE" };
         var handler = new CollectionItemDataSourceHandler(context, site, collection, locale);
 
         // Act
@@ -80,7 +79,7 @@ public class DataSources : TestBaseWithContext
     public async Task CustomDomainDataSourceHandler_WithSiteId_ReturnsCustomDomains(InvocationContext context)
     {
         // Arrange
-        var input = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
+        var input = new SiteIdentifier { SiteId = "68f886ffe2a4dba6d693cbe1" };
         var dataContext = new DataSourceContext { SearchString = "" };
         var handler = new CustomDomainDataSourceHandler(context, input);
 
@@ -96,7 +95,7 @@ public class DataSources : TestBaseWithContext
     public async Task CustomDomainDataSourceHandler_WithoutSiteId_ThrowsMisconfigException(InvocationContext context)
     {
         // Arrange
-        var input = new SiteRequest { SiteId = "" };
+        var input = new SiteIdentifier { SiteId = "" };
         var dataContext = new DataSourceContext { SearchString = "" };
         var handler = new CustomDomainDataSourceHandler(context, input);
 

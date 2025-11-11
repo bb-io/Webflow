@@ -2,7 +2,7 @@
 using Apps.Webflow.Helper;
 using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Entities;
-using Apps.Webflow.Models.Request;
+using Apps.Webflow.Models.Identifiers;
 using Apps.Webflow.Models.Request.Components;
 using Apps.Webflow.Models.Request.Content;
 using Apps.Webflow.Models.Response.Components;
@@ -26,7 +26,7 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
 
     [Action("Search components", Description = "Search all components for a site")]
     public async Task<SearchComponentsResponse> SearchComponents(
-        [ActionParameter] SiteRequest site,
+        [ActionParameter] SiteIdentifier site,
         [ActionParameter] SearchComponentsRequest input)
     {
         var endpoint = $"sites/{Client.GetSiteId(site.SiteId)}/components";
@@ -43,9 +43,9 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
 
     [Action("Download component", Description = "Download the component content")]
     public async Task<DownloadComponentResponse> DownloadComponent(
-        [ActionParameter] SiteRequest site,
+        [ActionParameter] SiteIdentifier site,
         [ActionParameter] DownloadComponentContentRequest input,
-        [ActionParameter] LocaleRequest locale)
+        [ActionParameter] LocaleIdentifier locale)
     {
         string fileFormat = input.FileFormat ?? MediaTypeNames.Text.Html;
 
@@ -68,9 +68,9 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
 
     [Action("Upload component", Description = "Update component content from a file")]
     public async Task UploadComponent(
-        [ActionParameter] SiteRequest site,
+        [ActionParameter] SiteIdentifier site,
         [ActionParameter] UpdateComponentContentRequest input,
-        [ActionParameter] LocaleRequest locale)
+        [ActionParameter] LocaleIdentifier locale)
     {
         await using var source = await fileManagementClient.DownloadAsync(input.File);
         var bytes = await source.GetByteData();

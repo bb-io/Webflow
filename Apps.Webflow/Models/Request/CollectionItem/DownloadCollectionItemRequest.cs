@@ -7,12 +7,8 @@ using Blackbird.Applications.SDK.Blueprints.Handlers;
 
 namespace Apps.Webflow.Models.Request.CollectionItem;
 
-public class CollectionItemRequest
-{    
-    [Display("Collection ID")]
-    [DataSource(typeof(CollectionItemCollectionDataSourceHandler))]
-    public string CollectionId { get; set; }
-    
+public class DownloadCollectionItemRequest
+{        
     [Display("Collection item ID")]
     [DataSource(typeof(CollectionItemDataSourceHandler))]
     public string CollectionItemId { get; set; }
