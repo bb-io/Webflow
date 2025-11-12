@@ -30,18 +30,18 @@ public class PagesTests : TestBaseWithContext
         Assert.IsNotNull(result);
     }
 
-    [TestMethod, ContextDataSource]
+    [TestMethod, ContextDataSource(ConnectionTypes.OAuth2)]
     public async Task DownloadPage_ReturnsFileReference(InvocationContext context)
     {
         // Arrange
         var site = new SiteIdentifier { };
         var input = new DownloadPageRequest 
         { 
-            FileFormat = "original",
-            PageId = "68f8b337cbd1cac54f5b9d80"
+            FileFormat = "text/html",
+            PageId = "68f8b337cbd1cac54f5b9d80",
+            IncludeMetadata = true
         };
         var locale = new LocaleIdentifier { Locale = "sv-SE" };
-
         var actions = new PagesActions(context, FileManagementClient);
 
         // Act

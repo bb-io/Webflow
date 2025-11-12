@@ -57,8 +57,7 @@ public class PageService(InvocationContext invocationContext, IFileManagementCli
 
     public override async Task<FileReference> DownloadContent(string siteId, DownloadContentRequest input)
     {
-        var domEndpoint = $"pages/{input.ContentId}/dom";
-        var domRequest = new RestRequest(domEndpoint, Method.Get);
+        var domRequest = new RestRequest($"pages/{input.ContentId}/dom", Method.Get);
 
         if (!string.IsNullOrEmpty(input.Locale))
         {
@@ -68,15 +67,15 @@ public class PageService(InvocationContext invocationContext, IFileManagementCli
 
         var pageDom = await Client.ExecuteWithErrorHandling<PageDomEntity>(domRequest);
 
-        Stream outputStream = input.FileFormat switch
-        {
-            "text/html" => PageHtmlConverter.ToHtml(pageDom, siteId, input.ContentId, input.Locale),
-            "original" => PageJsonConverter.ToJson(pageDom, siteId, input.Locale),
-            _ => throw new PluginMisconfigurationException($"Unsupported output format: {input.FileFormat}")
-        };
-
         var pageRequest = new RestRequest($"pages/{pageDom.PageId}", Method.Get);
         var page = await Client.ExecuteWithErrorHandling<PageEntity>(pageRequest);
+
+        Stream outputStream = input.FileFormat switch
+        {
+            "text/html" => PageHtmlConverter.ToHtml(pageDom, siteId, input.ContentId, page.Title, input.Locale),
+            "original" => PageJsonConverter.ToJson(pageDom, siteId, page.Title, input.Locale),
+            _ => throw new PluginMisconfigurationException($"Unsupported output format: {input.FileFormat}")
+        };
 
         string name = page.Title ?? page.Id;
         string contentType = input.FileFormat == "text/html" ? MediaTypeNames.Text.Html : MediaTypeNames.Application.Json;

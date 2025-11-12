@@ -12,13 +12,25 @@ public static class PageHtmlConverter
     private static readonly string[] TranslatableNodeTypes = { "text", "component-instance" };
     private static readonly string[] TranslatablePropertyTypes = { "Plain Text", "Rich Text" };
 
-    public static Stream ToHtml(PageDomEntity pageDom, string siteId, string pageId, string? localeId)
+    public static Stream ToHtml(PageDomEntity pageDom, string siteId, string pageId, string? pageTitle, string? localeId)
     {
         var (doc, body) = PrepareEmptyHtmlDocument();
 
         var head = doc.DocumentNode.SelectSingleNode("//head");
         if (head != null)
         {
+            if (!string.IsNullOrEmpty(pageTitle))
+            {
+                var titleNode = head.SelectSingleNode("title");
+                if (titleNode == null)
+                {
+                    titleNode = doc.CreateElement("title");
+                    head.PrependChild(titleNode);
+                }
+
+                titleNode.InnerHtml = pageTitle;
+            }
+
             var mType = doc.CreateElement("meta");
             mType.SetAttributeValue("name", "blackbird-content-type");
             mType.SetAttributeValue("content", ContentTypes.Page.ToKebabCase());

@@ -8,10 +8,11 @@ namespace Apps.Webflow.Conversion.Page;
 
 public static class PageJsonConverter
 {
-    public static Stream ToJson(PageDomEntity page, string siteId, string? localeId)
+    public static Stream ToJson(PageDomEntity page, string siteId, string? pageTitle, string? localeId)
     {
         var model = new DownloadedPage
         {
+            Title = pageTitle,
             Page = page,
             SiteId = siteId,
             Locale = localeId,
