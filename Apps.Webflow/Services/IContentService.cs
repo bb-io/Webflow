@@ -8,5 +8,5 @@ public interface IContentService
 {
     Task<SearchContentResponse> SearchContent(string siteId, SearchContentRequest input, ContentDateFilter dateFilter);
     Task<Stream> DownloadContent(string siteId, DownloadContentRequest input);
-    Task UploadContent(Stream content, string? siteId, UploadContentRequest input);
+    Task UploadContent(Stream content, string siteId, UploadContentRequest input);
 }
