@@ -1,9 +1,11 @@
 ﻿using Apps.Webflow.Constants;
 using Apps.Webflow.DataSourceHandlers.Collection;
 using Apps.Webflow.DataSourceHandlers.CollectionItem;
+using Apps.Webflow.DataSourceHandlers.Content;
 using Apps.Webflow.DataSourceHandlers.Locale;
 using Apps.Webflow.DataSourceHandlers.Site;
 using Apps.Webflow.Models.Identifiers;
+using Apps.Webflow.Models.Request.Content;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
@@ -103,5 +105,22 @@ public class DataSources : TestBaseWithContext
         await Assert.ThrowsExactlyAsync<PluginMisconfigurationException>(
             async () => await handler.GetDataAsync(dataContext, CancellationToken.None)
         );
+    }
+
+    [TestMethod, ContextDataSource(ConnectionTypes.OAuth2Multiple)]
+    public async Task ContentDataHandler_ReturnsContent(InvocationContext context)
+    {
+        // Arrange
+        var input = new SiteIdentifier { SiteId = "68f886ffe2a4dba6d693cbe1" };
+        var filter = new ContentFilter { ContentType = ContentTypes.Component };
+        var dataContext = new DataSourceContext { SearchString = "" };
+        var handler = new ContentDataHandler(context, filter, input, "");
+
+        // Act
+        var data = await handler.GetDataAsync(dataContext, CancellationToken.None);
+
+        // Assert
+        PrintDataHandlerResult(data);
+        Assert.IsNotNull(data);
     }
 }
