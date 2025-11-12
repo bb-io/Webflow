@@ -4,9 +4,9 @@ namespace Apps.Webflow.Helper;
 
 public static class FileHelper
 {
-    public static string GetDownloadedFileName(string fileFormat, string contentId, string contentType)
+    public static string GetDownloadedFileName(string contentName, string fileFormat)
     {
         string fileExtension = fileFormat == MediaTypeNames.Text.Html ? "html" : "json";
-        return $"{contentType.Replace(' ', '_').ToLower()}_{contentId}.{fileExtension}";
+        return $"{contentName}.{fileExtension}";
     }
 }

@@ -16,7 +16,7 @@ public class ContentDataHandler(InvocationContext invocationContext,
     [ActionParameter] string? CollectionId) 
     : WebflowInvocable(invocationContext), IAsyncDataSourceItemHandler
 {
-    private readonly ContentServicesFactory _factory = new(invocationContext);
+    private readonly ContentServicesFactory _factory = new(invocationContext, null!);
 
     public async Task<IEnumerable<DataSourceItem>> GetDataAsync(DataSourceContext context, CancellationToken cancellationToken)
     {

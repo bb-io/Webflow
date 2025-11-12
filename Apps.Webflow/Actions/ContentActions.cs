@@ -22,7 +22,7 @@ namespace Apps.Webflow.Actions;
 public class ContentActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient) 
     : WebflowInvocable(invocationContext)
 {
-    private readonly ContentServicesFactory _factory = new(invocationContext);
+    private readonly ContentServicesFactory _factory = new(invocationContext, fileManagementClient);
 
     [BlueprintActionDefinition(BlueprintAction.SearchContent)]
     [Action("Search content", Description = "Search for any type of content")]
@@ -46,13 +46,8 @@ public class ContentActions(InvocationContext invocationContext, IFileManagement
         request.FileFormat = request.FileFormat is null ? MediaTypeNames.Text.Html : request.FileFormat;
         var service = _factory.GetContentService(contentFilter.ContentType);
 
-        var stream = await service.DownloadContent(Client.GetSiteId(site.SiteId), request);
-
-        string fileName = FileHelper.GetDownloadedFileName(request.FileFormat, request.ContentId, contentFilter.ContentType);
-        string contentType = request.FileFormat == MediaTypeNames.Text.Html ? MediaTypeNames.Text.Html : MediaTypeNames.Application.Json;
-
-        var fileReference = await fileManagementClient.UploadAsync(stream, contentType, fileName);
-        return new DownloadContentResponse(fileReference);
+        var file = await service.DownloadContent(Client.GetSiteId(site.SiteId), request);
+        return new(file);
     }
 
     [BlueprintActionDefinition(BlueprintAction.UploadContent)]

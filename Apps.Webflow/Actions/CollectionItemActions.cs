@@ -26,7 +26,7 @@ namespace Apps.Webflow.Actions;
 public class CollectionItemActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
     : WebflowInvocable(invocationContext)
 {
-    private readonly ContentServicesFactory _factory = new(invocationContext);
+    private readonly ContentServicesFactory _factory = new(invocationContext, fileManagementClient);
 
     [Action("Search collection items", Description = "Search all collection items for a specific collection")]
     public async Task<SearchCollectionItemsResponse> SearchCollectionItems(
@@ -82,12 +82,7 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
             FileFormat = fileFormat,
         };
 
-        var stream = await service.DownloadContent(Client.GetSiteId(site.SiteId), contentRequest);
-
-        string fileName = FileHelper.GetDownloadedFileName(fileFormat, input.CollectionItemId, ContentTypes.CollectionItem);
-        string contentType = fileFormat == MediaTypeNames.Text.Html ? MediaTypeNames.Text.Html : MediaTypeNames.Application.Json;
-
-        var file = await fileManagementClient.UploadAsync(stream, contentType, fileName);
+        var file = await service.DownloadContent(Client.GetSiteId(site.SiteId), contentRequest);
         return new(file);
     }
 

@@ -2,10 +2,11 @@
 using Apps.Webflow.Services.Concrete;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 
 namespace Apps.Webflow.Services;
 
-public class ContentServicesFactory(InvocationContext invocationContext)
+public class ContentServicesFactory(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
 {
     public List<IContentService> GetContentServices(IEnumerable<string> contentTypes)
     {
@@ -21,9 +22,9 @@ public class ContentServicesFactory(InvocationContext invocationContext)
     {
         return contentType switch
         {
-            ContentTypes.Page => new PageService(invocationContext),
-            ContentTypes.Component => new ComponentService(invocationContext),
-            ContentTypes.CollectionItem => new CollectionItemService(invocationContext),
+            ContentTypes.Page => new PageService(invocationContext, fileManagementClient),
+            ContentTypes.Component => new ComponentService(invocationContext, fileManagementClient),
+            ContentTypes.CollectionItem => new CollectionItemService(invocationContext, fileManagementClient),
             _ => throw new PluginApplicationException($"This content type is not supported: {contentType}")
         };
     }

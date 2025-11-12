@@ -23,7 +23,7 @@ namespace Apps.Webflow.Actions;
 public class PagesActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
     : WebflowInvocable(invocationContext)
 {
-    private readonly ContentServicesFactory _factory = new(invocationContext);
+    private readonly ContentServicesFactory _factory = new(invocationContext, fileManagementClient);
 
     [Action("Search pages", Description = "Search pages using filters")]
     public async Task<SearchPagesResponse> SearchPages(
@@ -60,11 +60,7 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
             FileFormat = fileFormat,
         };
 
-        var stream = await service.DownloadContent(Client.GetSiteId(site.SiteId), request);
-        string fileName = FileHelper.GetDownloadedFileName(fileFormat, input.PageId, ContentTypes.Page);
-        string contentType = fileFormat == MediaTypeNames.Text.Html ? MediaTypeNames.Text.Html : MediaTypeNames.Application.Json;
-
-        var fileReference = await fileManagementClient.UploadAsync(stream, contentType, fileName);
+        var file = await service.DownloadContent(Client.GetSiteId(site.SiteId), request);
 
         PageEntity? metadata = null;
 
@@ -75,7 +71,7 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
             metadata = await Client.ExecuteWithErrorHandling<PageEntity>(metadataRequest);
         }
 
-        return new DownloadPageResponse(fileReference, metadata);
+        return new DownloadPageResponse(file, metadata);
     }
 
     [Action("Upload page", Description = "Update page content from a file")]

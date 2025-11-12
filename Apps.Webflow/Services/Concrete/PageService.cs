@@ -12,18 +12,22 @@ using Apps.Webflow.Models.Response.Content;
 using Apps.Webflow.Models.Response.Pages;
 using Apps.Webflow.Models.Response.Pagination;
 using Blackbird.Applications.Sdk.Common.Exceptions;
+using Blackbird.Applications.Sdk.Common.Files;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Extensions.Http;
+using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Filters.Transformations;
 using Blackbird.Filters.Xliff.Xliff2;
 using Newtonsoft.Json;
 using RestSharp;
+using System.Net.Mime;
 using System.Text;
 using System.Web;
 
 namespace Apps.Webflow.Services.Concrete;
 
-public class PageService(InvocationContext invocationContext) : BaseContentService(invocationContext)
+public class PageService(InvocationContext invocationContext, IFileManagementClient fileManagementClient) 
+    : BaseContentService(invocationContext)
 {
     private const string ContentType = ContentTypes.Page;
 
@@ -51,7 +55,7 @@ public class PageService(InvocationContext invocationContext) : BaseContentServi
         return new SearchContentResponse(result);
     }
 
-    public override async Task<Stream> DownloadContent(string siteId, DownloadContentRequest input)
+    public override async Task<FileReference> DownloadContent(string siteId, DownloadContentRequest input)
     {
         var domEndpoint = $"pages/{input.ContentId}/dom";
         var domRequest = new RestRequest(domEndpoint, Method.Get);
@@ -71,11 +75,16 @@ public class PageService(InvocationContext invocationContext) : BaseContentServi
             _ => throw new PluginMisconfigurationException($"Unsupported output format: {input.FileFormat}")
         };
 
-        var memoryStream = new MemoryStream();
-        await outputStream.CopyToAsync(memoryStream);
-        memoryStream.Position = 0;
+        var pageRequest = new RestRequest($"pages/{pageDom.PageId}", Method.Get);
+        var page = await Client.ExecuteWithErrorHandling<PageEntity>(pageRequest);
 
-        return memoryStream;
+        string name = page.Title ?? page.Id;
+        string contentType = input.FileFormat == "text/html" ? MediaTypeNames.Text.Html : MediaTypeNames.Application.Json;
+        var fileName = FileHelper.GetDownloadedFileName(name, contentType);
+
+        FileReference fileReference = await fileManagementClient.UploadAsync(outputStream, contentType, fileName);
+        await outputStream.DisposeAsync();
+        return fileReference;
     }
 
     public override async Task UploadContent(Stream content, string siteId, UploadContentRequest input)
