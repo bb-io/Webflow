@@ -15,7 +15,10 @@ public class DownloadPageRequest
     [Display("Display page metadata", Description = "Display page metadata. Default is true")]
     public bool? DisplayMetadata { get; set; } = true;
 
-    [Display("Include page metadata", Description = "Include slug in output file. Default is false")]
+    [Display("Include page metadata", Description = "Include translatable metadata in output file. Default is false")]
+    public bool? IncludeMetadata { get; set; }
+
+    [Display("Include page slug", Description = "Include slug in output file. Default is false")]
     public bool? IncludeSlug { get; set; } = false;
 
     [Display("File format", Description = "Format of the file to be downloaded, defaults to an interoperable HTML")]

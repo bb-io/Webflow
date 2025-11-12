@@ -29,4 +29,7 @@ public class DownloadContentRequest : IDownloadContentInput
 
     [Display("Include slug", Description = "Include slug in output file. Default is false")]
     public bool? IncludeSlug { get; set; } = false;
+
+    [Display("Include file metadata", Description = "Include file metadata in output file. Default is false")]
+    public bool? IncludeMetadata { get; set; } = false;
 }

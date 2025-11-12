@@ -10,6 +10,6 @@ public class DownloadedPage
 
     public required string? Locale { get; set; }
     public required string SiteId { get; set; }
-    public required PageMetadata Metadata { get; set; }
+    public required PageMetadata? Metadata { get; set; }
     public required PageDomEntity Page { get; set; }
 }

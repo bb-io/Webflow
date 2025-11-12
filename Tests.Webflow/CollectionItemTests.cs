@@ -13,7 +13,7 @@ namespace Tests.Webflow;
 [TestClass]
 public class CollectionItemTests : TestBaseWithContext
 {
-    [TestMethod, ContextDataSource(ConnectionTypes.OAuth2Multiple)]
+    [TestMethod, ContextDataSource(ConnectionTypes.OAuth2)]
     public async Task DownloadCollectionItem_ReturnsCollectionItem(InvocationContext context)
     {
         // Arrange

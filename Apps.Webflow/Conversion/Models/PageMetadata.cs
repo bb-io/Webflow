@@ -2,4 +2,20 @@
 
 namespace Apps.Webflow.Conversion.Models;
 
-public record PageMetadata(string? PageTitle, string? Slug, PageSeo? SeoMetadata, PageOpenGraph? OpenGraphMetadata);
+public class PageMetadata
+{
+    public PageMetadata(string? pageTitle, string? slug, PageSeo? seo, PageOpenGraph? openGraph)
+    {
+        PageTitle = pageTitle;
+        Slug = slug;
+        Seo = seo;
+        OpenGraph = openGraph;
+    }
+
+    public PageMetadata() { }
+
+    public string? PageTitle { get; set; }
+    public string? Slug { get; set; }
+    public PageSeo? Seo { get; set; }
+    public PageOpenGraph? OpenGraph { get; set; }
+};

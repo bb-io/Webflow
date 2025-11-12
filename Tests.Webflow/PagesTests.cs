@@ -39,8 +39,9 @@ public class PagesTests : TestBaseWithContext
         { 
             FileFormat = "original",
             PageId = "68f8b337cbd1cac54f5b9d80",
-            DisplayMetadata = true,
-            IncludeSlug = false,
+            DisplayMetadata = false,
+            IncludeSlug = true,
+            IncludeMetadata = false,
         };
         var locale = new LocaleIdentifier { Locale = "sv-SE" };
         var actions = new PagesActions(context, FileManagementClient);
@@ -57,7 +58,7 @@ public class PagesTests : TestBaseWithContext
     public async Task UploadPage_IsSuccess(InvocationContext context)
     {
         // Arrange
-        var fileReference = new FileReference { Name = "page.xlf" };
+        var fileReference = new FileReference { Name = "404.html" };
         var site = new SiteIdentifier { };
 
         var input = new UpdatePageContentRequest { File = fileReference };

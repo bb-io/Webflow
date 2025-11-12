@@ -59,6 +59,7 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
             ContentId = input.PageId,
             FileFormat = fileFormat,
             IncludeSlug = input.IncludeSlug,
+            IncludeMetadata = input.IncludeMetadata,
         };
 
         var file = await service.DownloadContent(Client.GetSiteId(site.SiteId), request);

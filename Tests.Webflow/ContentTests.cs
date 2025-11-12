@@ -211,7 +211,11 @@ public class ContentTests : TestBaseWithContext
         // Arrange
         var action = new ContentActions(context, FileManagementClient);
         var site = new SiteIdentifier { SiteId = "68f8b336cbd1cac54f5b9d2c" };
-        var request = new DownloadContentRequest { ContentId = "68f8b337cbd1cac54f5b9d81", FileFormat = "text/html" };
+        var request = new DownloadContentRequest { 
+            ContentId = "68f8b337cbd1cac54f5b9d81", 
+            FileFormat = "text/html", 
+            IncludeMetadata = true,
+        };
         var contentFilter = new ContentFilter { ContentType = ContentTypes.Page };
 
         // Act
