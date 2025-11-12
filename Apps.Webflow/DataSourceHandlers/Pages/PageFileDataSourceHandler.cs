@@ -1,5 +1,5 @@
 ﻿using Apps.Webflow.Invocables;
-using Apps.Webflow.Models.Entities;
+using Apps.Webflow.Models.Entities.Page;
 using Apps.Webflow.Models.Identifiers;
 using Apps.Webflow.Models.Response.Pagination;
 using Blackbird.Applications.Sdk.Common;

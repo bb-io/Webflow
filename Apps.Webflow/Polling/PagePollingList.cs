@@ -1,6 +1,6 @@
 ﻿using Apps.Webflow.Helper;
 using Apps.Webflow.Invocables;
-using Apps.Webflow.Models.Entities;
+using Apps.Webflow.Models.Entities.Page;
 using Apps.Webflow.Models.Identifiers;
 using Apps.Webflow.Models.Response.Pages;
 using Apps.Webflow.Polling.Models;

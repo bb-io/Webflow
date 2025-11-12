@@ -37,9 +37,10 @@ public class PagesTests : TestBaseWithContext
         var site = new SiteIdentifier { };
         var input = new DownloadPageRequest 
         { 
-            FileFormat = "text/html",
+            FileFormat = "original",
             PageId = "68f8b337cbd1cac54f5b9d80",
-            IncludeMetadata = true
+            DisplayMetadata = true,
+            IncludeSlug = false,
         };
         var locale = new LocaleIdentifier { Locale = "sv-SE" };
         var actions = new PagesActions(context, FileManagementClient);

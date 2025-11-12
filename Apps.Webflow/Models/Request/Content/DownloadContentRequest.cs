@@ -25,5 +25,8 @@ public class DownloadContentRequest : IDownloadContentInput
 
     [Display("File format", Description = "Format of the file to be downloaded, defaults to an interoperable HTML")]
     [StaticDataSource(typeof(DownloadFileFormatHandler))]
-    public string? FileFormat { get; set; }
+    public string? FileFormat { get; set; } = "text/html";
+
+    [Display("Include slug", Description = "Include slug in output file. Default is false")]
+    public bool? IncludeSlug { get; set; } = false;
 }

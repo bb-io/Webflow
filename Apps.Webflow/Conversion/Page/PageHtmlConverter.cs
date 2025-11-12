@@ -1,8 +1,10 @@
 ﻿using Apps.Webflow.Constants;
 using Apps.Webflow.Conversion.Constants;
+using Apps.Webflow.Conversion.Models;
 using Apps.Webflow.Extensions;
 using Apps.Webflow.Models.Response.Pages;
 using HtmlAgilityPack;
+using Newtonsoft.Json;
 using System.Web;
 
 namespace Apps.Webflow.Conversion.Page;
@@ -12,25 +14,13 @@ public static class PageHtmlConverter
     private static readonly string[] TranslatableNodeTypes = { "text", "component-instance" };
     private static readonly string[] TranslatablePropertyTypes = { "Plain Text", "Rich Text" };
 
-    public static Stream ToHtml(PageDomEntity pageDom, string siteId, string pageId, string? pageTitle, string? localeId)
+    public static Stream ToHtml(PageDomEntity pageDom, string siteId, string pageId, string? locale, PageMetadata metadata)
     {
         var (doc, body) = PrepareEmptyHtmlDocument();
 
         var head = doc.DocumentNode.SelectSingleNode("//head");
         if (head != null)
         {
-            if (!string.IsNullOrEmpty(pageTitle))
-            {
-                var titleNode = head.SelectSingleNode("title");
-                if (titleNode == null)
-                {
-                    titleNode = doc.CreateElement("title");
-                    head.PrependChild(titleNode);
-                }
-
-                titleNode.InnerHtml = pageTitle;
-            }
-
             var mType = doc.CreateElement("meta");
             mType.SetAttributeValue("name", "blackbird-content-type");
             mType.SetAttributeValue("content", ContentTypes.Page.ToKebabCase());
@@ -46,15 +36,29 @@ public static class PageHtmlConverter
             metaPageId.SetAttributeValue("content", pageId);
             head.AppendChild(metaPageId);
 
-            if (localeId != null)
+            if (locale != null)
             {
                 var metaLocaleId = doc.CreateElement("meta");
-                metaLocaleId.SetAttributeValue("name", "blackbird-locale-id");
-                metaLocaleId.SetAttributeValue("content", localeId);
+                metaLocaleId.SetAttributeValue("name", "blackbird-locale");
+                metaLocaleId.SetAttributeValue("content", locale);
                 head.AppendChild(metaLocaleId);
             }
         }
 
+        var combinedMetadata = new
+        {
+            title = metadata.PageTitle,
+            slug = metadata.Slug,
+            seo = metadata.SeoMetadata,
+            openGraph = metadata.OpenGraphMetadata
+        };
+        string jsonPayload = JsonConvert.SerializeObject(combinedMetadata, JsonConfig.Settings);
+
+        var scriptNode = doc.CreateElement("script");
+        scriptNode.SetAttributeValue("id", "blackbird-metadata-json");
+        scriptNode.SetAttributeValue("type", "application/json");
+        scriptNode.InnerHtml = "\n" + jsonPayload + "\n";
+        body.PrependChild(scriptNode);
 
         foreach (var node in pageDom.Nodes)
         {

@@ -12,8 +12,11 @@ public class DownloadPageRequest
     [FileDataSource(typeof(PageFileDataSourceHandler))]
     public string PageId { get; set; }
 
-    [Display("Include page metadata", Description = "Includes page metadata, true by default")]
-    public bool? IncludeMetadata { get; set; }
+    [Display("Display page metadata", Description = "Display page metadata. Default is true")]
+    public bool? DisplayMetadata { get; set; } = true;
+
+    [Display("Include page metadata", Description = "Include slug in output file. Default is false")]
+    public bool? IncludeSlug { get; set; } = false;
 
     [Display("File format", Description = "Format of the file to be downloaded, defaults to an interoperable HTML")]
     [StaticDataSource(typeof(DownloadFileFormatHandler))]

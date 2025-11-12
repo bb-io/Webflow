@@ -5,6 +5,7 @@ using Apps.Webflow.Conversion.Page;
 using Apps.Webflow.Extensions;
 using Apps.Webflow.Helper;
 using Apps.Webflow.Models.Entities;
+using Apps.Webflow.Models.Entities.Page;
 using Apps.Webflow.Models.Request.Content;
 using Apps.Webflow.Models.Request.Date;
 using Apps.Webflow.Models.Request.Pages;
@@ -69,11 +70,20 @@ public class PageService(InvocationContext invocationContext, IFileManagementCli
 
         var pageRequest = new RestRequest($"pages/{pageDom.PageId}", Method.Get);
         var page = await Client.ExecuteWithErrorHandling<PageEntity>(pageRequest);
+        string? slug = input.IncludeSlug == true ? page.Slug : null;
+
+        var openGraphMetadata = page.OpenGraph;
+        if (openGraphMetadata?.TitleCopied == true)
+            openGraphMetadata.Title = null;
+        if (openGraphMetadata?.DescriptionCopied == true)
+            openGraphMetadata.Description = null;
+
+        var pageMetadata = new PageMetadata(page.Title, slug, page.Seo, openGraphMetadata);
 
         Stream outputStream = input.FileFormat switch
         {
-            "text/html" => PageHtmlConverter.ToHtml(pageDom, siteId, input.ContentId, page.Title, input.Locale),
-            "original" => PageJsonConverter.ToJson(pageDom, siteId, page.Title, input.Locale),
+            "text/html" => PageHtmlConverter.ToHtml(pageDom, siteId, input.ContentId, input.Locale, pageMetadata),
+            "original" => PageJsonConverter.ToJson(pageDom, siteId, input.Locale, pageMetadata),
             _ => throw new PluginMisconfigurationException($"Unsupported output format: {input.FileFormat}")
         };
 

@@ -1,7 +1,7 @@
 ﻿using Apps.Webflow.Constants;
 using Apps.Webflow.Helper;
 using Apps.Webflow.Invocables;
-using Apps.Webflow.Models.Entities;
+using Apps.Webflow.Models.Entities.Page;
 using Apps.Webflow.Models.Identifiers;
 using Apps.Webflow.Models.Request.Content;
 using Apps.Webflow.Models.Request.Date;
@@ -58,13 +58,14 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
             Locale = locale.Locale,
             ContentId = input.PageId,
             FileFormat = fileFormat,
+            IncludeSlug = input.IncludeSlug,
         };
 
         var file = await service.DownloadContent(Client.GetSiteId(site.SiteId), request);
 
         PageEntity? metadata = null;
 
-        if (!input.IncludeMetadata.HasValue || input.IncludeMetadata == true)
+        if (!input.DisplayMetadata.HasValue || input.DisplayMetadata == true)
         {
             var metadataEndpoint = $"pages/{input.PageId}";
             var metadataRequest = new RestRequest(metadataEndpoint, Method.Get);

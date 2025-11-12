@@ -1,4 +1,4 @@
-﻿using Apps.Webflow.Models.Entities;
+﻿using Apps.Webflow.Models.Entities.Page;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Files;
 

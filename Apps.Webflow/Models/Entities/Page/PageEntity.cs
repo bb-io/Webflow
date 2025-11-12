@@ -1,7 +1,6 @@
 ﻿using Blackbird.Applications.Sdk.Common;
-using Newtonsoft.Json;
 
-namespace Apps.Webflow.Models.Entities;
+namespace Apps.Webflow.Models.Entities.Page;
 
 public class PageEntity : IDateFilterable
 {
@@ -24,7 +23,6 @@ public class PageEntity : IDateFilterable
     public DateTime? LastUpdated { get; set; }
 
     [Display("Locale ID")]
-    [JsonProperty("localeId")]
     public string? LocaleId { get; set; }
 
     [Display("Published path")]
@@ -38,4 +36,10 @@ public class PageEntity : IDateFilterable
 
     [Display("Parent ID")]
     public string? ParentId { get; set; }
+
+    [Display("SEO")]
+    public PageSeo? Seo { get; set; }
+
+    [Display("Open graph")]
+    public PageOpenGraph? OpenGraph { get; set; }
 }
