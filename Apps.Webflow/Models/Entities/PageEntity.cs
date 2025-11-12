@@ -12,7 +12,7 @@ public class PageEntity : IDateFilterable
     public string Id { get; set; }
 
     [Display("Page title")]
-    public string Title { get; set; } = string.Empty;
+    public string? Title { get; set; }
 
     [Display("Slug")]
     public string? Slug { get; set; }
