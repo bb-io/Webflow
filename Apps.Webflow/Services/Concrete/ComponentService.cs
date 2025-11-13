@@ -115,7 +115,7 @@ public class ComponentService(InvocationContext invocationContext, IFileManageme
         var doc = new HtmlAgilityPack.HtmlDocument();
         doc.Load(htmlStream);
 
-        input.Locale ??= doc.DocumentNode.GetMetaValue("blackbird-locale-id");
+        input.Locale ??= doc.DocumentNode.GetMetaValue("blackbird-locale");
         input.ContentId ??= doc.DocumentNode.GetMetaValue("blackbird-component-id");
 
         await ValidateAndNormalizeInputs(input, siteId);
