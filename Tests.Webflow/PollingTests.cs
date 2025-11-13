@@ -1,5 +1,5 @@
 ﻿using Apps.Webflow.Constants;
-using Apps.Webflow.Models.Request;
+using Apps.Webflow.Models.Identifiers;
 using Apps.Webflow.Models.Response.Pages;
 using Apps.Webflow.Polling;
 using Apps.Webflow.Polling.Models;
@@ -25,7 +25,7 @@ public class PollingTests : TestBaseWithContext
             Memory = new PageMemory(lastPollingTime, false)
         };
 
-        var site = new SiteRequest { };
+        var site = new SiteIdentifier { };
         var input = new PagePollingRequest { };
 
         // Act
@@ -49,7 +49,7 @@ public class PollingTests : TestBaseWithContext
         };
 
         var input = new PagePollingRequest { NameDoesNotContain = "40" };
-        var site = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
+        var site = new SiteIdentifier { SiteId = "68f8b336cbd1cac54f5b9d2c" };
 
         // Act
         var response = await polling.OnPageUpdated(request, site, input);

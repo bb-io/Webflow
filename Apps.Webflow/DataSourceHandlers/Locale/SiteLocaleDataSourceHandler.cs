@@ -1,6 +1,6 @@
 ﻿using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Entities;
-using Apps.Webflow.Models.Request;
+using Apps.Webflow.Models.Identifiers;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Exceptions;
@@ -9,7 +9,7 @@ using RestSharp;
 
 namespace Apps.Webflow.DataSourceHandlers.Locale;
 
-public class SiteLocaleDataSourceHandler(InvocationContext invocationContext, [ActionParameter] SiteRequest site) 
+public class SiteLocaleDataSourceHandler(InvocationContext invocationContext, [ActionParameter] SiteIdentifier site) 
     : WebflowInvocable(invocationContext), IAsyncDataSourceItemHandler
 {
     public async Task<IEnumerable<DataSourceItem>> GetDataAsync(DataSourceContext context, CancellationToken cancellationToken)

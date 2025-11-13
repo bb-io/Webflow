@@ -1,4 +1,4 @@
-﻿using Apps.Webflow.Models.Entities;
+﻿using Apps.Webflow.Models.Entities.Page;
 
 namespace Apps.Webflow.Models.Response.Pagination;
 

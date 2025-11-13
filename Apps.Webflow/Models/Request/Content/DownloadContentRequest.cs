@@ -20,10 +20,16 @@ public class DownloadContentRequest : IDownloadContentInput
     public string? Locale { get; set; }
 
     [Display("Collection ID")]
-    [DataSource(typeof(CollectionItemCollectionDataSourceHandler))]
+    [DataSource(typeof(CollectionDataSourceHandler))]
     public string? CollectionId { get; set; }
 
     [Display("File format", Description = "Format of the file to be downloaded, defaults to an interoperable HTML")]
     [StaticDataSource(typeof(DownloadFileFormatHandler))]
-    public string? FileFormat { get; set; }
+    public string? FileFormat { get; set; } = "text/html";
+
+    [Display("Include slug (only for pages)", Description = "Include slug in output file. Default is false")]
+    public bool? IncludeSlug { get; set; } = false;
+
+    [Display("Include file metadata (only for pages)", Description = "Include file metadata in output file. Default is false")]
+    public bool? IncludeMetadata { get; set; } = false;
 }

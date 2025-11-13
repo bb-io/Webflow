@@ -3,6 +3,7 @@ using Apps.Webflow.Models.Request.Content;
 using Apps.Webflow.Models.Request.Date;
 using Apps.Webflow.Models.Response.Content;
 using Blackbird.Applications.Sdk.Common.Exceptions;
+using Blackbird.Applications.Sdk.Common.Files;
 using Blackbird.Applications.Sdk.Common.Invocation;
 
 namespace Apps.Webflow.Services;
@@ -11,7 +12,7 @@ public abstract class BaseContentService(InvocationContext invocationContext) : 
 {
     public abstract Task<SearchContentResponse> SearchContent(string siteId, SearchContentRequest input, ContentDateFilter dateFilter);
 
-    public abstract Task<Stream> DownloadContent(string siteId, DownloadContentRequest input);
+    public abstract Task<FileReference> DownloadContent(string siteId, DownloadContentRequest input);
 
     public abstract Task UploadContent(Stream content, string siteId, UploadContentRequest input);
 

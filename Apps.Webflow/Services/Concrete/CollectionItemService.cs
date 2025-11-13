@@ -9,18 +9,22 @@ using Apps.Webflow.Models.Request.Date;
 using Apps.Webflow.Models.Response.Content;
 using Apps.Webflow.Models.Response.Pagination;
 using Blackbird.Applications.Sdk.Common.Exceptions;
+using Blackbird.Applications.Sdk.Common.Files;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using Blackbird.Applications.Sdk.Utils.Extensions.String;
+using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Filters.Transformations;
 using Blackbird.Filters.Xliff.Xliff2;
 using Newtonsoft.Json;
 using RestSharp;
+using System.Net.Mime;
 using System.Text;
 
 namespace Apps.Webflow.Services.Concrete;
 
-public class CollectionItemService(InvocationContext invocationContext) : BaseContentService(invocationContext)
+public class CollectionItemService(InvocationContext invocationContext, IFileManagementClient fileManagementClient) 
+    : BaseContentService(invocationContext)
 {
     private const string ContentType = ContentTypes.CollectionItem;
 
@@ -61,7 +65,7 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
         return new SearchContentResponse(result);
     }
 
-    public override async Task<Stream> DownloadContent(string siteId, DownloadContentRequest input)
+    public override async Task<FileReference> DownloadContent(string siteId, DownloadContentRequest input)
     {
         if (string.IsNullOrWhiteSpace(input.CollectionId))
             throw new PluginMisconfigurationException("Collection ID is required");
@@ -97,13 +101,15 @@ public class CollectionItemService(InvocationContext invocationContext) : BaseCo
                 input.Locale
             ),
             _ => throw new PluginMisconfigurationException($"Unsupported output format: {input.FileFormat}")
-        };
-
-        var memoryStream = new MemoryStream();
-        await outputStream.CopyToAsync(memoryStream);
-        memoryStream.Position = 0;
-
-        return memoryStream;
+        }; 
+        
+        string name = item.FieldData?["name"]?.ToString() ?? input.ContentId;
+        string contentType = input.FileFormat == "text/html" ? MediaTypeNames.Text.Html : MediaTypeNames.Application.Json;
+        var fileName = FileHelper.GetDownloadedFileName(name, contentType);
+        
+        FileReference fileReference = await fileManagementClient.UploadAsync(outputStream, contentType, fileName);
+        await outputStream.DisposeAsync();
+        return fileReference;
     }
 
     public override async Task UploadContent(Stream content, string siteId, UploadContentRequest input)

@@ -12,18 +12,22 @@ using Apps.Webflow.Models.Response.Components;
 using Apps.Webflow.Models.Response.Content;
 using Apps.Webflow.Models.Response.Pagination;
 using Blackbird.Applications.Sdk.Common.Exceptions;
+using Blackbird.Applications.Sdk.Common.Files;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Extensions.Http;
+using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Filters.Transformations;
 using Blackbird.Filters.Xliff.Xliff2;
 using Newtonsoft.Json;
 using RestSharp;
+using System.Net.Mime;
 using System.Text;
 using System.Web;
 
 namespace Apps.Webflow.Services.Concrete;
 
-public class ComponentService(InvocationContext invocationContext) : BaseContentService(invocationContext)
+public class ComponentService(InvocationContext invocationContext, IFileManagementClient fileManagementClient) 
+    : BaseContentService(invocationContext)
 {
     private const string ContentType = ContentTypes.Component;
 
@@ -48,18 +52,17 @@ public class ComponentService(InvocationContext invocationContext) : BaseContent
         return new SearchContentResponse(result);
     }
 
-    public override async Task<Stream> DownloadContent(string siteId, DownloadContentRequest input)
+    public override async Task<FileReference> DownloadContent(string siteId, DownloadContentRequest input)
     {
-        var endpoint = $"sites/{siteId}/components/{input.ContentId}/dom";
-        var request = new RestRequest(endpoint, Method.Get);
+        var domRequest = new RestRequest($"sites/{siteId}/components/{input.ContentId}/dom", Method.Get);
 
         if (!string.IsNullOrEmpty(input.Locale))
         {
             var localeId = await LocaleHelper.GetLocaleId(input.Locale, siteId, Client);
-            request.AddQueryParameter("localeId", localeId);
+            domRequest.AddQueryParameter("localeId", localeId);
         }
 
-        var componentDom = await Client.ExecuteWithErrorHandling<ComponentDomEntity>(request);
+        var componentDom = await Client.ExecuteWithErrorHandling<ComponentDomEntity>(domRequest);
 
         Stream outputStream = input.FileFormat switch
         {
@@ -68,11 +71,17 @@ public class ComponentService(InvocationContext invocationContext) : BaseContent
             _ => throw new PluginMisconfigurationException($"Unsupported output format: {input.FileFormat}")
         };
 
-        var memoryStream = new MemoryStream();
-        await outputStream.CopyToAsync(memoryStream);
-        memoryStream.Position = 0;
+        var componentRequest = new RestRequest($"sites/{siteId}/components", Method.Get);
+        var components = await Client.Paginate<ComponentEntity, ComponentsPaginationResponse>(componentRequest, c => c.Components);
+        var component = components.FirstOrDefault(c => c.Id == input.ContentId);
 
-        return memoryStream;
+        string name = component?.Name ?? input.ContentId;
+        string contentType = input.FileFormat == "text/html" ? MediaTypeNames.Text.Html : MediaTypeNames.Application.Json;
+        var fileName = FileHelper.GetDownloadedFileName(name, contentType);
+
+        FileReference fileReference = await fileManagementClient.UploadAsync(outputStream, contentType, fileName);
+        await outputStream.DisposeAsync();
+        return fileReference;
     }
 
     public override async Task UploadContent(Stream content, string siteId, UploadContentRequest input)
@@ -106,7 +115,7 @@ public class ComponentService(InvocationContext invocationContext) : BaseContent
         var doc = new HtmlAgilityPack.HtmlDocument();
         doc.Load(htmlStream);
 
-        input.Locale ??= doc.DocumentNode.GetMetaValue("blackbird-locale-id");
+        input.Locale ??= doc.DocumentNode.GetMetaValue("blackbird-locale");
         input.ContentId ??= doc.DocumentNode.GetMetaValue("blackbird-component-id");
 
         await ValidateAndNormalizeInputs(input, siteId);

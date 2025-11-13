@@ -1,7 +1,7 @@
 ﻿using Apps.Webflow.Helper;
 using Apps.Webflow.Invocables;
-using Apps.Webflow.Models.Entities;
-using Apps.Webflow.Models.Request;
+using Apps.Webflow.Models.Entities.Page;
+using Apps.Webflow.Models.Identifiers;
 using Apps.Webflow.Models.Response.Pages;
 using Apps.Webflow.Polling.Models;
 using Apps.Webflow.Polling.Models.Requests;
@@ -17,7 +17,7 @@ public class PagePollingList(InvocationContext invocationContext) : WebflowInvoc
     [PollingEvent("On page updated", "Triggers when page update was made")]
     public async Task<PollingEventResponse<PageMemory, SearchPagesResponse>> OnPageUpdated(
         PollingEventRequest<PageMemory> request,
-        [PollingEventParameter] SiteRequest site,
+        [PollingEventParameter] SiteIdentifier site,
         [PollingEventParameter] PagePollingRequest input)
     {
         if (request.Memory is null)

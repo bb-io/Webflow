@@ -2,7 +2,7 @@ using Apps.Webflow.Constants;
 using Apps.Webflow.Helper;
 using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Entities;
-using Apps.Webflow.Models.Request;
+using Apps.Webflow.Models.Identifiers;
 using Apps.Webflow.Models.Request.Collection;
 using Apps.Webflow.Models.Request.Date;
 using Apps.Webflow.Models.Response.Collection;
@@ -19,8 +19,8 @@ public class CollectionActions(InvocationContext invocationContext) : WebflowInv
 {
     [Action("Get collection", Description = "Get details of a specific collection")]
     public async Task<CollectionEntity> GetCollection(
-        [ActionParameter] SiteRequest site,
-        [ActionParameter] CollectionRequest collectionRequest)
+        [ActionParameter] SiteIdentifier site,
+        [ActionParameter] CollectionIdentifier collectionRequest)
     {
         var request = new RestRequest($"collections/{collectionRequest.CollectionId}", Method.Get);
         return await Client.ExecuteWithErrorHandling<CollectionEntity>(request);
@@ -28,7 +28,7 @@ public class CollectionActions(InvocationContext invocationContext) : WebflowInv
 
     [Action("Search collections", Description = "Search all collections for a specific site")]
     public async Task<SearchCollectionsResponse> SearchCollections(
-        [ActionParameter] SiteRequest site,
+        [ActionParameter] SiteIdentifier site,
         [ActionParameter] SearchCollectionsRequest input,
         [ActionParameter] BasicDateFilter dateFilter)
     {
@@ -42,7 +42,7 @@ public class CollectionActions(InvocationContext invocationContext) : WebflowInv
 
         foreach (var item in filtered)
         {
-            var collection = await GetCollection(site, new CollectionRequest { CollectionId = item.Id });
+            var collection = await GetCollection(site, new CollectionIdentifier { CollectionId = item.Id });
             item.Fields = collection.Fields;
         }
 
@@ -51,7 +51,7 @@ public class CollectionActions(InvocationContext invocationContext) : WebflowInv
 
     [Action("Create collection", Description = "Create a new collection")]
     public async Task<CollectionEntity> CreateCollection(
-        [ActionParameter] SiteRequest site,
+        [ActionParameter] SiteIdentifier site,
         [ActionParameter] CreateCollectionRequest input)
     {
         var request = new RestRequest($"sites/{Client.GetSiteId(site.SiteId)}/collections", Method.Post)
@@ -61,8 +61,8 @@ public class CollectionActions(InvocationContext invocationContext) : WebflowInv
 
     [Action("Delete collection", Description = "Delete a specific collection")]
     public async Task DeleteCollection(
-        [ActionParameter] SiteRequest site,
-        [ActionParameter] CollectionRequest collectionRequest)
+        [ActionParameter] SiteIdentifier site,
+        [ActionParameter] CollectionIdentifier collectionRequest)
     {
         var request = new RestRequest($"collections/{collectionRequest.CollectionId}", Method.Delete);
         await Client.ExecuteWithErrorHandling(request);

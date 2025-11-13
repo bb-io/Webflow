@@ -1,6 +1,6 @@
 using Apps.Webflow.Actions;
 using Apps.Webflow.Constants;
-using Apps.Webflow.Models.Request;
+using Apps.Webflow.Models.Identifiers;
 using Apps.Webflow.Models.Request.Components;
 using Blackbird.Applications.Sdk.Common.Files;
 using Blackbird.Applications.Sdk.Common.Invocation;
@@ -16,7 +16,7 @@ public class ComponentsTests : TestBaseWithContext
     {
         // Arrange
         var request = new SearchComponentsRequest { };
-        var site = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
+        var site = new SiteIdentifier { SiteId = "68f8b336cbd1cac54f5b9d2c" };
         var actions = new ComponentsActions(context, FileManagementClient);
 
         // Act
@@ -32,7 +32,7 @@ public class ComponentsTests : TestBaseWithContext
     {
         // Arrange
         var request = new SearchComponentsRequest { NameContains = "ter" };
-        var site = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
+        var site = new SiteIdentifier { SiteId = "68f8b336cbd1cac54f5b9d2c" };
         var actions = new ComponentsActions(context, FileManagementClient);
 
         // Act
@@ -49,13 +49,13 @@ public class ComponentsTests : TestBaseWithContext
         // Arrange
         var actions = new ComponentsActions(context, FileManagementClient);
         
-        var site = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
+        var site = new SiteIdentifier { SiteId = "68f8b336cbd1cac54f5b9d2c" };
         var input = new DownloadComponentContentRequest 
         { 
             ComponentId = "88a386dd-8f07-0c34-70f0-2d9f87e29718",
             FileFormat = "text/html"
         };
-        var locale = new LocaleRequest { Locale = "sv-SE" };
+        var locale = new LocaleIdentifier { Locale = "sv-SE" };
 
         // Act
         var result = await actions.DownloadComponent(site, input, locale);
@@ -69,12 +69,12 @@ public class ComponentsTests : TestBaseWithContext
     public async Task UploadComponent_IsSuccess(InvocationContext context)
     {
         // Arrange
-        var site = new SiteRequest { };
+        var site = new SiteIdentifier { };
         var action = new ComponentsActions(context, FileManagementClient);
 
         var fileReference = new FileReference { Name = "comp.json" };
         var input = new UpdateComponentContentRequest { File = fileReference };
-        var locale = new LocaleRequest { /*Locale = "sv-SE"*/ };
+        var locale = new LocaleIdentifier { /*Locale = "sv-SE"*/ };
 
         // Act
         await action.UploadComponent(site, input, locale);

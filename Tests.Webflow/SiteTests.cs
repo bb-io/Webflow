@@ -1,6 +1,6 @@
 ﻿using Apps.Webflow.Actions;
 using Apps.Webflow.Constants;
-using Apps.Webflow.Models.Request;
+using Apps.Webflow.Models.Identifiers;
 using Apps.Webflow.Models.Request.Date;
 using Apps.Webflow.Models.Request.Site;
 using Blackbird.Applications.Sdk.Common.Invocation;
@@ -52,7 +52,7 @@ public class SiteTests : TestBaseWithContext
     {
         // Arrange
         var action = new SiteActions(context);
-        var input = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
+        var input = new SiteIdentifier { SiteId = "68f886ffe2a4dba6d693cbe1" };
 
         // Act
         var result = await action.GetSite(input);
@@ -67,7 +67,7 @@ public class SiteTests : TestBaseWithContext
     {
         // Arrange
         var action = new SiteActions(context);
-        var site = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
+        var site = new SiteIdentifier { SiteId = "68f8b336cbd1cac54f5b9d2c" };
         var input = new PublishSiteRequest();
 
         // Act

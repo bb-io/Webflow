@@ -36,7 +36,7 @@ public static class ComponentHtmlConverter
             if (localeId != null)
             {
                 var metaLocaleId = doc.CreateElement("meta");
-                metaLocaleId.SetAttributeValue("name", "blackbird-locale-id");
+                metaLocaleId.SetAttributeValue("name", "blackbird-locale");
                 metaLocaleId.SetAttributeValue("content", localeId);
                 head.AppendChild(metaLocaleId);
             }

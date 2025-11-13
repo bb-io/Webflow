@@ -1,15 +1,15 @@
 ﻿using RestSharp;
 using Apps.Webflow.Invocables;
-using Apps.Webflow.Models.Request;
 using Apps.Webflow.Models.Response.Site;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common.Exceptions;
+using Apps.Webflow.Models.Identifiers;
 
 namespace Apps.Webflow.DataSourceHandlers.Site;
 
-public class CustomDomainDataSourceHandler(InvocationContext invocationContext, [ActionParameter] SiteRequest site)
+public class CustomDomainDataSourceHandler(InvocationContext invocationContext, [ActionParameter] SiteIdentifier site)
     : WebflowInvocable(invocationContext), IAsyncDataSourceItemHandler
 {
     public async Task<IEnumerable<DataSourceItem>> GetDataAsync(DataSourceContext context, CancellationToken cancellationToken)

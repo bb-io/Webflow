@@ -3,7 +3,7 @@ using Apps.Webflow.Conversion.CollectionItem;
 using Apps.Webflow.Helper;
 using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Entities;
-using Apps.Webflow.Models.Request;
+using Apps.Webflow.Models.Identifiers;
 using Apps.Webflow.Models.Request.Collection;
 using Apps.Webflow.Models.Request.CollectionItem;
 using Apps.Webflow.Models.Request.Content;
@@ -26,15 +26,15 @@ namespace Apps.Webflow.Actions;
 public class CollectionItemActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
     : WebflowInvocable(invocationContext)
 {
-    private readonly ContentServicesFactory _factory = new(invocationContext);
+    private readonly ContentServicesFactory _factory = new(invocationContext, fileManagementClient);
 
     [Action("Search collection items", Description = "Search all collection items for a specific collection")]
     public async Task<SearchCollectionItemsResponse> SearchCollectionItems(
-        [ActionParameter] SiteRequest site,
-        [ActionParameter] CollectionRequest collection,
+        [ActionParameter] SiteIdentifier site,
+        [ActionParameter] CollectionIdentifier collection,
         [ActionParameter] BasicDateFilter dateFilter,
         [ActionParameter] SearchCollectionItemsRequest input,
-        [ActionParameter] LocaleRequest locale)
+        [ActionParameter] LocaleIdentifier locale)
     {
         ValidatorHelper.ValidateInputDates(dateFilter);
         ValidatorHelper.ValidatePublishedInputDates(input.LastPublishedBefore, input.LastPublishedAfter);
@@ -66,35 +66,31 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
 
     [Action("Download collection item", Description = "Download the collection item content")]
     public async Task<DownloadCollectionItemContentResponse> DownloadCollectionItem(
-        [ActionParameter] SiteRequest site,
-        [ActionParameter] CollectionItemRequest input,
-        [ActionParameter] LocaleRequest locale)
+        [ActionParameter] SiteIdentifier site,
+        [ActionParameter] DownloadCollectionItemRequest input,
+        [ActionParameter] CollectionIdentifier collection,
+        [ActionParameter] LocaleIdentifier locale)
     {
         string fileFormat = input.FileFormat ?? MediaTypeNames.Text.Html;
 
         var service = _factory.GetContentService(ContentTypes.CollectionItem);
         var contentRequest = new DownloadContentRequest
         {
-            CollectionId = input.CollectionId,
+            CollectionId = collection.CollectionId,
             ContentId = input.CollectionItemId,
             Locale = locale.Locale,
             FileFormat = fileFormat,
         };
 
-        var stream = await service.DownloadContent(Client.GetSiteId(site.SiteId), contentRequest);
-
-        string fileName = FileHelper.GetDownloadedFileName(fileFormat, input.CollectionItemId, ContentTypes.CollectionItem);
-        string contentType = fileFormat == MediaTypeNames.Text.Html ? MediaTypeNames.Text.Html : MediaTypeNames.Application.Json;
-
-        var file = await fileManagementClient.UploadAsync(stream, contentType, fileName);
+        var file = await service.DownloadContent(Client.GetSiteId(site.SiteId), contentRequest);
         return new(file);
     }
 
     [Action("Upload collection item", Description = "Update collection item content from a file")]
     public async Task UploadCollectionItem(
-        [ActionParameter] SiteRequest site,
+        [ActionParameter] SiteIdentifier site,
         [ActionParameter] UpdateCollectionItemRequest input,
-        [ActionParameter] LocaleRequest locale)
+        [ActionParameter] LocaleIdentifier locale)
     {
         await using var source = await fileManagementClient.DownloadAsync(input.File);
         var bytes = await source.GetByteData();
@@ -114,7 +110,7 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         if (input.Publish.HasValue && input.Publish.Value)
         {
             var metadata = await CollectionItemMetadataParser.Parse(stream);
-            var collection = new CollectionRequest { CollectionId = metadata.CollectionId! };
+            var collection = new CollectionIdentifier { CollectionId = metadata.CollectionId! };
             var publishRequest = new PublishItemRequest { CollectionItemId = metadata.CollectionItemId! };
             await PublishCollectionItem(site, collection, publishRequest, locale);
         }
@@ -122,10 +118,10 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
 
     [Action("Publish collection item", Description = "Publish a specific collection item")]
     public async Task PublishCollectionItem(
-        [ActionParameter] SiteRequest site,
-        [ActionParameter] CollectionRequest collection,
+        [ActionParameter] SiteIdentifier site,
+        [ActionParameter] CollectionIdentifier collection,
         [ActionParameter] PublishItemRequest input,
-        [ActionParameter] LocaleRequest locale)
+        [ActionParameter] LocaleIdentifier locale)
     {
         object payload;
 

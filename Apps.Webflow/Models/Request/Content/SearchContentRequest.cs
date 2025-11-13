@@ -22,6 +22,6 @@ public class SearchContentRequest
     public DateTime? LastPublishedAfter { get; set; }
 
     [Display("Collection IDs")]
-    [DataSource(typeof(CollectionItemCollectionDataSourceHandler))]
+    [DataSource(typeof(CollectionDataSourceHandler))]
     public IEnumerable<string>? CollectionIds { get; set; }
 }

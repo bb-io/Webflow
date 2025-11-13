@@ -1,7 +1,7 @@
 ﻿using Apps.Webflow.Helper;
 using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Entities;
-using Apps.Webflow.Models.Request;
+using Apps.Webflow.Models.Identifiers;
 using Apps.Webflow.Models.Request.Date;
 using Apps.Webflow.Models.Request.Site;
 using Apps.Webflow.Models.Response.Site;
@@ -32,7 +32,7 @@ public class SiteActions(InvocationContext invocationContext) : WebflowInvocable
     }
 
     [Action("Get site", Description = "Get details of a site")]
-    public async Task<GetSiteResponse> GetSite([ActionParameter] SiteRequest site)
+    public async Task<GetSiteResponse> GetSite([ActionParameter] SiteIdentifier site)
     {
         var request = new RestRequest($"sites/{Client.GetSiteId(site.SiteId)}", Method.Get);
         var result = await Client.ExecuteWithErrorHandling<SiteEntity>(request);
@@ -41,7 +41,7 @@ public class SiteActions(InvocationContext invocationContext) : WebflowInvocable
 
     [Action("Publish site", Description = "Publishes a site to one or more more domains")]
     public async Task<CustomDomainsResponse> PublishSite(
-        [ActionParameter] SiteRequest site,
+        [ActionParameter] SiteIdentifier site,
         [ActionParameter] PublishSiteRequest publishInput)
     {
         var request = new RestRequest($"sites/{Client.GetSiteId(site.SiteId)}/publish", Method.Post);

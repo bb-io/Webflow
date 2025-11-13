@@ -2,7 +2,7 @@
 using Apps.Webflow.Helper;
 using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Entities;
-using Apps.Webflow.Models.Request;
+using Apps.Webflow.Models.Identifiers;
 using Apps.Webflow.Models.Request.Components;
 using Apps.Webflow.Models.Request.Content;
 using Apps.Webflow.Models.Response.Components;
@@ -22,30 +22,31 @@ namespace Apps.Webflow.Actions;
 public class ComponentsActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
     : WebflowInvocable(invocationContext)
 {
-    private readonly ContentServicesFactory _factory = new(invocationContext);
+    private readonly ContentServicesFactory _factory = new(invocationContext, fileManagementClient);
 
     [Action("Search components", Description = "Search all components for a site")]
     public async Task<SearchComponentsResponse> SearchComponents(
-        [ActionParameter] SiteRequest site,
+        [ActionParameter] SiteIdentifier site,
         [ActionParameter] SearchComponentsRequest input)
     {
         var endpoint = $"sites/{Client.GetSiteId(site.SiteId)}/components";
         var request = new RestRequest(endpoint, Method.Get);
 
-        IEnumerable<ComponentEntity> pages = await Client.Paginate<ComponentEntity, ComponentsPaginationResponse>(request, r => r.Components);
+        IEnumerable<ComponentEntity> components = 
+            await Client.Paginate<ComponentEntity, ComponentsPaginationResponse>(request, r => r.Components);
 
-        pages = FilterHelper.ApplyBooleanFilter(pages, input.IncludeReadOnly, c => c.ReadOnly);
-        pages = FilterHelper.ApplyContainsFilter(pages, input.NameContains, c => c.Name);
-        pages = FilterHelper.ApplyContainsFilter(pages, input.GroupContains, c => c.Group);
+        components = FilterHelper.ApplyBooleanFilter(components, input.IncludeReadOnly, c => c.ReadOnly);
+        components = FilterHelper.ApplyContainsFilter(components, input.NameContains, c => c.Name);
+        components = FilterHelper.ApplyContainsFilter(components, input.GroupContains, c => c.Group);
 
-        return new SearchComponentsResponse(pages.ToList());
+        return new SearchComponentsResponse(components.ToList());
     }
 
     [Action("Download component", Description = "Download the component content")]
     public async Task<DownloadComponentResponse> DownloadComponent(
-        [ActionParameter] SiteRequest site,
+        [ActionParameter] SiteIdentifier site,
         [ActionParameter] DownloadComponentContentRequest input,
-        [ActionParameter] LocaleRequest locale)
+        [ActionParameter] LocaleIdentifier locale)
     {
         string fileFormat = input.FileFormat ?? MediaTypeNames.Text.Html;
 
@@ -57,20 +58,15 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
         };
 
         var service = _factory.GetContentService(ContentTypes.Component);
-        var stream = await service.DownloadContent(Client.GetSiteId(site.SiteId), downloadRequest);
-
-        string fileName = FileHelper.GetDownloadedFileName(fileFormat, input.ComponentId, ContentTypes.Component);
-        string contentType = fileFormat == MediaTypeNames.Text.Html ? MediaTypeNames.Text.Html : MediaTypeNames.Application.Json;
-
-        var file = await fileManagementClient.UploadAsync(stream, contentType, fileName);
+        var file = await service.DownloadContent(Client.GetSiteId(site.SiteId), downloadRequest);
         return new(file);
     }
 
     [Action("Upload component", Description = "Update component content from a file")]
     public async Task UploadComponent(
-        [ActionParameter] SiteRequest site,
+        [ActionParameter] SiteIdentifier site,
         [ActionParameter] UpdateComponentContentRequest input,
-        [ActionParameter] LocaleRequest locale)
+        [ActionParameter] LocaleIdentifier locale)
     {
         await using var source = await fileManagementClient.DownloadAsync(input.File);
         var bytes = await source.GetByteData();

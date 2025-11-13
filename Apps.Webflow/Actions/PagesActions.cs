@@ -1,8 +1,8 @@
 ﻿using Apps.Webflow.Constants;
 using Apps.Webflow.Helper;
 using Apps.Webflow.Invocables;
-using Apps.Webflow.Models.Entities;
-using Apps.Webflow.Models.Request;
+using Apps.Webflow.Models.Entities.Page;
+using Apps.Webflow.Models.Identifiers;
 using Apps.Webflow.Models.Request.Content;
 using Apps.Webflow.Models.Request.Date;
 using Apps.Webflow.Models.Request.Pages;
@@ -23,11 +23,11 @@ namespace Apps.Webflow.Actions;
 public class PagesActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
     : WebflowInvocable(invocationContext)
 {
-    private readonly ContentServicesFactory _factory = new(invocationContext);
+    private readonly ContentServicesFactory _factory = new(invocationContext, fileManagementClient);
 
     [Action("Search pages", Description = "Search pages using filters")]
     public async Task<SearchPagesResponse> SearchPages(
-        [ActionParameter] SiteRequest site,
+        [ActionParameter] SiteIdentifier site,
         [ActionParameter] SearchPagesRequest input,
         [ActionParameter] BasicDateFilter dateFilter)
     {
@@ -46,9 +46,9 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
 
     [Action("Download page", Description = "Download the page content")]
     public async Task<DownloadPageResponse> DownloadPage(
-        [ActionParameter] SiteRequest site,
+        [ActionParameter] SiteIdentifier site,
         [ActionParameter] DownloadPageRequest input,
-        [ActionParameter] LocaleRequest locale)
+        [ActionParameter] LocaleIdentifier locale)
     {
         string fileFormat = input.FileFormat ?? MediaTypeNames.Text.Html;
 
@@ -58,31 +58,29 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
             Locale = locale.Locale,
             ContentId = input.PageId,
             FileFormat = fileFormat,
+            IncludeSlug = input.IncludeSlug,
+            IncludeMetadata = input.IncludeMetadata,
         };
 
-        var stream = await service.DownloadContent(Client.GetSiteId(site.SiteId), request);
-        string fileName = FileHelper.GetDownloadedFileName(fileFormat, input.PageId, ContentTypes.Page);
-        string contentType = fileFormat == MediaTypeNames.Text.Html ? MediaTypeNames.Text.Html : MediaTypeNames.Application.Json;
-
-        var fileReference = await fileManagementClient.UploadAsync(stream, contentType, fileName);
+        var file = await service.DownloadContent(Client.GetSiteId(site.SiteId), request);
 
         PageEntity? metadata = null;
 
-        if (!input.IncludeMetadata.HasValue || input.IncludeMetadata == true)
+        if (!input.DisplayMetadata.HasValue || input.DisplayMetadata == true)
         {
             var metadataEndpoint = $"pages/{input.PageId}";
             var metadataRequest = new RestRequest(metadataEndpoint, Method.Get);
             metadata = await Client.ExecuteWithErrorHandling<PageEntity>(metadataRequest);
         }
 
-        return new DownloadPageResponse(fileReference, metadata);
+        return new DownloadPageResponse(file, metadata);
     }
 
     [Action("Upload page", Description = "Update page content from a file")]
     public async Task UploadPage(
-        [ActionParameter] SiteRequest site,
+        [ActionParameter] SiteIdentifier site,
         [ActionParameter] UpdatePageContentRequest input,
-        [ActionParameter] LocaleRequest locale)
+        [ActionParameter] LocaleIdentifier locale)
     {
         await using var source = await fileManagementClient.DownloadAsync(input.File);
         var bytes = await source.GetByteData();   

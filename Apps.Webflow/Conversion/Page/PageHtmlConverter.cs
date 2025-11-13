@@ -1,5 +1,6 @@
 ﻿using Apps.Webflow.Constants;
 using Apps.Webflow.Conversion.Constants;
+using Apps.Webflow.Conversion.Models;
 using Apps.Webflow.Extensions;
 using Apps.Webflow.Models.Response.Pages;
 using HtmlAgilityPack;
@@ -12,7 +13,7 @@ public static class PageHtmlConverter
     private static readonly string[] TranslatableNodeTypes = { "text", "component-instance" };
     private static readonly string[] TranslatablePropertyTypes = { "Plain Text", "Rich Text" };
 
-    public static Stream ToHtml(PageDomEntity pageDom, string siteId, string pageId, string? localeId)
+    public static Stream ToHtml(PageDomEntity pageDom, string siteId, string pageId, string? locale, PageMetadata? metadata)
     {
         var (doc, body) = PrepareEmptyHtmlDocument();
 
@@ -34,15 +35,17 @@ public static class PageHtmlConverter
             metaPageId.SetAttributeValue("content", pageId);
             head.AppendChild(metaPageId);
 
-            if (localeId != null)
+            if (locale != null)
             {
                 var metaLocaleId = doc.CreateElement("meta");
-                metaLocaleId.SetAttributeValue("name", "blackbird-locale-id");
-                metaLocaleId.SetAttributeValue("content", localeId);
+                metaLocaleId.SetAttributeValue("name", "blackbird-locale");
+                metaLocaleId.SetAttributeValue("content", locale);
                 head.AppendChild(metaLocaleId);
             }
         }
 
+        if (metadata is not null)
+            AddTranslatableMetadata(body, doc, metadata);
 
         foreach (var node in pageDom.Nodes)
         {
@@ -86,46 +89,50 @@ public static class PageHtmlConverter
         return result;
     }
 
-    public static PageDomEntity ToJson(Stream fileStream, PageDomEntity originalPageDom)
+    private static void AddTranslatableMetadata(HtmlNode body, HtmlDocument doc, PageMetadata metadata)
     {
-        fileStream.Position = 0;
-        var doc = new HtmlDocument();
-        doc.Load(fileStream);
+        if (metadata.PageTitle != null)
+            AppendMetadataDiv(doc, body, "blackbird-page-title", metadata.PageTitle);
 
-        var elements = doc.DocumentNode
-            .Descendants()
-            .Where(x => x.NodeType == HtmlNodeType.Element &&
-                        x.Attributes[ConversionConstants.NodeId] != null)
-            .ToList();
+        if (metadata.Slug != null)
+            AppendMetadataDiv(doc, body, "blackbird-page-slug", metadata.Slug);
 
-        foreach (var element in elements)
+        if (metadata.Seo != null)
         {
-            var nodeId = element.Attributes[ConversionConstants.NodeId].Value;
-            var node = originalPageDom.Nodes.FirstOrDefault(n => n.Id == nodeId);
-            if (node == null)
-                continue;
-
-            if (node.Type == "text")
-            {
-                node.Text.Html = HttpUtility.HtmlDecode(element.InnerHtml);
-            }
-            else if (node.Type == "component-instance")
-            {
-                var propertyId = element.Attributes[ConversionConstants.PropertyId]?.Value;
-                if (!string.IsNullOrEmpty(propertyId))
-                {
-                    var prop = node.PropertyOverrides
-                        .FirstOrDefault(p => p.PropertyId == propertyId);
-
-                    if (prop != null && TranslatablePropertyTypes.Contains(prop.Type))
-                    {
-                        prop.Text.Html = HttpUtility.HtmlDecode(element.InnerHtml);
-                    }
-                }
-            }
+            AppendMetadataDiv(doc, body, "blackbird-seo-title", metadata.Seo.Title);
+            AppendMetadataDiv(doc, body, "blackbird-seo-description", metadata.Seo.Description);
         }
 
-        return originalPageDom;
+        if (metadata.OpenGraph != null)
+        {
+            AppendMetadataDiv(
+                doc, body,
+                "blackbird-opengraph-title",
+                metadata.OpenGraph.Title,
+                "data-copied",
+                (metadata.OpenGraph.TitleCopied == true).ToString().ToLower()
+            );
+
+            AppendMetadataDiv(
+                doc, body,
+                "blackbird-opengraph-description",
+                metadata.OpenGraph.Description,
+                "data-copied",
+                (metadata.OpenGraph.DescriptionCopied == true).ToString().ToLower()
+            );
+        }
+    }
+
+    private static void AppendMetadataDiv(HtmlDocument doc, HtmlNode container, string id, string? value, string? dataAttributeName = null, string? dataAttributeValue = null)
+    {
+        var node = doc.CreateElement("div");
+        node.SetAttributeValue("id", id);
+        node.InnerHtml = value ?? "";
+
+        if (dataAttributeName != null && dataAttributeValue != null)
+            node.SetAttributeValue(dataAttributeName, dataAttributeValue);
+
+        container.AppendChild(node);
     }
 
     private static (HtmlDocument document, HtmlNode bodyNode) PrepareEmptyHtmlDocument()

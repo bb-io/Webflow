@@ -1,6 +1,6 @@
 ﻿using Apps.Webflow.Actions;
 using Apps.Webflow.Constants;
-using Apps.Webflow.Models.Request;
+using Apps.Webflow.Models.Identifiers;
 using Apps.Webflow.Models.Request.Content;
 using Apps.Webflow.Models.Request.Date;
 using Blackbird.Applications.Sdk.Common.Exceptions;
@@ -18,7 +18,7 @@ public class ContentTests : TestBaseWithContext
     {
         // Arrange
         var action = new ContentActions(context, FileManagementClient);
-        var site = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
+        var site = new SiteIdentifier { SiteId = "68f8b336cbd1cac54f5b9d2c" };
         var input = new SearchContentRequest 
         { 
             CollectionIds = ["68f8b337cbd1cac54f5b9d9c"],
@@ -38,7 +38,7 @@ public class ContentTests : TestBaseWithContext
     {
         // Arrange
         var action = new ContentActions(context, FileManagementClient);
-        var site = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
+        var site = new SiteIdentifier { SiteId = "68f8b336cbd1cac54f5b9d2c" };
         var input = new SearchContentRequest 
         { 
             /*NameContains = "Pay"*/ 
@@ -59,7 +59,7 @@ public class ContentTests : TestBaseWithContext
     {
         // Arrange
         var action = new ContentActions(context, FileManagementClient);
-        var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
+        var site = new SiteIdentifier { SiteId = "68f886ffe2a4dba6d693cbe1" };
         var input = new SearchContentRequest 
         { 
             ContentTypes = [ContentTypes.Page],
@@ -82,7 +82,7 @@ public class ContentTests : TestBaseWithContext
     {
         // Arrange
         var action = new ContentActions(context, FileManagementClient);
-        var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
+        var site = new SiteIdentifier { SiteId = "68f886ffe2a4dba6d693cbe1" };
         var input = new SearchContentRequest 
         { 
             ContentTypes = [ContentTypes.Component]            
@@ -102,7 +102,7 @@ public class ContentTests : TestBaseWithContext
     {
         // Arrange
         var action = new ContentActions(context, FileManagementClient);
-        var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
+        var site = new SiteIdentifier { SiteId = "68f886ffe2a4dba6d693cbe1" };
         var input = new SearchContentRequest 
         { 
             ContentTypes = [ContentTypes.Component],
@@ -123,7 +123,7 @@ public class ContentTests : TestBaseWithContext
     {
         // Arrange
         var action = new ContentActions(context, FileManagementClient);
-        var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
+        var site = new SiteIdentifier { SiteId = "68f886ffe2a4dba6d693cbe1" };
         var input = new SearchContentRequest 
         {
             ContentTypes = [ContentTypes.Component]            
@@ -144,7 +144,7 @@ public class ContentTests : TestBaseWithContext
     {
         // Arrange
         var action = new ContentActions(context, FileManagementClient);
-        var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
+        var site = new SiteIdentifier { SiteId = "68f886ffe2a4dba6d693cbe1" };
         var input = new SearchContentRequest 
         { 
             CollectionIds = ["68f88700e2a4dba6d693cc90"],
@@ -165,7 +165,7 @@ public class ContentTests : TestBaseWithContext
     {
         // Arrange
         var action = new ContentActions(context, FileManagementClient);
-        var site = new SiteRequest { };
+        var site = new SiteIdentifier { };
         var input = new SearchContentRequest
         {
             ContentTypes = [ContentTypes.CollectionItem], 
@@ -187,7 +187,7 @@ public class ContentTests : TestBaseWithContext
     {
         // Arrange
         var action = new ContentActions(context, FileManagementClient);
-        var site = new SiteRequest { SiteId = "68f886ffe2a4dba6d693cbe1" };
+        var site = new SiteIdentifier { SiteId = "68f886ffe2a4dba6d693cbe1" };
         var input = new SearchContentRequest
         {
             ContentTypes = [ContentTypes.CollectionItem],
@@ -210,8 +210,12 @@ public class ContentTests : TestBaseWithContext
     {
         // Arrange
         var action = new ContentActions(context, FileManagementClient);
-        var site = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
-        var request = new DownloadContentRequest { ContentId = "68f8b337cbd1cac54f5b9d81", FileFormat = "text/html" };
+        var site = new SiteIdentifier { SiteId = "68f8b336cbd1cac54f5b9d2c" };
+        var request = new DownloadContentRequest { 
+            ContentId = "68f8b337cbd1cac54f5b9d81", 
+            FileFormat = "text/html", 
+            IncludeMetadata = true,
+        };
         var contentFilter = new ContentFilter { ContentType = ContentTypes.Page };
 
         // Act
@@ -227,7 +231,7 @@ public class ContentTests : TestBaseWithContext
     {
         // Arrange
         var action = new ContentActions(context, FileManagementClient);
-        var site = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
+        var site = new SiteIdentifier { SiteId = "68f8b336cbd1cac54f5b9d2c" };
         var request = new DownloadContentRequest { ContentId = "88a386dd-8f07-0c34-70f0-2d9f87e29718", FileFormat = "original" };
         var contentFilter = new ContentFilter { ContentType = ContentTypes.Component };
 
@@ -244,7 +248,7 @@ public class ContentTests : TestBaseWithContext
     {
         // Arrange
         var action = new ContentActions(context, FileManagementClient);
-        var site = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
+        var site = new SiteIdentifier { SiteId = "68f8b336cbd1cac54f5b9d2c" };
         var request = new DownloadContentRequest 
         {
             CollectionId = "68f8b337cbd1cac54f5b9d9c",
@@ -266,7 +270,7 @@ public class ContentTests : TestBaseWithContext
     {
         // Arrange
         var action = new ContentActions(context, FileManagementClient);
-        var site = new SiteRequest { SiteId = "68f8b336cbd1cac54f5b9d2c" };
+        var site = new SiteIdentifier { SiteId = "68f8b336cbd1cac54f5b9d2c" };
         var request = new DownloadContentRequest
         {
             ContentId = "68f8b337cbd1cac54f5b9df9"
@@ -287,7 +291,7 @@ public class ContentTests : TestBaseWithContext
     {
         // Arrange
         var action = new ContentActions(context, FileManagementClient);
-        var site = new SiteRequest { };
+        var site = new SiteIdentifier { };
         var request = new UploadContentRequest
         {
             Content = new FileReference { Name = "page.xlf" },
@@ -303,7 +307,7 @@ public class ContentTests : TestBaseWithContext
     {
         // Arrange
         var action = new ContentActions(context, FileManagementClient);
-        var site = new SiteRequest { };
+        var site = new SiteIdentifier { };
         var request = new UploadContentRequest
         {
             Content = new FileReference { Name = "comp.html" },
@@ -318,7 +322,7 @@ public class ContentTests : TestBaseWithContext
     {
         // Arrange
         var action = new ContentActions(context, FileManagementClient);
-        var site = new SiteRequest { };
+        var site = new SiteIdentifier { };
         var request = new UploadContentRequest
         {
             Content = new FileReference { Name = "colitem.html" },
