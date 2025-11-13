@@ -135,7 +135,7 @@ public class PageService(InvocationContext invocationContext, IFileManagementCli
         doc.Load(htmlStream);
 
         input.ContentId ??= doc.DocumentNode.GetMetaValue("blackbird-page-id");
-        input.Locale ??= doc.DocumentNode.GetMetaValue("blackbird-locale-id");
+        input.Locale ??= doc.DocumentNode.GetMetaValue("blackbird-locale");
 
         await ValidateAndNormalizeInputs(input, siteId);
 
@@ -232,10 +232,9 @@ public class PageService(InvocationContext invocationContext, IFileManagementCli
 
         var endpoint = $"pages/{pageId}/dom";
         var request = new RestRequest(endpoint, Method.Post)
-            .WithJsonBody(body)
+            .WithJsonBody(body, JsonConfig.Settings)
             .AddQueryParameter("localeId", localeId);
 
-        request.RequestFormat = DataFormat.Json;
         await Client.ExecuteWithErrorHandling(request);
     }
 
@@ -243,11 +242,13 @@ public class PageService(InvocationContext invocationContext, IFileManagementCli
     {
         string? openGraphTitle = metadata.OpenGraph?.TitleCopied == true ? null : metadata.OpenGraph?.Title;
         string? openGraphDescription = metadata.OpenGraph?.DescriptionCopied == true ? null : metadata.OpenGraph?.Description;
+        string? title = string.IsNullOrEmpty(metadata.PageTitle) ? null : metadata.PageTitle;
+        string? slug = string.IsNullOrEmpty(metadata.Slug) ? null : metadata.Slug;
 
         var payload = new
         {
-            title = metadata.PageTitle,
-            slug = metadata.Slug,
+            title,
+            slug,
             seo = metadata.Seo,
             openGraph = new
             {
