@@ -81,10 +81,10 @@ public class ComponentService(InvocationContext invocationContext, IFileManageme
         var component = components.FirstOrDefault(c => c.Id == input.ContentId);
 
         string name = component?.Name ?? input.ContentId;
-        string contentType = input.FileFormat == "text/html" ? MediaTypeNames.Text.Html : MediaTypeNames.Application.Json;
-        var fileName = FileHelper.GetDownloadedFileName(name, contentType);
+        string contentFormat = input.FileFormat == "text/html" ? MediaTypeNames.Text.Html : MediaTypeNames.Application.Json;
+        var fileName = FileHelper.GetDownloadedFileName(ContentType, input.ContentId, name, contentFormat);
 
-        FileReference fileReference = await fileManagementClient.UploadAsync(outputStream, contentType, fileName);
+        FileReference fileReference = await fileManagementClient.UploadAsync(outputStream, contentFormat, fileName);
         await outputStream.DisposeAsync();
         return fileReference;
     }

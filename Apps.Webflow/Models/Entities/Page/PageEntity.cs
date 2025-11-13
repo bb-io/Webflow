@@ -22,9 +22,6 @@ public class PageEntity : IDateFilterable
     [Display("Last updated")]
     public DateTime? LastUpdated { get; set; }
 
-    [Display("Locale ID")]
-    public string? LocaleId { get; set; }
-
     [Display("Published path")]
     public string? PublishedPath { get; set; }
 

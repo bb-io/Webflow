@@ -21,11 +21,11 @@ public class GetSiteResponse(SiteEntity entity)
     public DateTime? CreatedOn { get; set; } = entity.CreatedOn;
 
     [Display("Primary locale")]
-    public string? PrimaryLocale { get; set; } = entity.Locales?.Primary.Tag;
+    public string? PrimaryLocale { get; set; } = entity.Locales?.Primary?.Tag;
 
     [Display("Secondary locales")]
-    public IEnumerable<string>? SecondaryLocales { get; set; } = entity.Locales?.Secondary.Select(x => x.Tag);
+    public IEnumerable<string>? SecondaryLocales { get; set; } = entity.Locales?.Secondary?.Select(x => x.Tag);
 
     [Display("Custom domains")]
-    public IEnumerable<string>? CustomDomains { get; set; } = entity.CustomDomains.Select(x => x.Url);
+    public IEnumerable<string>? CustomDomains { get; set; } = entity.CustomDomains?.Select(x => x.Url);
 }

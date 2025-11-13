@@ -105,13 +105,13 @@ public class PageService(InvocationContext invocationContext, IFileManagementCli
         };
 
         string name = page.Title ?? page.Id;
-        string contentType = 
+        string contentFormat = 
             input.FileFormat == ContentFormats.InteroperableHtml 
             ? MediaTypeNames.Text.Html 
             : MediaTypeNames.Application.Json;
-        var fileName = FileHelper.GetDownloadedFileName(name, contentType);
+        var fileName = FileHelper.GetDownloadedFileName(ContentType, input.ContentId, name, contentFormat);
 
-        FileReference fileReference = await fileManagementClient.UploadAsync(outputStream, contentType, fileName);
+        FileReference fileReference = await fileManagementClient.UploadAsync(outputStream, contentFormat, fileName);
         await outputStream.DisposeAsync();
         return fileReference;
     }

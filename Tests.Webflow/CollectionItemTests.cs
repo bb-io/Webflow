@@ -86,7 +86,7 @@ public class CollectionItemTests : TestBaseWithContext
         PrintResult(result);
     }
 
-    [TestMethod, ContextDataSource]
+    [TestMethod, ContextDataSource(ConnectionTypes.OAuth2Multiple)]
     public async Task SearchCollectionItems_WithFilters_ReturnsCollectionItems(InvocationContext context)
     {
         // Arrange
@@ -95,10 +95,10 @@ public class CollectionItemTests : TestBaseWithContext
         {
             LastPublishedAfter = new DateTime(2025, 11, 03, 10, 0, 0, DateTimeKind.Utc),
         };
-        var site = new SiteIdentifier { };
+        var site = new SiteIdentifier { SiteId = "68f8b336cbd1cac54f5b9d2c" };
         var dateFilter = new BasicDateFilter { };
         var collection = new CollectionIdentifier { CollectionId = "68f8b337cbd1cac54f5b9d9c" };
-        var locale = new LocaleIdentifier { };
+        var locale = new LocaleIdentifier { Locale = "sv-SE" };
 
         // Act
         var result = await actions.SearchCollectionItems(site, collection, dateFilter, request, locale);

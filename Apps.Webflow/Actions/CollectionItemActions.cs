@@ -18,7 +18,6 @@ using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using RestSharp;
-using System.Net.Mime;
 
 namespace Apps.Webflow.Actions;
 
@@ -60,7 +59,15 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         filtered = FilterHelper.ApplyContainsFilter(filtered, input.NameContains, r => r.Name);
         filtered = FilterHelper.ApplyContainsFilter(filtered, input.SlugContains, r => r.FieldData["slug"]?.ToString());
 
+        var localeMap = await LocaleHelper.GetLocaleMap(Client.GetSiteId(site.SiteId), Client);
         var result = filtered.Select(x => new GetCollectionItemResponse(x)).ToList();
+
+        foreach (var item in result)
+        {
+            if (item.Locale != null && localeMap.TryGetValue(item.Locale, out var localeCode))
+                item.Locale = localeCode;
+        }
+
         return new(result);
     }
 
