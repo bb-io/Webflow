@@ -53,7 +53,7 @@ public class ComponentsTests : TestBaseWithContext
         var input = new DownloadComponentContentRequest 
         { 
             ComponentId = "88a386dd-8f07-0c34-70f0-2d9f87e29718",
-            FileFormat = "text/html"
+            FileFormat = ContentFormats.InteroperableHtml
         };
         var locale = new LocaleIdentifier { Locale = "sv-SE" };
 

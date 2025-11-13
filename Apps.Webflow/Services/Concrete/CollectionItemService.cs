@@ -86,7 +86,7 @@ public class CollectionItemService(InvocationContext invocationContext, IFileMan
 
         Stream outputStream = input.FileFormat switch
         {
-            "text/html" => CollectionItemHtmlConverter.ToHtml(
+            ContentFormats.InteroperableHtml => CollectionItemHtmlConverter.ToHtml(
                 item,
                 collection.Fields,
                 siteId,
@@ -94,7 +94,7 @@ public class CollectionItemService(InvocationContext invocationContext, IFileMan
                 input.ContentId,
                 input.Locale
             ),
-            "original" => CollectionItemJsonConverter.ToJson(
+            ContentFormats.OriginalJson => CollectionItemJsonConverter.ToJson(
                 item,
                 input.CollectionId,
                 siteId,
@@ -104,7 +104,10 @@ public class CollectionItemService(InvocationContext invocationContext, IFileMan
         }; 
         
         string name = item.FieldData?["name"]?.ToString() ?? input.ContentId;
-        string contentType = input.FileFormat == "text/html" ? MediaTypeNames.Text.Html : MediaTypeNames.Application.Json;
+        string contentType = 
+            input.FileFormat == ContentFormats.InteroperableHtml 
+            ? MediaTypeNames.Text.Html 
+            : MediaTypeNames.Application.Json;
         var fileName = FileHelper.GetDownloadedFileName(name, contentType);
         
         FileReference fileReference = await fileManagementClient.UploadAsync(outputStream, contentType, fileName);

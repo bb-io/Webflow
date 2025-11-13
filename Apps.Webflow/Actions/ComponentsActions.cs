@@ -48,7 +48,7 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
         [ActionParameter] DownloadComponentContentRequest input,
         [ActionParameter] LocaleIdentifier locale)
     {
-        string fileFormat = input.FileFormat ?? MediaTypeNames.Text.Html;
+        string fileFormat = input.FileFormat ?? ContentFormats.InteroperableHtml;
 
         var downloadRequest = new DownloadContentRequest
         {

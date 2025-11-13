@@ -211,9 +211,9 @@ public class ContentTests : TestBaseWithContext
         // Arrange
         var action = new ContentActions(context, FileManagementClient);
         var site = new SiteIdentifier { SiteId = "68f8b336cbd1cac54f5b9d2c" };
-        var request = new DownloadContentRequest { 
+        var request = new DownloadContentRequest 
+        { 
             ContentId = "68f8b337cbd1cac54f5b9d81", 
-            FileFormat = "text/html", 
             IncludeMetadata = true,
         };
         var contentFilter = new ContentFilter { ContentType = ContentTypes.Page };
@@ -232,7 +232,11 @@ public class ContentTests : TestBaseWithContext
         // Arrange
         var action = new ContentActions(context, FileManagementClient);
         var site = new SiteIdentifier { SiteId = "68f8b336cbd1cac54f5b9d2c" };
-        var request = new DownloadContentRequest { ContentId = "88a386dd-8f07-0c34-70f0-2d9f87e29718", FileFormat = "original" };
+        var request = new DownloadContentRequest 
+        { 
+            ContentId = "88a386dd-8f07-0c34-70f0-2d9f87e29718", 
+            FileFormat = ContentFormats.OriginalJson
+        };
         var contentFilter = new ContentFilter { ContentType = ContentTypes.Component };
 
         // Act
@@ -253,7 +257,7 @@ public class ContentTests : TestBaseWithContext
         {
             CollectionId = "68f8b337cbd1cac54f5b9d9c",
             ContentId = "68f8b337cbd1cac54f5b9dee",
-            FileFormat = "original"
+            FileFormat = ContentFormats.OriginalJson
         };
         var contentFilter = new ContentFilter { ContentType = ContentTypes.CollectionItem };
 

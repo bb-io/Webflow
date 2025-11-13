@@ -71,7 +71,7 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         [ActionParameter] CollectionIdentifier collection,
         [ActionParameter] LocaleIdentifier locale)
     {
-        string fileFormat = input.FileFormat ?? MediaTypeNames.Text.Html;
+        string fileFormat = input.FileFormat ?? ContentFormats.InteroperableHtml;
 
         var service = _factory.GetContentService(ContentTypes.CollectionItem);
         var contentRequest = new DownloadContentRequest
