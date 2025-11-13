@@ -1,8 +1,8 @@
 using RestSharp;
 using Apps.Webflow.Invocables;
-using Apps.Webflow.Models.Entities;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using Apps.Webflow.Models.Entities.Site;
 
 namespace Apps.Webflow.DataSourceHandlers.Site;
 

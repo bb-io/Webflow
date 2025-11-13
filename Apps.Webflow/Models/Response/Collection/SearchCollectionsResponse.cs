@@ -1,4 +1,4 @@
-using Apps.Webflow.Models.Entities;
+using Apps.Webflow.Models.Entities.Collection;
 
 namespace Apps.Webflow.Models.Response.Collection;
 

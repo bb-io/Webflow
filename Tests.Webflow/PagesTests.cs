@@ -36,12 +36,11 @@ public class PagesTests : TestBaseWithContext
         // Arrange
         var site = new SiteIdentifier { };
         var input = new DownloadPageRequest 
-        { 
-            FileFormat = "original",
+        {
             PageId = "68f8b337cbd1cac54f5b9d80",
             DisplayMetadata = false,
             IncludeSlug = true,
-            IncludeMetadata = false,
+            IncludeMetadata = true,
         };
         var locale = new LocaleIdentifier { Locale = "sv-SE" };
         var actions = new PagesActions(context, FileManagementClient);
@@ -58,12 +57,12 @@ public class PagesTests : TestBaseWithContext
     public async Task UploadPage_IsSuccess(InvocationContext context)
     {
         // Arrange
-        var fileReference = new FileReference { Name = "404.html" };
+        var fileReference = new FileReference { Name = "Kontakt.json" };
         var site = new SiteIdentifier { };
 
         var input = new UpdatePageContentRequest { File = fileReference };
         var action = new PagesActions(context, FileManagementClient);
-        var locale = new LocaleIdentifier { Locale = "sv-SE" };
+        var locale = new LocaleIdentifier { /*Locale = "sv-SE"*/ };
 
         //Act 
         await action.UploadPage(site, input, locale);

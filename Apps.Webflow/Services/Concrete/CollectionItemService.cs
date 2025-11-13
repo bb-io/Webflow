@@ -3,7 +3,9 @@ using Apps.Webflow.Conversion.CollectionItem;
 using Apps.Webflow.Conversion.Models;
 using Apps.Webflow.Extensions;
 using Apps.Webflow.Helper;
-using Apps.Webflow.Models.Entities;
+using Apps.Webflow.Models.Entities.Collection;
+using Apps.Webflow.Models.Entities.CollectionItem;
+using Apps.Webflow.Models.Entities.Content;
 using Apps.Webflow.Models.Request.Content;
 using Apps.Webflow.Models.Request.Date;
 using Apps.Webflow.Models.Response.Content;
@@ -86,7 +88,7 @@ public class CollectionItemService(InvocationContext invocationContext, IFileMan
 
         Stream outputStream = input.FileFormat switch
         {
-            "text/html" => CollectionItemHtmlConverter.ToHtml(
+            ContentFormats.InteroperableHtml => CollectionItemHtmlConverter.ToHtml(
                 item,
                 collection.Fields,
                 siteId,
@@ -94,7 +96,7 @@ public class CollectionItemService(InvocationContext invocationContext, IFileMan
                 input.ContentId,
                 input.Locale
             ),
-            "original" => CollectionItemJsonConverter.ToJson(
+            ContentFormats.OriginalJson => CollectionItemJsonConverter.ToJson(
                 item,
                 input.CollectionId,
                 siteId,
@@ -104,10 +106,13 @@ public class CollectionItemService(InvocationContext invocationContext, IFileMan
         }; 
         
         string name = item.FieldData?["name"]?.ToString() ?? input.ContentId;
-        string contentType = input.FileFormat == "text/html" ? MediaTypeNames.Text.Html : MediaTypeNames.Application.Json;
-        var fileName = FileHelper.GetDownloadedFileName(name, contentType);
+        string contentFormat = 
+            input.FileFormat == ContentFormats.InteroperableHtml 
+            ? MediaTypeNames.Text.Html 
+            : MediaTypeNames.Application.Json;
+        var fileName = FileHelper.GetDownloadedFileName(ContentType, input.ContentId, name, contentFormat);
         
-        FileReference fileReference = await fileManagementClient.UploadAsync(outputStream, contentType, fileName);
+        FileReference fileReference = await fileManagementClient.UploadAsync(outputStream, contentFormat, fileName);
         await outputStream.DisposeAsync();
         return fileReference;
     }

@@ -15,7 +15,6 @@ using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using RestSharp;
-using System.Net.Mime;
 
 namespace Apps.Webflow.Actions;
 
@@ -33,15 +32,14 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
     {
         ValidatorHelper.ValidateInputDates(dateFilter);
 
-        var endpoint = $"sites/{Client.GetSiteId(site.SiteId)}/pages";
-        var request = new RestRequest(endpoint, Method.Get);
+        var request = new RestRequest($"sites/{Client.GetSiteId(site.SiteId)}/pages", Method.Get);
 
         var allPages = await Client.Paginate<PageEntity, PagesPaginationResponse>(request, r => r.Pages);
         if (allPages.Count == 0)
             return new SearchPagesResponse([]);
 
         var filtered = ApplySearchPageFilters(allPages, dateFilter, input);
-        return new SearchPagesResponse(filtered);
+        return new(filtered);
     }
 
     [Action("Download page", Description = "Download the page content")]
@@ -50,7 +48,7 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
         [ActionParameter] DownloadPageRequest input,
         [ActionParameter] LocaleIdentifier locale)
     {
-        string fileFormat = input.FileFormat ?? MediaTypeNames.Text.Html;
+        string fileFormat = input.FileFormat ?? ContentFormats.InteroperableHtml;
 
         var service = _factory.GetContentService(ContentTypes.Page);
         var request = new DownloadContentRequest

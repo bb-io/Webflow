@@ -1,6 +1,6 @@
 using Blackbird.Applications.Sdk.Common;
 
-namespace Apps.Webflow.Models.Entities;
+namespace Apps.Webflow.Models.Entities.Site;
 
 public class SiteEntity
 {

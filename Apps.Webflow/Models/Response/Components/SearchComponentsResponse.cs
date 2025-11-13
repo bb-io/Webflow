@@ -1,4 +1,4 @@
-using Apps.Webflow.Models.Entities;
+using Apps.Webflow.Models.Entities.Component;
 using Blackbird.Applications.Sdk.Common;
 
 namespace Apps.Webflow.Models.Response.Components;

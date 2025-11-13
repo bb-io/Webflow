@@ -1,7 +1,7 @@
 using Apps.Webflow.Constants;
 using Apps.Webflow.Helper;
 using Apps.Webflow.Invocables;
-using Apps.Webflow.Models.Entities;
+using Apps.Webflow.Models.Entities.Collection;
 using Apps.Webflow.Models.Identifiers;
 using Apps.Webflow.Models.Request.Collection;
 using Apps.Webflow.Models.Request.Date;

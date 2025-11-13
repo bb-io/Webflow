@@ -1,6 +1,6 @@
 ﻿using Apps.Webflow.Constants;
 using Apps.Webflow.Extensions;
-using Apps.Webflow.Models.Entities;
+using Apps.Webflow.Models.Entities.CollectionItem;
 
 namespace Apps.Webflow.Conversion.Models;
 

@@ -1,7 +1,7 @@
 ﻿using Apps.Webflow.Constants;
 using Apps.Webflow.Helper;
 using Apps.Webflow.Invocables;
-using Apps.Webflow.Models.Entities;
+using Apps.Webflow.Models.Entities.Component;
 using Apps.Webflow.Models.Identifiers;
 using Apps.Webflow.Models.Request.Components;
 using Apps.Webflow.Models.Request.Content;
@@ -48,7 +48,7 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
         [ActionParameter] DownloadComponentContentRequest input,
         [ActionParameter] LocaleIdentifier locale)
     {
-        string fileFormat = input.FileFormat ?? MediaTypeNames.Text.Html;
+        string fileFormat = input.FileFormat ?? ContentFormats.InteroperableHtml;
 
         var downloadRequest = new DownloadContentRequest
         {

@@ -4,7 +4,8 @@ using Apps.Webflow.Conversion.Constants;
 using Apps.Webflow.Conversion.Models;
 using Apps.Webflow.Extensions;
 using Apps.Webflow.Helper;
-using Apps.Webflow.Models.Entities;
+using Apps.Webflow.Models.Entities.Component;
+using Apps.Webflow.Models.Entities.Content;
 using Apps.Webflow.Models.Request.Components;
 using Apps.Webflow.Models.Request.Content;
 using Apps.Webflow.Models.Request.Date;
@@ -66,8 +67,13 @@ public class ComponentService(InvocationContext invocationContext, IFileManageme
 
         Stream outputStream = input.FileFormat switch
         {
-            "text/html" => ComponentHtmlConverter.ToHtml(componentDom, siteId, input.ContentId, input.Locale),
-            "original" => ComponentJsonConverter.ToJson(componentDom, siteId, input.Locale),
+            ContentFormats.InteroperableHtml => ComponentHtmlConverter.ToHtml(
+                componentDom, 
+                siteId,
+                input.ContentId,
+                input.Locale
+            ),
+            ContentFormats.OriginalJson => ComponentJsonConverter.ToJson(componentDom, siteId, input.Locale),
             _ => throw new PluginMisconfigurationException($"Unsupported output format: {input.FileFormat}")
         };
 
@@ -76,10 +82,10 @@ public class ComponentService(InvocationContext invocationContext, IFileManageme
         var component = components.FirstOrDefault(c => c.Id == input.ContentId);
 
         string name = component?.Name ?? input.ContentId;
-        string contentType = input.FileFormat == "text/html" ? MediaTypeNames.Text.Html : MediaTypeNames.Application.Json;
-        var fileName = FileHelper.GetDownloadedFileName(name, contentType);
+        string contentFormat = input.FileFormat == "text/html" ? MediaTypeNames.Text.Html : MediaTypeNames.Application.Json;
+        var fileName = FileHelper.GetDownloadedFileName(ContentType, input.ContentId, name, contentFormat);
 
-        FileReference fileReference = await fileManagementClient.UploadAsync(outputStream, contentType, fileName);
+        FileReference fileReference = await fileManagementClient.UploadAsync(outputStream, contentFormat, fileName);
         await outputStream.DisposeAsync();
         return fileReference;
     }

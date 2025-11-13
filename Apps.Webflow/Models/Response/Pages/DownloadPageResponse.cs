@@ -30,9 +30,6 @@ public class DownloadPageResponse(FileReference content, PageEntity? metadata)
     [Display("Is draft")]
     public bool? Draft { get; set; } = metadata?.Draft;
 
-    [Display("Locale ID")]
-    public string? LocaleId { get; set; } = metadata?.LocaleId;
-
     [Display("Published path")]
     public string? PublishedPath { get; set; } = metadata?.PublishedPath;
 }

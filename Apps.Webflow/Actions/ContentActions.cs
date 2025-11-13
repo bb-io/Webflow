@@ -43,7 +43,7 @@ public class ContentActions(InvocationContext invocationContext, IFileManagement
         [ActionParameter] DownloadContentRequest request,
         [ActionParameter] ContentFilter contentFilter)
     {
-        request.FileFormat = request.FileFormat is null ? MediaTypeNames.Text.Html : request.FileFormat;
+        request.FileFormat = request.FileFormat is null ? ContentFormats.InteroperableHtml : request.FileFormat;
         var service = _factory.GetContentService(contentFilter.ContentType);
 
         var file = await service.DownloadContent(Client.GetSiteId(site.SiteId), request);

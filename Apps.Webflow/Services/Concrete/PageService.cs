@@ -4,7 +4,7 @@ using Apps.Webflow.Conversion.Models;
 using Apps.Webflow.Conversion.Page;
 using Apps.Webflow.Extensions;
 using Apps.Webflow.Helper;
-using Apps.Webflow.Models.Entities;
+using Apps.Webflow.Models.Entities.Content;
 using Apps.Webflow.Models.Entities.Page;
 using Apps.Webflow.Models.Request.Content;
 using Apps.Webflow.Models.Request.Date;
@@ -61,15 +61,19 @@ public class PageService(InvocationContext invocationContext, IFileManagementCli
     {
         var domRequest = new RestRequest($"pages/{input.ContentId}/dom", Method.Get);
 
+        string localeId = string.Empty;
         if (!string.IsNullOrEmpty(input.Locale))
         {
-            var localeId = await LocaleHelper.GetLocaleId(input.Locale, siteId, Client);
+            localeId = await LocaleHelper.GetLocaleId(input.Locale, siteId, Client);
             domRequest.AddQueryParameter("localeId", localeId);
         }
 
         var pageDom = await Client.ExecuteWithErrorHandling<PageDomEntity>(domRequest);
 
         var pageRequest = new RestRequest($"pages/{pageDom.PageId}", Method.Get);
+        if (!string.IsNullOrEmpty(input.Locale))
+            pageRequest.AddQueryParameter("localeId", localeId);
+
         var page = await Client.ExecuteWithErrorHandling<PageEntity>(pageRequest);
         string? slug = input.IncludeSlug == true ? page.Slug : null;
 
@@ -89,16 +93,25 @@ public class PageService(InvocationContext invocationContext, IFileManagementCli
 
         Stream outputStream = input.FileFormat switch
         {
-            "text/html" => PageHtmlConverter.ToHtml(pageDom, siteId, input.ContentId, input.Locale, metadata),
-            "original" => PageJsonConverter.ToJson(pageDom, siteId, input.Locale, metadata),
+            ContentFormats.InteroperableHtml => PageHtmlConverter.ToHtml(
+                pageDom, 
+                siteId,
+                input.ContentId,
+                input.Locale, 
+                metadata
+            ),
+            ContentFormats.OriginalJson => PageJsonConverter.ToJson(pageDom, siteId, input.Locale, metadata),
             _ => throw new PluginMisconfigurationException($"Unsupported output format: {input.FileFormat}")
         };
 
         string name = page.Title ?? page.Id;
-        string contentType = input.FileFormat == "text/html" ? MediaTypeNames.Text.Html : MediaTypeNames.Application.Json;
-        var fileName = FileHelper.GetDownloadedFileName(name, contentType);
+        string contentFormat = 
+            input.FileFormat == ContentFormats.InteroperableHtml 
+            ? MediaTypeNames.Text.Html 
+            : MediaTypeNames.Application.Json;
+        var fileName = FileHelper.GetDownloadedFileName(ContentType, input.ContentId, name, contentFormat);
 
-        FileReference fileReference = await fileManagementClient.UploadAsync(outputStream, contentType, fileName);
+        FileReference fileReference = await fileManagementClient.UploadAsync(outputStream, contentFormat, fileName);
         await outputStream.DisposeAsync();
         return fileReference;
     }

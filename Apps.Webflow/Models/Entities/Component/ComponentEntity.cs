@@ -1,7 +1,7 @@
 using Blackbird.Applications.Sdk.Common;
 using Newtonsoft.Json;
 
-namespace Apps.Webflow.Models.Entities;
+namespace Apps.Webflow.Models.Entities.Component;
 
 public class ComponentEntity
 {

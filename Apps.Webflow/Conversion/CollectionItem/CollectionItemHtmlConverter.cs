@@ -1,7 +1,8 @@
 using Apps.Webflow.Constants;
 using Apps.Webflow.Conversion.Constants;
 using Apps.Webflow.Extensions;
-using Apps.Webflow.Models.Entities;
+using Apps.Webflow.Models.Entities.Collection;
+using Apps.Webflow.Models.Entities.CollectionItem;
 using HtmlAgilityPack;
 using Newtonsoft.Json.Linq;
 using System.Web;

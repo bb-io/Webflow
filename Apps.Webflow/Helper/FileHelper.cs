@@ -1,12 +1,14 @@
-﻿using System.Net.Mime;
+﻿using Apps.Webflow.Constants;
 
 namespace Apps.Webflow.Helper;
 
 public static class FileHelper
 {
-    public static string GetDownloadedFileName(string contentName, string fileFormat)
+    public static string GetDownloadedFileName(string contentType, string contentId, string contentName, string fileFormat)
     {
-        string fileExtension = fileFormat == MediaTypeNames.Text.Html ? "html" : "json";
-        return $"{contentName}.{fileExtension}";
+        string fileExtension = fileFormat == ContentFormats.InteroperableHtml ? "html" : "json";
+        string contentTypeLowerCase = contentType.ToLower().Replace(' ', '_');
+        string contentNameLowerCase = contentName.ToLower().Replace(' ', '_');
+        return $"{contentTypeLowerCase}_{contentId}_{contentNameLowerCase}.{fileExtension}";
     }
 }

@@ -1,6 +1,6 @@
 ﻿using Apps.Webflow.Constants;
 using Apps.Webflow.Conversion.Models;
-using Apps.Webflow.Models.Entities;
+using Apps.Webflow.Models.Entities.CollectionItem;
 using Newtonsoft.Json;
 using System.Text;
 

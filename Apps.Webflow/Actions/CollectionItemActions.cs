@@ -2,7 +2,7 @@ using Apps.Webflow.Constants;
 using Apps.Webflow.Conversion.CollectionItem;
 using Apps.Webflow.Helper;
 using Apps.Webflow.Invocables;
-using Apps.Webflow.Models.Entities;
+using Apps.Webflow.Models.Entities.CollectionItem;
 using Apps.Webflow.Models.Identifiers;
 using Apps.Webflow.Models.Request.Collection;
 using Apps.Webflow.Models.Request.CollectionItem;
@@ -18,7 +18,6 @@ using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using RestSharp;
-using System.Net.Mime;
 
 namespace Apps.Webflow.Actions;
 
@@ -60,7 +59,15 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         filtered = FilterHelper.ApplyContainsFilter(filtered, input.NameContains, r => r.Name);
         filtered = FilterHelper.ApplyContainsFilter(filtered, input.SlugContains, r => r.FieldData["slug"]?.ToString());
 
+        var localeMap = await LocaleHelper.GetLocaleMap(Client.GetSiteId(site.SiteId), Client);
         var result = filtered.Select(x => new GetCollectionItemResponse(x)).ToList();
+
+        foreach (var item in result)
+        {
+            if (item.Locale != null && localeMap.TryGetValue(item.Locale, out var localeCode))
+                item.Locale = localeCode;
+        }
+
         return new(result);
     }
 
@@ -71,7 +78,7 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         [ActionParameter] CollectionIdentifier collection,
         [ActionParameter] LocaleIdentifier locale)
     {
-        string fileFormat = input.FileFormat ?? MediaTypeNames.Text.Html;
+        string fileFormat = input.FileFormat ?? ContentFormats.InteroperableHtml;
 
         var service = _factory.GetContentService(ContentTypes.CollectionItem);
         var contentRequest = new DownloadContentRequest
