@@ -4,7 +4,7 @@ using Apps.Webflow.Conversion.Models;
 using Apps.Webflow.Conversion.Page;
 using Apps.Webflow.Extensions;
 using Apps.Webflow.Helper;
-using Apps.Webflow.Models.Entities;
+using Apps.Webflow.Models.Entities.Content;
 using Apps.Webflow.Models.Entities.Page;
 using Apps.Webflow.Models.Request.Content;
 using Apps.Webflow.Models.Request.Date;

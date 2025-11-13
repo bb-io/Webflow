@@ -1,4 +1,4 @@
-﻿using Apps.Webflow.Models.Entities;
+﻿using Apps.Webflow.Models.Entities.Content;
 using Apps.Webflow.Models.Request.Content;
 using Apps.Webflow.Models.Request.Date;
 using Apps.Webflow.Models.Response.Content;

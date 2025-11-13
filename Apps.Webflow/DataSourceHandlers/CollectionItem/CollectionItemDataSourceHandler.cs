@@ -1,12 +1,12 @@
 using RestSharp;
 using Apps.Webflow.Helper;
 using Apps.Webflow.Invocables;
-using Apps.Webflow.Models.Entities;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common;
 using Apps.Webflow.Models.Identifiers;
+using Apps.Webflow.Models.Entities.CollectionItem;
 
 namespace Apps.Webflow.DataSourceHandlers.CollectionItem;
 

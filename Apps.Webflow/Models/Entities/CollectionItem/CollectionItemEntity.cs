@@ -1,7 +1,7 @@
 using Blackbird.Applications.Sdk.Common;
 using Newtonsoft.Json.Linq;
 
-namespace Apps.Webflow.Models.Entities;
+namespace Apps.Webflow.Models.Entities.CollectionItem;
 
 public class CollectionItemEntity : IDateFilterable
 {

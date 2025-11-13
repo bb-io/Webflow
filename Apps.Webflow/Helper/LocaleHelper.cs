@@ -1,7 +1,7 @@
 ﻿using RestSharp;
 using Apps.Webflow.Api;
-using Apps.Webflow.Models.Entities;
 using Blackbird.Applications.Sdk.Common.Exceptions;
+using Apps.Webflow.Models.Entities.Site;
 
 namespace Apps.Webflow.Helper;
 

@@ -1,7 +1,7 @@
 ﻿using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.SDK.Blueprints.Interfaces.CMS;
 
-namespace Apps.Webflow.Models.Entities;
+namespace Apps.Webflow.Models.Entities.Content;
 
 public class ContentItemEntity : IDownloadContentInput
 {

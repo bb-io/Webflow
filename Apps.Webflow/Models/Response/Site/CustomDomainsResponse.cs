@@ -1,4 +1,4 @@
-﻿using Apps.Webflow.Models.Entities;
+﻿using Apps.Webflow.Models.Entities.Site;
 
 namespace Apps.Webflow.Models.Response.Site;
 
