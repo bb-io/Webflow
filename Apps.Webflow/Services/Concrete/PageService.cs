@@ -156,17 +156,46 @@ public class PageService(InvocationContext invocationContext, IFileManagementCli
         if (metadata is not null)
             await PatchPageMetadataAsync(input.ContentId!, input.Locale!, metadata);
 
-        var elements = doc.DocumentNode
+        var nodes = doc.DocumentNode
             .Descendants()
             .Where(x => x.NodeType == HtmlNodeType.Element &&
-                        x.Attributes[ConversionConstants.NodeId] != null)
+                        x.Attributes[ConversionConstants.NodeId] is not null)
+            .GroupBy(x => x.Attributes[ConversionConstants.NodeId].Value)
             .ToList();
 
-        var updateNodes = elements.Select(element => new UpdatePageNode
+        var updateNodes = new List<UpdatePageNode>();
+
+        foreach (var node in nodes)
         {
-            NodeId = element.Attributes[ConversionConstants.NodeId].Value,
-            Text = HttpUtility.HtmlDecode(element.InnerHtml).Trim()
-        }).ToList();
+            var updateNode = new UpdatePageNode { NodeId = node.Key };
+
+            foreach (var element in node)
+            {    
+                var content = HttpUtility.HtmlDecode(element.InnerHtml).Trim();
+                var propertyIdAttr = element.Attributes[ConversionConstants.PropertyId].Value;
+
+                if (string.IsNullOrEmpty(content))
+                    continue;
+
+                if (string.IsNullOrEmpty(propertyIdAttr))
+                {
+                    updateNode.Text = content; // it's a text node
+                    continue;
+                }
+
+                // if we are here, it's a property override
+                var propertyOverride = new PropertyOverride
+                {
+                    PropertyId = propertyIdAttr,
+                    Text = content
+                };
+
+                updateNode.PropertyOverrides ??= [];
+                updateNode.PropertyOverrides = updateNode.PropertyOverrides.Append(propertyOverride);
+            }
+
+            updateNodes.Add(updateNode);
+        }
 
         await PatchPageDom(input.ContentId!, input.Locale!, updateNodes);
     }
@@ -248,6 +277,7 @@ public class PageService(InvocationContext invocationContext, IFileManagementCli
             .WithJsonBody(body, JsonConfig.Settings)
             .AddQueryParameter("localeId", localeId);
 
+        // TODO Log errors, right now payload validation errors with 200 http code are not visible
         await Client.ExecuteWithErrorHandling(request);
     }
 

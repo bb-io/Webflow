@@ -91,7 +91,7 @@ public class PagesActions(InvocationContext invocationContext, IFileManagementCl
         };
 
         var service = _factory.GetContentService(ContentTypes.Page);
-        await service.UploadContent(stream, site.SiteId, uploadRequest);
+        await service.UploadContent(stream, Client.GetSiteId(site.SiteId), uploadRequest);
     }
 
     private static List<PageEntity> ApplySearchPageFilters(List<PageEntity> pages, BasicDateFilter dateFilter, SearchPagesRequest input)
