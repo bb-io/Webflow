@@ -257,7 +257,8 @@ public class ContentTests : TestBaseWithContext
         {
             CollectionId = "68f8b337cbd1cac54f5b9d9c",
             ContentId = "68f8b337cbd1cac54f5b9dee",
-            FileFormat = ContentFormats.OriginalJson
+            FileFormat = ContentFormats.OriginalJson,
+            IncludeSlug = true
         };
         var contentFilter = new ContentFilter { ContentType = ContentTypes.CollectionItem };
 
@@ -321,7 +322,7 @@ public class ContentTests : TestBaseWithContext
         await action.UploadContent(site, request);
     }
 
-    [TestMethod, ContextDataSource]
+    [TestMethod, ContextDataSource(ConnectionTypes.OAuth2)]
     public async Task UploadContent_CollectionItemType_IsSuccess(InvocationContext context)
     {
         // Arrange
@@ -329,7 +330,8 @@ public class ContentTests : TestBaseWithContext
         var site = new SiteIdentifier { };
         var request = new UploadContentRequest
         {
-            Content = new FileReference { Name = "colitem.html" },
+            Content = new FileReference { Name = "test.json" },
+            Locale = "en"
         };
 
         // Act

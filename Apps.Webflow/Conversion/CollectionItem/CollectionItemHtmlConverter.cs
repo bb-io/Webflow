@@ -16,7 +16,7 @@ public static class CollectionItemHtmlConverter
     private static readonly string[] NonUpdatableTypes = ["Reference"];
 
     public static Stream ToHtml(CollectionItemEntity item, IEnumerable<FieldEntity> collectionFields, string siteId,
-        string collectionId,string itemId, string? cmsLocaleId = null)
+        string collectionId, string itemId, string? slug, string? cmsLocaleId = null)
     {
         var (doc, body) = PrepareEmptyHtmlDocument();
 
@@ -49,6 +49,14 @@ public static class CollectionItemHtmlConverter
                 mLoc.SetAttributeValue("name", "blackbird-cmslocale");
                 mLoc.SetAttributeValue("content", cmsLocaleId);
                 head.AppendChild(mLoc);
+            }
+
+            if (!string.IsNullOrEmpty(slug))
+            {
+                var mSlug = doc.CreateElement("meta");
+                mSlug.SetAttributeValue("name", "blackbird-collection-item-slug");
+                mSlug.SetAttributeValue("content", slug);
+                head.AppendChild(mSlug);
             }
         }
 

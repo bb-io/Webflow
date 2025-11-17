@@ -6,6 +6,7 @@ using Apps.Webflow.Helper;
 using Apps.Webflow.Models.Entities.Collection;
 using Apps.Webflow.Models.Entities.CollectionItem;
 using Apps.Webflow.Models.Entities.Content;
+using Apps.Webflow.Models.Entities.Page;
 using Apps.Webflow.Models.Request.Content;
 using Apps.Webflow.Models.Request.Date;
 using Apps.Webflow.Models.Response.Content;
@@ -18,6 +19,7 @@ using Blackbird.Applications.Sdk.Utils.Extensions.String;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Filters.Transformations;
 using Blackbird.Filters.Xliff.Xliff2;
+using HtmlAgilityPack;
 using Newtonsoft.Json;
 using RestSharp;
 using System.Net.Mime;
@@ -86,6 +88,8 @@ public class CollectionItemService(InvocationContext invocationContext, IFileMan
         var itemRequest = new RestRequest(itemEndpoint, Method.Get);
         var item = await Client.ExecuteWithErrorHandling<CollectionItemEntity>(itemRequest);
 
+        string? slug = input.IncludeSlug == true ? item.FieldData["slug"]?.ToString() : null;
+
         Stream outputStream = input.FileFormat switch
         {
             ContentFormats.InteroperableHtml => CollectionItemHtmlConverter.ToHtml(
@@ -94,6 +98,7 @@ public class CollectionItemService(InvocationContext invocationContext, IFileMan
                 siteId,
                 input.CollectionId,
                 input.ContentId,
+                slug,
                 input.Locale
             ),
             ContentFormats.OriginalJson => CollectionItemJsonConverter.ToJson(
@@ -131,7 +136,8 @@ public class CollectionItemService(InvocationContext invocationContext, IFileMan
         {
             if (Xliff2Serializer.IsXliff2(fileText))
             {
-                var htmlFromXliff = Transformation.Parse(fileText, "collectionItem.xlf").Target().Serialize() ?? throw new PluginMisconfigurationException("XLIFF did not contain valid content.");
+                var htmlFromXliff = Transformation.Parse(fileText, "collectionItem.xlf").Target().Serialize() 
+                    ?? throw new PluginMisconfigurationException("XLIFF did not contain valid content.");
                 memoryStream.SetLength(0);
                 await memoryStream.WriteAsync(Encoding.UTF8.GetBytes(htmlFromXliff));
             }
@@ -160,7 +166,7 @@ public class CollectionItemService(InvocationContext invocationContext, IFileMan
 
     private async Task UploadHtmlContent(Stream htmlStream, string siteId, UploadContentRequest input)
     {
-        var doc = new HtmlAgilityPack.HtmlDocument();
+        var doc = new HtmlDocument();
         doc.Load(htmlStream);
         htmlStream.Position = 0;
 
@@ -170,12 +176,17 @@ public class CollectionItemService(InvocationContext invocationContext, IFileMan
 
         await ValidateAndNormalizeInputs(input, siteId);
 
+        var metadata = ParseTranslatableMetadata(doc);
+
         var collection = await Client.ExecuteWithErrorHandling<CollectionEntity>(
             new RestRequest($"collections/{input.CollectionId}", Method.Get));
 
         var currentItem = await Client.ExecuteWithErrorHandling<CollectionItemEntity>(
             new RestRequest($"collections/{input.CollectionId}/items/{input.ContentId}", Method.Get)
                 .AddQueryParameter("cmsLocaleId", input.Locale!));
+
+        if (metadata.Slug is not null)
+            currentItem.FieldData["slug"] = metadata.Slug;
 
         var fieldData = CollectionItemHtmlConverter.ToJson(htmlStream, currentItem.FieldData, collection.Fields);
 
@@ -192,6 +203,13 @@ public class CollectionItemService(InvocationContext invocationContext, IFileMan
             throw new PluginMisconfigurationException("Locale is missing. Provide it in the input or file.");
 
         input.Locale = await LocaleHelper.GetCmsLocaleId(input.Locale, siteId, Client);
+    }
+
+    private static CollectionItemMetadata ParseTranslatableMetadata(HtmlDocument doc)
+    {
+        var body = doc.DocumentNode.SelectSingleNode("//body");
+        string? slug = body?.GetMetaValue("blackbird-collection-item-slug");
+        return new(slug);
     }
 
     private async Task PatchCollectionItem(string collectionId, string itemId, string cmsLocaleId, object fieldData)

@@ -27,7 +27,7 @@ public class DownloadContentRequest : IDownloadContentInput
     [StaticDataSource(typeof(DownloadFileFormatHandler))]
     public string? FileFormat { get; set; } = "text/html";
 
-    [Display("Include slug (only for pages)", Description = "Include slug in output file. Default is false")]
+    [Display("Include slug (only for pages and collection items)", Description = "Include slug in output file. Default is false")]
     public bool? IncludeSlug { get; set; } = false;
 
     [Display("Include file metadata (only for pages)", Description = "Include file metadata in output file. Default is false")]

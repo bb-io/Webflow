@@ -87,6 +87,7 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
             ContentId = input.CollectionItemId,
             Locale = locale.Locale,
             FileFormat = fileFormat,
+            IncludeSlug = input.IncludeSlug,
         };
 
         var file = await service.DownloadContent(Client.GetSiteId(site.SiteId), contentRequest);
