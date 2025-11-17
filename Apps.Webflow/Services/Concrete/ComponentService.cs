@@ -67,13 +67,14 @@ public class ComponentService(InvocationContext invocationContext, IFileManageme
 
         Stream outputStream = input.FileFormat switch
         {
-            ContentFormats.InteroperableHtml => ComponentHtmlConverter.ToHtml(
+            ContentFormats.InteroperableHtml => await ComponentHtmlConverter.ToHtml(
                 componentDom, 
                 siteId,
                 input.ContentId,
-                input.Locale
+                input.Locale,
+                Client
             ),
-            ContentFormats.OriginalJson => ComponentJsonConverter.ToJson(componentDom, siteId, input.Locale),
+            ContentFormats.OriginalJson => await ComponentJsonConverter.ToJson(componentDom, siteId, input.Locale, Client),
             _ => throw new PluginMisconfigurationException($"Unsupported output format: {input.FileFormat}")
         };
 
@@ -126,36 +127,91 @@ public class ComponentService(InvocationContext invocationContext, IFileManageme
 
         await ValidateAndNormalizeInputs(input, siteId);
 
-        var elements = doc.DocumentNode
+        // Extract properties (elements with data-property-id attribute only, no data-node-id)
+        var propertyElements = doc.DocumentNode
+            .Descendants()
+            .Where(x => x.NodeType == HtmlAgilityPack.HtmlNodeType.Element &&
+                        x.Attributes[ConversionConstants.PropertyIdAttr] != null &&
+                        x.Attributes[ConversionConstants.NodeId] == null)
+            .ToList();
+
+        var updateProperties = new List<UpdateComponentProperty>();
+        foreach (var element in propertyElements)
+        {
+            var propertyId = element.Attributes[ConversionConstants.PropertyIdAttr].Value;
+            var textHtml = HttpUtility.HtmlDecode(element.InnerHtml).Trim();
+            updateProperties.Add(new UpdateComponentProperty { PropertyId = propertyId, Text = textHtml });
+        }
+
+        // Update properties if any
+        if (updateProperties.Any())
+        {
+            await PatchComponentProperties(siteId, input.ContentId!, input.Locale!, updateProperties);
+        }
+
+        // Extract nodes (elements with data-node-id attribute)
+        var nodeElements = doc.DocumentNode
             .Descendants()
             .Where(x => x.NodeType == HtmlAgilityPack.HtmlNodeType.Element &&
                         x.Attributes[ConversionConstants.NodeId] != null)
             .ToList();
 
+        var nodeGroups = nodeElements.GroupBy(x => x.Attributes[ConversionConstants.NodeId].Value);
         var updateNodes = new List<UpdateComponentNode>();
-        foreach (var element in elements)
-        {
-            var nodeId = element.Attributes[ConversionConstants.NodeId].Value;
-            var propertyId = element.Attributes[ConversionConstants.PropertyId]?.Value;
-            var textHtml = HttpUtility.HtmlDecode(element.InnerHtml).Trim();
 
-            if (!string.IsNullOrEmpty(propertyId))
+        foreach (var nodeGroup in nodeGroups)
+        {
+            var nodeId = nodeGroup.Key;
+            var node = new UpdateComponentNode { NodeId = nodeId };
+
+            foreach (var element in nodeGroup)
             {
-                var existingNode = updateNodes.FirstOrDefault(n => n.NodeId == nodeId);
-                if (existingNode == null)
+                var propertyId = element.Attributes[ConversionConstants.PropertyId]?.Value;
+                var textHtml = HttpUtility.HtmlDecode(element.InnerHtml).Trim();
+
+                // Check if this is a property override
+                if (!string.IsNullOrEmpty(propertyId))
                 {
-                    existingNode = new UpdateComponentNode { NodeId = nodeId, PropertyOverrides = [] };
-                    updateNodes.Add(existingNode);
+                    node.PropertyOverrides ??= new List<ComponentPropertyOverride>();
+                    node.PropertyOverrides.Add(new ComponentPropertyOverride { PropertyId = propertyId, Text = textHtml });
                 }
-                existingNode.PropertyOverrides?.Add(new ComponentPropertyOverride { PropertyId = propertyId, Text = textHtml });
+                // Check if this is a placeholder
+                else if (element.Attributes["data-node-placeholder"] != null)
+                {
+                    node.Placeholder = textHtml;
+                }
+                // Check if this is a value
+                else if (element.Attributes["data-node-value"] != null)
+                {
+                    node.Value = textHtml;
+                }
+                // Check if this is waiting text
+                else if (element.Attributes["data-node-waiting-text"] != null)
+                {
+                    node.WaitingText = textHtml;
+                }
+                // Check if this is a choice
+                else if (element.Attributes[ConversionConstants.NodeChoices] != null)
+                {
+                    var choiceValue = element.Attributes[ConversionConstants.NodeChoices].Value;
+                    node.Choices ??= new List<SelectChoiceUpdate>();
+                    node.Choices.Add(new SelectChoiceUpdate { Value = choiceValue, Text = textHtml });
+                }
+                // Otherwise it's regular text
+                else
+                {
+                    node.Text = textHtml;
+                }
             }
-            else
-            {
-                updateNodes.Add(new UpdateComponentNode { NodeId = nodeId, Text = textHtml });
-            }
+
+            updateNodes.Add(node);
         }
 
-        await PatchComponentDom(siteId, input.ContentId!, input.Locale!, updateNodes);
+        // Update nodes if any
+        if (updateNodes.Any())
+        {
+            await PatchComponentDom(siteId, input.ContentId!, input.Locale!, updateNodes);
+        }
     }
 
     private async Task UploadJsonContent(string jsonContent, string siteId, UploadContentRequest input)
@@ -168,14 +224,35 @@ public class ComponentService(InvocationContext invocationContext, IFileManageme
 
         await ValidateAndNormalizeInputs(input, siteId);
 
+        // Update properties if any
+        if (downloadedComponent.Properties.Any())
+        {
+            var updateProperties = downloadedComponent.Properties.Select(p => new UpdateComponentProperty
+            {
+                PropertyId = p.PropertyId,
+                Text = p.Text.Html ?? p.Text.Text ?? string.Empty
+            });
+
+            await PatchComponentProperties(siteId, input.ContentId!, input.Locale!, updateProperties);
+        }
+
+        // Update nodes
         var updateNodes = downloadedComponent.Component.Nodes.Select(n => new UpdateComponentNode
         {
             NodeId = n.Id,
             Text = n.Text?.Html,
+            Placeholder = n.Placeholder,
+            Value = n.Value,
+            WaitingText = n.WaitingText,
+            Choices = n.Choices?.Select(c => new SelectChoiceUpdate
+            {
+                Value = c.Value,
+                Text = c.Text
+            }).ToList(),
             PropertyOverrides = n.PropertyOverrides?.Select(p => new ComponentPropertyOverride
             {
                 PropertyId = p.PropertyId,
-                Text = p.Text.Html
+                Text = p.Text.Html ?? p.Text.Text ?? string.Empty
             }).ToList()
         });
 
@@ -197,6 +274,19 @@ public class ComponentService(InvocationContext invocationContext, IFileManageme
     {
         var body = new UpdateComponentDomRequest { Nodes = nodes };
         var endpoint = $"sites/{siteId}/components/{contentId}/dom";
+
+        var apiRequest = new RestRequest(endpoint, Method.Post)
+            .WithJsonBody(body)
+            .AddQueryParameter("localeId", localeId);
+
+        apiRequest.RequestFormat = DataFormat.Json;
+        await Client.ExecuteWithErrorHandling(apiRequest);
+    }
+
+    private async Task PatchComponentProperties(string siteId, string contentId, string localeId, IEnumerable<UpdateComponentProperty> properties)
+    {
+        var body = new UpdateComponentPropertiesRequest { Properties = properties };
+        var endpoint = $"sites/{siteId}/components/{contentId}/properties";
 
         var apiRequest = new RestRequest(endpoint, Method.Post)
             .WithJsonBody(body)
