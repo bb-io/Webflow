@@ -1,4 +1,3 @@
-using Apps.Webflow.DataSourceHandlers.Collection;
 using Apps.Webflow.DataSourceHandlers.CollectionItem;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Dictionaries;
@@ -16,4 +15,7 @@ public class DownloadCollectionItemRequest
     [Display("File format", Description = "Format of the file to be downloaded, defaults to an interoperable HTML")]
     [StaticDataSource(typeof(DownloadFileFormatHandler))]
     public string? FileFormat { get; set; }
+
+    [Display("Include collection item slug", Description = "Include slug in output file. Default is false")]
+    public bool? IncludeSlug { get; set; }
 }

@@ -14,68 +14,92 @@ public static class CollectionItemHtmlConverter
     private static readonly string[] UntraslatableSlugs = ["slug"];
     private static readonly string[] TranslatableTypes = ["RichText", "PlainText", "Link"];
     private static readonly string[] NonUpdatableTypes = ["Reference"];
+    private static readonly char[] InvisibleChars = [' ', '\t', '\n', '\r', '\u200B', '\u200C', '\u200D', '\uFEFF'];
 
     public static Stream ToHtml(CollectionItemEntity item, IEnumerable<FieldEntity> collectionFields, string siteId,
-        string collectionId,string itemId, string? cmsLocaleId = null)
+        string collectionId, string itemId, string? slug, string? cmsLocaleId = null)
     {
         var (doc, body) = PrepareEmptyHtmlDocument();
 
         var head = doc.DocumentNode.SelectSingleNode("//head");
         if (head != null)
         {
-            var mType = doc.CreateElement("meta");
-            mType.SetAttributeValue("name", "blackbird-content-type");
-            mType.SetAttributeValue("content", ContentTypes.CollectionItem.ToKebabCase());
-            head.AppendChild(mType);
-
-            var mSite = doc.CreateElement("meta");
-            mSite.SetAttributeValue("name", "blackbird-site-id");
-            mSite.SetAttributeValue("content", siteId);
-            head.AppendChild(mSite);
-
-            var mCol = doc.CreateElement("meta");
-            mCol.SetAttributeValue("name", "blackbird-collection-id");
-            mCol.SetAttributeValue("content", collectionId);
-            head.AppendChild(mCol);
-
-            var mItem = doc.CreateElement("meta");
-            mItem.SetAttributeValue("name", "blackbird-collection-item-id");
-            mItem.SetAttributeValue("content", itemId);
-            head.AppendChild(mItem);
+            AppendMeta(head, "blackbird-content-type", ContentTypes.CollectionItem.ToKebabCase());
+            AppendMeta(head, "blackbird-site-id", siteId);
+            AppendMeta(head, "blackbird-collection-id", collectionId);
+            AppendMeta(head, "blackbird-collection-item-id", itemId);
 
             if (!string.IsNullOrEmpty(cmsLocaleId))
-            {
-                var mLoc = doc.CreateElement("meta");
-                mLoc.SetAttributeValue("name", "blackbird-cmslocale");
-                mLoc.SetAttributeValue("content", cmsLocaleId);
-                head.AppendChild(mLoc);
-            }
-        }
+                AppendMeta(head, "blackbird-cmslocale", cmsLocaleId);
 
+            if (!string.IsNullOrEmpty(slug))
+                AppendMeta(head, "blackbird-collection-item-slug", slug);
+        }
 
         var translatableFields = collectionFields
             .Where(x => TranslatableTypes.Contains(x.Type) && !UntraslatableSlugs.Contains(x.Slug))
             .Select(x => x.Slug)
             .ToArray();
 
-        item.FieldData.Children()
-            .Where(x => x is JProperty jProperty && translatableFields.Contains(jProperty.Name))
-            .Cast<JProperty>()
-            .ToList()
-            .ForEach(x =>
+        foreach (var x in item.FieldData.Children()
+                     .OfType<JProperty>()
+                     .Where(f => translatableFields.Contains(f.Name)))
+        {
+            var rawHtml = x.Value.ToString();
+            var cleanedHtml = CleanHtmlFragment(rawHtml);
+
+            if (!string.IsNullOrWhiteSpace(cleanedHtml))
             {
                 var node = doc.CreateElement(HtmlConstants.Div);
-                node.InnerHtml = x.Value.ToString();
+                node.InnerHtml = cleanedHtml;
                 node.SetAttributeValue(ConversionConstants.FieldSlug, x.Name);
-
                 body.AppendChild(node);
-            });
+            }
+        }
 
         var result = new MemoryStream();
         doc.Save(result);
         result.Position = 0;
 
         return result;
+    }
+
+    private static string CleanHtmlFragment(string html)
+    {
+        var fragDoc = new HtmlDocument();
+        fragDoc.LoadHtml(html);
+
+        RemoveEmptyNodes(fragDoc.DocumentNode);
+
+        return fragDoc.DocumentNode.InnerHtml;
+    }
+
+    private static void RemoveEmptyNodes(HtmlNode node)
+    {
+        foreach (var child in node.ChildNodes.ToList())
+        {
+            RemoveEmptyNodes(child);
+
+            if (child.Name.Equals("br", StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            var text = HtmlEntity.DeEntitize(child.InnerText)?.Trim(InvisibleChars);
+
+            if (child.NodeType == HtmlNodeType.Element &&
+                string.IsNullOrEmpty(text) &&
+                !child.ChildNodes.Any(c => c.NodeType == HtmlNodeType.Element))
+            {
+                child.Remove();
+            }
+        }
+    }
+
+    private static void AppendMeta(HtmlNode head, string name, string content)
+    {
+        var meta = head.OwnerDocument.CreateElement("meta");
+        meta.SetAttributeValue("name", name);
+        meta.SetAttributeValue("content", content);
+        head.AppendChild(meta);
     }
 
     public static JObject ToJson(Stream fileStream, JObject fieldData, IEnumerable<FieldEntity> collectionFields)

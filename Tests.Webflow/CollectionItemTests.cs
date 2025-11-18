@@ -20,7 +20,7 @@ public class CollectionItemTests : TestBaseWithContext
         var request = new DownloadCollectionItemRequest
         {
             CollectionItemId = "6900ef5e244b95de8a4b7a3c",
-            FileFormat = ContentFormats.InteroperableHtml,
+            FileFormat = ContentFormats.OriginalJson,
         };
         var locale = new LocaleIdentifier { Locale = "en" };
         var site = new SiteIdentifier { };
