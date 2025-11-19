@@ -294,7 +294,7 @@ public class ComponentService(InvocationContext invocationContext, IFileManageme
         {
             return;
         }
-        
+
         var body = new UpdateComponentPropertiesRequest { Properties = properties };
         var endpoint = $"sites/{siteId}/components/{contentId}/properties";
 
