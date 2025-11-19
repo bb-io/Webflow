@@ -172,7 +172,7 @@ public class PageService(InvocationContext invocationContext, IFileManagementCli
             foreach (var element in node)
             {    
                 var content = HttpUtility.HtmlDecode(element.InnerHtml).Trim();
-                var propertyIdAttr = element.Attributes[ConversionConstants.PropertyId].Value;
+                var propertyIdAttr = element.Attributes[ConversionConstants.PropertyId]?.Value;
 
                 if (string.IsNullOrEmpty(content))
                     continue;
@@ -270,6 +270,11 @@ public class PageService(InvocationContext invocationContext, IFileManagementCli
 
     private async Task PatchPageDom(string pageId, string localeId, IEnumerable<UpdatePageNode> nodes)
     {
+        if (nodes == null! || !nodes.Any())
+        {
+            return;
+        }
+        
         var body = new UpdatePageDomRequest { Nodes = nodes };
 
         var endpoint = $"pages/{pageId}/dom";
@@ -305,7 +310,7 @@ public class PageService(InvocationContext invocationContext, IFileManagementCli
         var request = new RestRequest($"pages/{pageId}", Method.Put)
             .WithJsonBody(payload, JsonConfig.Settings)
             .AddQueryParameter("localeId", localeId);
-
+        
         await Client.ExecuteWithErrorHandling(request);
     }
 }

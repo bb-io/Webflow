@@ -272,6 +272,11 @@ public class ComponentService(InvocationContext invocationContext, IFileManageme
 
     private async Task PatchComponentDom(string siteId, string contentId, string localeId, IEnumerable<UpdateComponentNode> nodes)
     {
+        if(nodes == null! || !nodes.Any())
+        {
+            return;
+        }
+        
         var body = new UpdateComponentDomRequest { Nodes = nodes };
         var endpoint = $"sites/{siteId}/components/{contentId}/dom";
 
@@ -285,6 +290,11 @@ public class ComponentService(InvocationContext invocationContext, IFileManageme
 
     private async Task PatchComponentProperties(string siteId, string contentId, string localeId, IEnumerable<UpdateComponentProperty> properties)
     {
+        if (properties == null! || !properties.Any())
+        {
+            return;
+        }
+
         var body = new UpdateComponentPropertiesRequest { Properties = properties };
         var endpoint = $"sites/{siteId}/components/{contentId}/properties";
 
