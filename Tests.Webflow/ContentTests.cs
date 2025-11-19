@@ -247,18 +247,19 @@ public class ContentTests : TestBaseWithContext
         Assert.IsNotNull(result);
     }
     
-    [TestMethod, ContextDataSource]
+    [TestMethod, ContextDataSource(ConnectionTypes.OAuth2)]
     public async Task DownloadContent_CollectionItemTypeWithoutLocaleInput_ReturnsDownloadedContent(InvocationContext context)
     {
         // Arrange
         var action = new ContentActions(context, FileManagementClient);
-        var site = new SiteIdentifier { SiteId = "68f8b336cbd1cac54f5b9d2c" };
+        var site = new SiteIdentifier { };
         var request = new DownloadContentRequest 
         {
-            CollectionId = "68f8b337cbd1cac54f5b9d9c",
-            ContentId = "68f8b337cbd1cac54f5b9dee",
-            FileFormat = ContentFormats.OriginalJson,
-            IncludeSlug = true
+            CollectionId = "69039bc9c5d438759be4cc0c",
+            ContentId = "69039bc9c5d438759be4cd62",
+            FileFormat = ContentFormats.InteroperableHtml,
+            IncludeSlug = true,
+            Locale = "en"
         };
         var contentFilter = new ContentFilter { ContentType = ContentTypes.CollectionItem };
 

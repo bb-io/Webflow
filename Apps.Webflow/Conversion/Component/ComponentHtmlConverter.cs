@@ -1,17 +1,27 @@
+using Apps.Webflow.Api;
 using Apps.Webflow.Constants;
 using Apps.Webflow.Conversion.Constants;
 using Apps.Webflow.Extensions;
 using Apps.Webflow.Models.Response.Components;
+using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using HtmlAgilityPack;
+using Newtonsoft.Json;
+using RestSharp;
 
 namespace Apps.Webflow.Conversion.Component;
 
 public static class ComponentHtmlConverter
 {
-    private static readonly HashSet<string> TranslatableNodeTypes = ["text", "component-instance"];
     private static readonly HashSet<string> TranslatablePropertyTypes = ["Plain Text", "Rich Text"];
+    private static readonly HashSet<string> NodeTypesWithText = 
+        ["text", "text-input", "select", "submit-button", "component-instance"];
 
-    public static Stream ToHtml(ComponentDomEntity componentDom, string siteId, string componentId, string? localeId)
+    public static async Task<Stream> ToHtml(
+        ComponentDomEntity componentDom, 
+        string siteId, 
+        string componentId, 
+        string? localeId,
+        WebflowClient client)
     {
         var (doc, body) = PrepareEmptyHtmlDocument();
 
@@ -42,12 +52,21 @@ public static class ComponentHtmlConverter
             }
         }
 
+        // Add component properties
+        var properties = await FetchComponentProperties(client, siteId, componentId, localeId);
+        foreach (var property in properties.Where(p => TranslatablePropertyTypes.Contains(p.Type)))
+        {
+            var div = GetDivFromComponentProperty(doc, property);
+            body.AppendChild(div);
+        }
+
+        // Add nodes
         foreach (var node in componentDom.Nodes)
         {
             if (node.Type == "image")
                 continue;
 
-            if (!TranslatableNodeTypes.Contains(node.Type))
+            if (!NodeTypesWithText.Contains(node.Type))
                 continue;
 
             if (node.Type == "text" && node.Text is not null)
@@ -55,8 +74,42 @@ public static class ComponentHtmlConverter
                 var div = GetDivFromComponentTextNode(doc, node.Text, node.Id);
                 body.AppendChild(div);
             }
+            else if (node.Type == "text-input" && !string.IsNullOrEmpty(node.Placeholder))
+            {
+                var div = GetDivFromNodeAttribute(doc, node.Id, "placeholder", node.Placeholder);
+                body.AppendChild(div);
+            }
+            else if (node.Type == "select" && node.Choices is not null && node.Choices.Any())
+            {
+                foreach (var choice in node.Choices)
+                {
+                    var div = GetDivFromSelectChoice(doc, node.Id, choice);
+                    body.AppendChild(div);
+                }
+            }
+            else if (node.Type == "submit-button")
+            {
+                if (!string.IsNullOrEmpty(node.Value))
+                {
+                    var divValue = GetDivFromNodeAttribute(doc, node.Id, "value", node.Value);
+                    body.AppendChild(divValue);
+                }
+                if (!string.IsNullOrEmpty(node.WaitingText))
+                {
+                    var divWaiting = GetDivFromNodeAttribute(doc, node.Id, "waiting-text", node.WaitingText);
+                    body.AppendChild(divWaiting);
+                }
+            }
             else if (node.Type == "component-instance")
             {
+                // Add text if present
+                if (node.Text is not null)
+                {
+                    var div = GetDivFromComponentTextNode(doc, node.Text, node.Id);
+                    body.AppendChild(div);
+                }
+
+                // Add property overrides
                 if (node.PropertyOverrides is null)
                     continue;
 
@@ -72,6 +125,37 @@ public static class ComponentHtmlConverter
         doc.Save(result);
         result.Position = 0;
         return result;
+    }
+
+    private static async Task<List<ComponentPropertyEntity>> FetchComponentProperties(
+        WebflowClient client,
+        string siteId,
+        string componentId,
+        string? localeId)
+    {
+        var endpoint = $"sites/{siteId}/components/{componentId}/properties";
+        var request = new RestRequest(endpoint, Method.Get);
+        
+        if (!string.IsNullOrEmpty(localeId))
+        {
+            request.AddQueryParameter("localeId", localeId);
+        }
+
+        var response = await client.ExecuteWithErrorHandling<ComponentPropertiesResponse>(request);
+        return response.Properties;
+    }
+
+    private static HtmlNode GetDivFromComponentProperty(
+        HtmlDocument doc,
+        ComponentPropertyEntity property)
+    {
+        var textHtml = property.Text.Html ?? property.Text.Text ?? string.Empty;
+
+        var divNode = doc.CreateElement("div");
+        divNode.SetAttributeValue(ConversionConstants.PropertyIdAttr, property.PropertyId);
+        divNode.InnerHtml = textHtml;
+
+        return divNode;
     }
 
     private static HtmlNode GetDivFromComponentTextNode(
@@ -95,7 +179,35 @@ public static class ComponentHtmlConverter
         return divNode;
     }
 
+    private static HtmlNode GetDivFromNodeAttribute(
+        HtmlDocument doc,
+        string nodeId,
+        string attributeName,
+        string value)
+    {
+        var divNode = doc.CreateElement("div");
+        divNode.SetAttributeValue(ConversionConstants.NodeId, nodeId);
+        divNode.SetAttributeValue($"data-node-{attributeName}", "true");
+        divNode.InnerHtml = value;
+
+        return divNode;
+    }
+
+    private static HtmlNode GetDivFromSelectChoice(
+        HtmlDocument doc,
+        string nodeId,
+        SelectChoice choice)
+    {
+        var divNode = doc.CreateElement("div");
+        divNode.SetAttributeValue(ConversionConstants.NodeId, nodeId);
+        divNode.SetAttributeValue(ConversionConstants.NodeChoices, choice.Value);
+        divNode.InnerHtml = choice.Text;
+
+        return divNode;
+    }
+
     private static (HtmlDocument document, HtmlNode bodyNode) PrepareEmptyHtmlDocument()
+
     {
         var htmlDoc = new HtmlDocument();
         var htmlNode = htmlDoc.CreateElement("html");

@@ -11,4 +11,5 @@ public class DownloadedComponent
     public string? Locale { get; set; }
     public required string SiteId { get; set; }
     public required ComponentDomEntity Component { get; set; }
+    public List<ComponentPropertyEntity> Properties { get; set; } = new();
 }
