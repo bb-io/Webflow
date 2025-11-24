@@ -177,6 +177,13 @@ public class PageService(InvocationContext invocationContext, IFileManagementCli
                 if (string.IsNullOrEmpty(content))
                     continue;
 
+                // Check if this is a placeholder
+                if (element.Attributes["data-node-placeholder"] != null)
+                {
+                    updateNode.Placeholder = content;
+                    continue;
+                }
+
                 if (string.IsNullOrEmpty(propertyIdAttr))
                 {
                     updateNode.Text = content; // it's a text node
@@ -216,7 +223,8 @@ public class PageService(InvocationContext invocationContext, IFileManagementCli
         var updateNodes = downloadedPage.Page.Nodes.Select(n => new UpdatePageNode
         {
             NodeId = n.Id,
-            Text = n.Text?.Html
+            Text = n.Text?.Html,
+            Placeholder = n.Placeholder
         });
 
         await PatchPageDom(input.ContentId!, input.Locale!, updateNodes);

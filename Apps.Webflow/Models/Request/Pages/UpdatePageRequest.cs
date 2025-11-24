@@ -16,6 +16,9 @@ public class UpdatePageNode
     [JsonProperty("text", NullValueHandling = NullValueHandling.Ignore)]
     public string? Text { get; set; }
 
+    [JsonProperty("placeholder", NullValueHandling = NullValueHandling.Ignore)]
+    public string? Placeholder { get; set; }
+
     [JsonProperty("propertyOverrides", NullValueHandling = NullValueHandling.Ignore)]
     public IEnumerable<PropertyOverride>? PropertyOverrides { get; set; }
 }
