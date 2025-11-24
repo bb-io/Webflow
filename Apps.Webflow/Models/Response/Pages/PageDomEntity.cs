@@ -11,6 +11,7 @@ public class PageNodeEntity
     public string Type { get; set; }
     public Dictionary<string, string>? Attributes { get; set; }
     public PageTextContent Text { get; set; }
+    public string Placeholder { get; set; }
     public string ComponentId { get; set; }
     public List<PropertyOverrideEntity>? PropertyOverrides { get; set; }
 }

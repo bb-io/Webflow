@@ -10,7 +10,7 @@ namespace Apps.Webflow.Conversion.Page;
 
 public static class PageHtmlConverter
 {
-    private static readonly string[] TranslatableNodeTypes = { "text", "component-instance" };
+    private static readonly string[] TranslatableNodeTypes = { "text", "text-input", "component-instance" };
     private static readonly string[] TranslatablePropertyTypes = { "Plain Text", "Rich Text" };
 
     public static Stream ToHtml(PageDomEntity pageDom, string siteId, string pageId, string? locale, PageMetadata? metadata)
@@ -64,20 +64,31 @@ public static class PageHtmlConverter
                 divNode.InnerHtml = textHtml;
                 body.AppendChild(divNode);
             }
+            else if (node.Type == "text-input" && !string.IsNullOrEmpty(node.Placeholder))
+            {
+                var divNode = doc.CreateElement("div");
+                divNode.SetAttributeValue(ConversionConstants.NodeId, node.Id);
+                divNode.SetAttributeValue("data-node-placeholder", "true");
+                divNode.InnerHtml = node.Placeholder;
+                body.AppendChild(divNode);
+            }
             else if (node.Type == "component-instance")
             {
-                foreach (var prop in node.PropertyOverrides)
+                if (node.PropertyOverrides is not null)
                 {
-                    if (TranslatablePropertyTypes.Contains(prop.Type))
+                    foreach (var prop in node.PropertyOverrides)
                     {
-                        var textHtml = prop.Text?.Html ?? prop.Text?.Text ?? string.Empty;
+                        if (TranslatablePropertyTypes.Contains(prop.Type))
+                        {
+                            var textHtml = prop.Text?.Html ?? prop.Text?.Text ?? string.Empty;
 
-                        var divNode = doc.CreateElement("div");
-                        divNode.SetAttributeValue(ConversionConstants.NodeId, node.Id);
-                        divNode.SetAttributeValue(ConversionConstants.PropertyId, prop.PropertyId);
-                        divNode.InnerHtml = textHtml;
+                            var divNode = doc.CreateElement("div");
+                            divNode.SetAttributeValue(ConversionConstants.NodeId, node.Id);
+                            divNode.SetAttributeValue(ConversionConstants.PropertyId, prop.PropertyId);
+                            divNode.InnerHtml = textHtml;
 
-                        body.AppendChild(divNode);
+                            body.AppendChild(divNode);
+                        }
                     }
                 }
             }
