@@ -6,6 +6,7 @@ using Apps.Webflow.Extensions;
 using Apps.Webflow.Helper;
 using Apps.Webflow.Models.Entities.Component;
 using Apps.Webflow.Models.Entities.Content;
+using Apps.Webflow.Models.Entities.Site;
 using Apps.Webflow.Models.Request.Components;
 using Apps.Webflow.Models.Request.Content;
 using Apps.Webflow.Models.Request.Date;
@@ -55,15 +56,27 @@ public class ComponentService(InvocationContext invocationContext, IFileManageme
 
     public override async Task<FileReference> DownloadContent(string siteId, DownloadContentRequest input)
     {
-        var domRequest = new RestRequest($"sites/{siteId}/components/{input.ContentId}/dom", Method.Get);
+        string localeIdToUse = string.Empty;
+        bool shouldSendLocaleParam = false;
 
         if (!string.IsNullOrEmpty(input.Locale))
         {
-            var localeId = await LocaleHelper.GetLocaleId(input.Locale, siteId, Client);
-            domRequest.AddQueryParameter("localeId", localeId);
+            var locale = await LocaleHelper.GetLocale(input.Locale, siteId, Client);
+            localeIdToUse = locale.Id;
+            shouldSendLocaleParam = !locale.IsPrimary;
         }
 
+        var domRequest = new RestRequest($"sites/{siteId}/components/{input.ContentId}/dom", Method.Get);
+        if (shouldSendLocaleParam)
+            domRequest.AddQueryParameter("localeId", localeIdToUse);
+
         var componentDom = await Client.ExecuteWithErrorHandling<ComponentDomEntity>(domRequest);
+
+        var propertiesRequest = new RestRequest($"sites/{siteId}/components/{input.ContentId}/properties", Method.Get);
+        if (shouldSendLocaleParam)
+            domRequest.AddQueryParameter("localeId", localeIdToUse);
+
+        var properties = await Client.ExecuteWithErrorHandling<ComponentPropertiesResponse>(propertiesRequest);
 
         Stream outputStream = input.FileFormat switch
         {
@@ -72,9 +85,14 @@ public class ComponentService(InvocationContext invocationContext, IFileManageme
                 siteId,
                 input.ContentId,
                 input.Locale,
-                Client
+                properties.Properties
             ),
-            ContentFormats.OriginalJson => await ComponentJsonConverter.ToJson(componentDom, siteId, input.Locale, Client),
+            ContentFormats.OriginalJson => await ComponentJsonConverter.ToJson(
+                componentDom, 
+                siteId,
+                input.Locale,
+                properties.Properties
+            ),
             _ => throw new PluginMisconfigurationException($"Unsupported output format: {input.FileFormat}")
         };
 
@@ -125,7 +143,14 @@ public class ComponentService(InvocationContext invocationContext, IFileManageme
         input.Locale ??= doc.DocumentNode.GetMetaValue("blackbird-locale");
         input.ContentId ??= doc.DocumentNode.GetMetaValue("blackbird-component-id");
 
-        await ValidateAndNormalizeInputs(input, siteId);
+        var localeInfo = await ValidateAndNormalizeInputs(input, siteId);
+        if (localeInfo.IsPrimary)
+        {
+            throw new PluginMisconfigurationException(
+                "Webflow does not allow updating the content (DOM) of the primary locale via API. " +
+                "Please edit the content directly in the Webflow Designer."
+            );
+        }
 
         // Extract properties (elements with data-property-id attribute only, no data-node-id)
         var propertyElements = doc.DocumentNode
@@ -222,7 +247,14 @@ public class ComponentService(InvocationContext invocationContext, IFileManageme
         input.Locale ??= downloadedComponent.Locale;
         input.ContentId ??= downloadedComponent.Component.ComponentId;
 
-        await ValidateAndNormalizeInputs(input, siteId);
+        var localeInfo = await ValidateAndNormalizeInputs(input, siteId);
+        if (localeInfo.IsPrimary)
+        {
+            throw new PluginMisconfigurationException(
+                "Webflow does not allow updating the content (DOM) of the primary locale via API. " +
+                "Please edit the content directly in the Webflow Designer."
+            );
+        }
 
         // Update properties if any
         if (downloadedComponent.Properties.Any())
@@ -259,7 +291,7 @@ public class ComponentService(InvocationContext invocationContext, IFileManageme
         await PatchComponentDom(siteId, input.ContentId!, input.Locale!, updateNodes);
     }
 
-    private async Task ValidateAndNormalizeInputs(UploadContentRequest input, string siteId)
+    private async Task<SiteLocale> ValidateAndNormalizeInputs(UploadContentRequest input, string siteId)
     {
         if (string.IsNullOrWhiteSpace(input.ContentId))
             throw new PluginMisconfigurationException("Component ID is missing. Provide it in the input or file.");
@@ -267,7 +299,9 @@ public class ComponentService(InvocationContext invocationContext, IFileManageme
         if (string.IsNullOrWhiteSpace(input.Locale))
             throw new PluginMisconfigurationException("Locale is missing. Provide it in the input or file.");
 
-        input.Locale = await LocaleHelper.GetLocaleId(input.Locale, siteId, Client);
+        var locale = await LocaleHelper.GetLocale(input.Locale, siteId, Client);
+        input.Locale = locale.Id;
+        return locale;
     }
 
     private async Task PatchComponentDom(string siteId, string contentId, string localeId, IEnumerable<UpdateComponentNode> nodes)

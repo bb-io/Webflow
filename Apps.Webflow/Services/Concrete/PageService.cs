@@ -6,6 +6,7 @@ using Apps.Webflow.Extensions;
 using Apps.Webflow.Helper;
 using Apps.Webflow.Models.Entities.Content;
 using Apps.Webflow.Models.Entities.Page;
+using Apps.Webflow.Models.Entities.Site;
 using Apps.Webflow.Models.Request.Content;
 using Apps.Webflow.Models.Request.Date;
 using Apps.Webflow.Models.Request.Pages;
@@ -59,20 +60,25 @@ public class PageService(InvocationContext invocationContext, IFileManagementCli
 
     public override async Task<FileReference> DownloadContent(string siteId, DownloadContentRequest input)
     {
-        var domRequest = new RestRequest($"pages/{input.ContentId}/dom", Method.Get);
+        string localeIdToUse = string.Empty;
+        bool shouldSendLocaleParam = false;
 
-        string localeId = string.Empty;
         if (!string.IsNullOrEmpty(input.Locale))
         {
-            localeId = await LocaleHelper.GetLocaleId(input.Locale, siteId, Client);
-            domRequest.AddQueryParameter("localeId", localeId);
+            var locale = await LocaleHelper.GetLocale(input.Locale, siteId, Client);
+            localeIdToUse = locale.Id;
+            shouldSendLocaleParam = !locale.IsPrimary;
         }
+
+        var domRequest = new RestRequest($"pages/{input.ContentId}/dom", Method.Get);
+        if (shouldSendLocaleParam)
+            domRequest.AddQueryParameter("localeId", localeIdToUse);
 
         var pageDom = await Client.ExecuteWithErrorHandling<PageDomEntity>(domRequest);
 
         var pageRequest = new RestRequest($"pages/{pageDom.PageId}", Method.Get);
-        if (!string.IsNullOrEmpty(input.Locale))
-            pageRequest.AddQueryParameter("localeId", localeId);
+        if (shouldSendLocaleParam)
+            pageRequest.AddQueryParameter("localeId", localeIdToUse);
 
         var page = await Client.ExecuteWithErrorHandling<PageEntity>(pageRequest);
         string? slug = input.IncludeSlug == true ? page.Slug : null;
@@ -150,7 +156,14 @@ public class PageService(InvocationContext invocationContext, IFileManagementCli
         input.ContentId ??= doc.DocumentNode.GetMetaValue("blackbird-page-id");
         input.Locale ??= doc.DocumentNode.GetMetaValue("blackbird-locale");
 
-        await ValidateAndNormalizeInputs(input, siteId);
+        var localeInfo = await ValidateAndNormalizeInputs(input, siteId);
+        if (localeInfo.IsPrimary)
+        {
+            throw new PluginMisconfigurationException(
+                "Webflow does not allow updating the content (DOM) of the primary locale via API. " +
+                "Please edit the content directly in the Webflow Designer."
+            );
+        }
 
         var metadata = ParseTranslatableMetadata(doc);
         if (metadata is not null)
@@ -215,7 +228,14 @@ public class PageService(InvocationContext invocationContext, IFileManagementCli
         input.ContentId ??= downloadedPage.Page.PageId;
         input.Locale ??= downloadedPage.Locale;
 
-        await ValidateAndNormalizeInputs(input, siteId);
+        var localeInfo = await ValidateAndNormalizeInputs(input, siteId);
+        if (localeInfo.IsPrimary)
+        {
+            throw new PluginMisconfigurationException(
+                "Webflow does not allow updating the content (DOM) of the primary locale via API. " +
+                "Please edit the content directly in the Webflow Designer."
+            );
+        }
 
         if (downloadedPage.Metadata != null)
             await PatchPageMetadataAsync(input.ContentId, input.Locale!, downloadedPage.Metadata);
@@ -265,7 +285,7 @@ public class PageService(InvocationContext invocationContext, IFileManagementCli
         return new(pageTitle, slug, seo, openGraph);
     }
 
-    private async Task ValidateAndNormalizeInputs(UploadContentRequest input, string siteId)
+    private async Task<SiteLocale> ValidateAndNormalizeInputs(UploadContentRequest input, string siteId)
     {
         if (string.IsNullOrWhiteSpace(input.ContentId))
             throw new PluginMisconfigurationException("Page ID is missing. Provide it in the input or file.");
@@ -273,16 +293,16 @@ public class PageService(InvocationContext invocationContext, IFileManagementCli
         if (string.IsNullOrWhiteSpace(input.Locale))
             throw new PluginMisconfigurationException("Locale is missing. Provide it in the input or file.");
 
-        input.Locale = await LocaleHelper.GetLocaleId(input.Locale, siteId, Client);
+        var locale = await LocaleHelper.GetLocale(input.Locale, siteId, Client);
+        input.Locale = locale.Id;
+        return locale;
     }
 
     private async Task PatchPageDom(string pageId, string localeId, IEnumerable<UpdatePageNode> nodes)
     {
-        if (nodes == null! || !nodes.Any())
-        {
+        if (nodes == null! || !nodes.Any()) 
             return;
-        }
-        
+
         var body = new UpdatePageDomRequest { Nodes = nodes };
 
         var endpoint = $"pages/{pageId}/dom";
@@ -318,7 +338,7 @@ public class PageService(InvocationContext invocationContext, IFileManagementCli
         var request = new RestRequest($"pages/{pageId}", Method.Put)
             .WithJsonBody(payload, JsonConfig.Settings)
             .AddQueryParameter("localeId", localeId);
-        
+
         await Client.ExecuteWithErrorHandling(request);
     }
 }

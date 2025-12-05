@@ -1,4 +1,6 @@
-﻿namespace Apps.Webflow.Models.Entities.Site;
+﻿using Newtonsoft.Json;
+
+namespace Apps.Webflow.Models.Entities.Site;
 
 public class SiteLocale
 {
@@ -10,4 +12,7 @@ public class SiteLocale
     public bool? Redirect { get; set; }
     public string? Subdirectory { get; set; }
     public string? Tag { get; set; }
+
+    [JsonIgnore]
+    public bool IsPrimary { get; set; }
 }
