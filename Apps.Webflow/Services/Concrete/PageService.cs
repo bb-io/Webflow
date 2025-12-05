@@ -229,6 +229,13 @@ public class PageService(InvocationContext invocationContext, IFileManagementCli
         input.Locale ??= downloadedPage.Locale;
 
         var localeInfo = await ValidateAndNormalizeInputs(input, siteId);
+        if (localeInfo.IsPrimary)
+        {
+            throw new PluginMisconfigurationException(
+                "Webflow does not allow updating the content (DOM) of the primary locale via API. " +
+                "Please edit the content directly in the Webflow Designer."
+            );
+        }
 
         if (downloadedPage.Metadata != null)
             await PatchPageMetadataAsync(input.ContentId, input.Locale!, downloadedPage.Metadata);

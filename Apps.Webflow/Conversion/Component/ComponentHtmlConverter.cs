@@ -1,12 +1,8 @@
-using Apps.Webflow.Api;
-using Apps.Webflow.Constants;
-using Apps.Webflow.Conversion.Constants;
-using Apps.Webflow.Extensions;
-using Apps.Webflow.Models.Response.Components;
-using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using HtmlAgilityPack;
-using Newtonsoft.Json;
-using RestSharp;
+using Apps.Webflow.Constants;
+using Apps.Webflow.Extensions;
+using Apps.Webflow.Conversion.Constants;
+using Apps.Webflow.Models.Response.Components;
 
 namespace Apps.Webflow.Conversion.Component;
 
@@ -21,7 +17,7 @@ public static class ComponentHtmlConverter
         string siteId, 
         string componentId, 
         string? localeId,
-        WebflowClient client)
+        List<ComponentPropertyEntity> properties)
     {
         var (doc, body) = PrepareEmptyHtmlDocument();
 
@@ -53,7 +49,6 @@ public static class ComponentHtmlConverter
         }
 
         // Add component properties
-        var properties = await FetchComponentProperties(client, siteId, componentId, localeId);
         foreach (var property in properties.Where(p => TranslatablePropertyTypes.Contains(p.Type)))
         {
             var div = GetDivFromComponentProperty(doc, property);
@@ -125,24 +120,6 @@ public static class ComponentHtmlConverter
         doc.Save(result);
         result.Position = 0;
         return result;
-    }
-
-    private static async Task<List<ComponentPropertyEntity>> FetchComponentProperties(
-        WebflowClient client,
-        string siteId,
-        string componentId,
-        string? localeId)
-    {
-        var endpoint = $"sites/{siteId}/components/{componentId}/properties";
-        var request = new RestRequest(endpoint, Method.Get);
-        
-        if (!string.IsNullOrEmpty(localeId))
-        {
-            request.AddQueryParameter("localeId", localeId);
-        }
-
-        var response = await client.ExecuteWithErrorHandling<ComponentPropertiesResponse>(request);
-        return response.Properties;
     }
 
     private static HtmlNode GetDivFromComponentProperty(
