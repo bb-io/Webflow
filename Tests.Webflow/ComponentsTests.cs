@@ -27,12 +27,12 @@ public class ComponentsTests : TestBaseWithContext
         Assert.IsNotNull(result);
     }
 
-    [TestMethod, ContextDataSource]
+    [TestMethod, ContextDataSource(ConnectionTypes.OAuth2)]
     public async Task SearchComponents_WithFilters_ReturnsComponents(InvocationContext context)
     {
         // Arrange
-        var request = new SearchComponentsRequest { NameContains = "ter" };
-        var site = new SiteIdentifier { SiteId = "68f8b336cbd1cac54f5b9d2c" };
+        var request = new SearchComponentsRequest { DescriptionContains = "ABBA", NameContains = "News" };
+        var site = new SiteIdentifier { };
         var actions = new ComponentsActions(context, FileManagementClient);
 
         // Act

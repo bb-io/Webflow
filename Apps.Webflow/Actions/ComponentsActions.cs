@@ -14,7 +14,6 @@ using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using RestSharp;
-using System.Net.Mime;
 
 namespace Apps.Webflow.Actions;
 
@@ -38,6 +37,7 @@ public class ComponentsActions(InvocationContext invocationContext, IFileManagem
         components = FilterHelper.ApplyBooleanFilter(components, input.IncludeReadOnly, c => c.ReadOnly);
         components = FilterHelper.ApplyContainsFilter(components, input.NameContains, c => c.Name);
         components = FilterHelper.ApplyContainsFilter(components, input.GroupContains, c => c.Group);
+        components = FilterHelper.ApplyContainsFilter(components, input.DescriptionContains, c => c.Description);
 
         return new SearchComponentsResponse(components.ToList());
     }

@@ -15,6 +15,9 @@ public class SearchContentRequest
     [Display("Name or title contains")]
     public string? NameContains { get; set; }
 
+    [Display("Description contains (for components)")]
+    public string? DescriptionContains { get; set; }
+
     [Display("Last published before (for collection items)")]
     public DateTime? LastPublishedBefore { get; set; }
 
