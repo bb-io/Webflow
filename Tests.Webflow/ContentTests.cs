@@ -97,16 +97,17 @@ public class ContentTests : TestBaseWithContext
         Assert.IsNotNull(result);
     }
 
-    [TestMethod, ContextDataSource]
-    public async Task SearchContent_ComponentTypeWithNameFilter_ReturnsComponentMetadata(InvocationContext context)
+    [TestMethod, ContextDataSource(ConnectionTypes.OAuth2)]
+    public async Task SearchContent_ComponentTypeWithFilters_ReturnsComponentMetadata(InvocationContext context)
     {
         // Arrange
         var action = new ContentActions(context, FileManagementClient);
-        var site = new SiteIdentifier { SiteId = "68f886ffe2a4dba6d693cbe1" };
+        var site = new SiteIdentifier { };
         var input = new SearchContentRequest 
         { 
             ContentTypes = [ContentTypes.Component],
-            NameContains = "Navigation" 
+            DescriptionContains = "abba",
+            NameContains = "news"
         };
         var dates = new ContentDateFilter { };
 

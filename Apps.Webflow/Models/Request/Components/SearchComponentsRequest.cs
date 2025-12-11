@@ -10,6 +10,9 @@ public class SearchComponentsRequest
     [Display("Group contains")]
     public string? GroupContains { get; set; }
 
+    [Display("Description contains")]
+    public string? DescriptionContains { get; set; }
+
     [Display("Include read only components")]
     public bool? IncludeReadOnly { get; set; }
 }

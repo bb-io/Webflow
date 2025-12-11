@@ -41,10 +41,14 @@ public class ComponentService(InvocationContext invocationContext, IFileManageme
         var endpoint = $"sites/{siteId}/components";
         var request = new RestRequest(endpoint, Method.Get);
 
-        IEnumerable<ComponentEntity> pages = await Client.Paginate<ComponentEntity, ComponentsPaginationResponse>(request, r => r.Components);
-        pages = FilterHelper.ApplyContainsFilter(pages, input.NameContains, r => r.Name);
+        IEnumerable<ComponentEntity> components = await Client.Paginate<ComponentEntity, ComponentsPaginationResponse>(
+            request, 
+            r => r.Components
+        );
+        components = FilterHelper.ApplyContainsFilter(components, input.NameContains, r => r.Name);
+        components = FilterHelper.ApplyContainsFilter(components, input.DescriptionContains, c => c.Description);
 
-        var result = pages.Select(x => new ContentItemEntity
+        var result = components.Select(x => new ContentItemEntity
         {
             ContentId = x.Id,
             Name = x.Name,
