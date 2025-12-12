@@ -28,7 +28,7 @@ public class CollectionItemTests : TestBaseWithContext
         var collection = new CollectionIdentifier { CollectionId = "68f8b337cbd1cac54f5b9d9c" };
 
         // Act
-        var result = await actions.DownloadCollectionItem(site, request, collection, locale);
+        var result = await actions.DownloadCollectionItem(site, collection, request, locale);
 
         // Assert
         Assert.IsNotNull(result);

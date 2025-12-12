@@ -11,9 +11,13 @@ public static class CollectionItemJsonConverter
     public static Stream ToJson(
         CollectionItemEntity item,
         string collectionId,
+        CollectionItemMetadata metadata,
         string siteId,
         string? locale)
     {
+        if (string.IsNullOrEmpty(metadata.Slug)) 
+            item.FieldData.Remove("slug");
+
         var model = new DownloadedCollectionItem
         {
             CollectionId = collectionId,
