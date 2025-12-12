@@ -74,8 +74,8 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
     [Action("Download collection item", Description = "Download the collection item content")]
     public async Task<DownloadCollectionItemContentResponse> DownloadCollectionItem(
         [ActionParameter] SiteIdentifier site,
-        [ActionParameter] DownloadCollectionItemRequest input,
         [ActionParameter] CollectionIdentifier collection,
+        [ActionParameter] DownloadCollectionItemRequest input,
         [ActionParameter] LocaleIdentifier locale)
     {
         string fileFormat = input.FileFormat ?? ContentFormats.InteroperableHtml;
