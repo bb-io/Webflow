@@ -1,5 +1,6 @@
 using Apps.Webflow.Constants;
 using Apps.Webflow.Conversion.Constants;
+using Apps.Webflow.Conversion.Models;
 using Apps.Webflow.Extensions;
 using Apps.Webflow.Models.Entities.Collection;
 using Apps.Webflow.Models.Entities.CollectionItem;
@@ -17,7 +18,7 @@ public static class CollectionItemHtmlConverter
     private static readonly char[] InvisibleChars = [' ', '\t', '\n', '\r', '\u200B', '\u200C', '\u200D', '\uFEFF'];
 
     public static Stream ToHtml(CollectionItemEntity item, IEnumerable<FieldEntity> collectionFields, string siteId,
-        string collectionId, string itemId, string? slug, string? cmsLocaleId = null)
+        string collectionId, string itemId, CollectionItemMetadata metadata, string? cmsLocaleId = null)
     {
         var (doc, body) = PrepareEmptyHtmlDocument();
 
@@ -31,11 +32,9 @@ public static class CollectionItemHtmlConverter
 
             if (!string.IsNullOrEmpty(cmsLocaleId))
                 AppendMeta(head, "blackbird-cmslocale", cmsLocaleId);
-
-            if (!string.IsNullOrEmpty(slug))
-                AppendMeta(head, "blackbird-collection-item-slug", slug);
         }
 
+        AddTranslatableMetadata(body, doc, metadata);
         var translatableFields = collectionFields
             .Where(x => TranslatableTypes.Contains(x.Type) && !UntraslatableSlugs.Contains(x.Slug))
             .Select(x => x.Slug)
@@ -100,6 +99,24 @@ public static class CollectionItemHtmlConverter
         meta.SetAttributeValue("name", name);
         meta.SetAttributeValue("content", content);
         head.AppendChild(meta);
+    }
+
+    private static void AddTranslatableMetadata(HtmlNode body, HtmlDocument doc, CollectionItemMetadata metadata)
+    {
+        if (metadata.Slug != null)
+            AppendMetadataDiv(doc, body, "blackbird-collection-item-slug", metadata.Slug);
+    }
+
+    private static void AppendMetadataDiv(HtmlDocument doc, HtmlNode container, string id, string? value, string? dataAttributeName = null, string? dataAttributeValue = null)
+    {
+        var node = doc.CreateElement("div");
+        node.SetAttributeValue("id", id);
+        node.InnerHtml = value ?? "";
+
+        if (dataAttributeName != null && dataAttributeValue != null)
+            node.SetAttributeValue(dataAttributeName, dataAttributeValue);
+
+        container.AppendChild(node);
     }
 
     public static JObject ToJson(Stream fileStream, JObject fieldData, IEnumerable<FieldEntity> collectionFields)

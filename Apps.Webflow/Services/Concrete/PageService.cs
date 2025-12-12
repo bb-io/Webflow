@@ -254,32 +254,21 @@ public class PageService(InvocationContext invocationContext, IFileManagementCli
     {
         var body = doc.DocumentNode.SelectSingleNode("//body");
 
-        string GetNodeText(string id)
-        {
-            return body?.SelectSingleNode($"descendant::div[@id='{id}']")?.InnerHtml?.Trim() ?? string.Empty;
-        }
-
-        bool GetAttributeBool(string id, string attribute)
-        {
-            var node = body?.SelectSingleNode($"descendant::div[@id='{id}']");
-            return node?.GetAttributeValue(attribute, "false") == "true";
-        }
-
-        string pageTitle = GetNodeText("blackbird-page-title");
-        string slug = GetNodeText("blackbird-page-slug");
+        string? pageTitle = body?.GetDivText("blackbird-page-title");
+        string? slug = body?.GetDivText("blackbird-page-slug");
 
         var seo = new PageSeo
         {
-            Title = GetNodeText("blackbird-seo-title"),
-            Description = GetNodeText("blackbird-seo-description")
+            Title = body?.GetDivText("blackbird-seo-title"),
+            Description = body?.GetDivText("blackbird-seo-description")
         };
 
         var openGraph = new PageOpenGraph
         {
-            Title = GetNodeText("blackbird-opengraph-title"),
-            TitleCopied = GetAttributeBool("blackbird-opengraph-title", "data-copied"),
-            Description = GetNodeText("blackbird-opengraph-description"),
-            DescriptionCopied = GetAttributeBool("blackbird-opengraph-description", "data-copied")
+            Title = body?.GetDivText("blackbird-opengraph-title"),
+            TitleCopied = body?.GetAttributeBool("blackbird-opengraph-title", "data-copied"),
+            Description = body?.GetDivText("blackbird-opengraph-description"),
+            DescriptionCopied = body?.GetAttributeBool("blackbird-opengraph-description", "data-copied")
         };
 
         return new(pageTitle, slug, seo, openGraph);

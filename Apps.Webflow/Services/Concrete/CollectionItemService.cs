@@ -6,7 +6,6 @@ using Apps.Webflow.Helper;
 using Apps.Webflow.Models.Entities.Collection;
 using Apps.Webflow.Models.Entities.CollectionItem;
 using Apps.Webflow.Models.Entities.Content;
-using Apps.Webflow.Models.Entities.Page;
 using Apps.Webflow.Models.Request.Content;
 using Apps.Webflow.Models.Request.Date;
 using Apps.Webflow.Models.Response.Content;
@@ -89,6 +88,7 @@ public class CollectionItemService(InvocationContext invocationContext, IFileMan
         var item = await Client.ExecuteWithErrorHandling<CollectionItemEntity>(itemRequest);
 
         string? slug = input.IncludeSlug == true ? item.FieldData["slug"]?.ToString() : null;
+        var metadata = new CollectionItemMetadata(slug);
 
         Stream outputStream = input.FileFormat switch
         {
@@ -98,7 +98,7 @@ public class CollectionItemService(InvocationContext invocationContext, IFileMan
                 siteId,
                 input.CollectionId,
                 input.ContentId,
-                slug,
+                metadata,
                 input.Locale
             ),
             ContentFormats.OriginalJson => CollectionItemJsonConverter.ToJson(
@@ -208,7 +208,7 @@ public class CollectionItemService(InvocationContext invocationContext, IFileMan
     private static CollectionItemMetadata ParseTranslatableMetadata(HtmlDocument doc)
     {
         var body = doc.DocumentNode.SelectSingleNode("//body");
-        string? slug = body?.GetMetaValue("blackbird-collection-item-slug");
+        string? slug = body?.GetDivText("blackbird-collection-item-slug");
         return new(slug);
     }
 
