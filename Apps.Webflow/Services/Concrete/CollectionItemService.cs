@@ -104,6 +104,7 @@ public class CollectionItemService(InvocationContext invocationContext, IFileMan
             ContentFormats.OriginalJson => CollectionItemJsonConverter.ToJson(
                 item,
                 input.CollectionId,
+                metadata,
                 siteId,
                 input.Locale
             ),
