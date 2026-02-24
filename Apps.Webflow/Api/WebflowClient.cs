@@ -8,12 +8,14 @@ using Blackbird.Applications.Sdk.Utils.Extensions.String;
 using Blackbird.Applications.Sdk.Utils.RestSharp;
 using Newtonsoft.Json;
 using RestSharp;
+using System.Net;
 
 namespace Apps.Webflow.Api;
 
 public class WebflowClient : BlackBirdRestClient
 {
     private const int Limit = 100;
+    private const int MaxRetries = 5;
     private readonly IEnumerable<AuthenticationCredentialsProvider> _creds;
     private string ConnectionType => _creds.First(x => x.KeyName == CredsNames.ConnectionType).Value;
 
@@ -63,6 +65,53 @@ public class WebflowClient : BlackBirdRestClient
     {
         var error = JsonConvert.DeserializeObject<WebflowError>(response.Content!)!;
         return new PluginApplicationException(error.ToString());
+    }
+
+    public override async Task<RestResponse> ExecuteWithErrorHandling(RestRequest request)
+    {
+        int retryCount = 0;
+        while (true)
+        {
+            var response = await ExecuteAsync(request);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return response;
+            }
+
+            if (response.StatusCode == HttpStatusCode.TooManyRequests && retryCount < MaxRetries)
+            {
+                retryCount++;
+
+                var retryAfterHeader = response.Headers?.FirstOrDefault(h =>
+                    h.Name?.Equals("Retry-After", StringComparison.OrdinalIgnoreCase) == true);
+
+                int delaySeconds = 60; 
+                if (retryAfterHeader?.Value != null && int.TryParse(retryAfterHeader.Value.ToString(), out var parsedDelay))
+                {
+                    delaySeconds = parsedDelay;
+                }
+
+                await Task.Delay(TimeSpan.FromSeconds(delaySeconds));
+                continue;
+            }
+
+            throw ConfigureErrorException(response);
+        }
+    }
+
+    public override async Task<T> ExecuteWithErrorHandling<T>(RestRequest request)
+    {
+        var response = await ExecuteWithErrorHandling(request);
+        var content = response.Content;
+        var result = JsonConvert.DeserializeObject<T>(content, JsonSettings);
+
+        if (result == null)
+        {
+            throw new Exception($"Could not parse {content} to {typeof(T)}");
+        }
+
+        return result;
     }
 
     public async Task<List<T>> Paginate<T>(RestRequest request)
