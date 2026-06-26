@@ -151,6 +151,9 @@ public class WebhookList(InvocationContext invocationContext) : WebflowInvocable
                 return await Preflight<CollectionItemResponse>();
         }
 
+        if (input.ExcludeCollectionIds?.Contains(data.CollectionId) == true)
+            return await Preflight<CollectionItemResponse>();
+
         if (input.CollectionId is not null && data.CollectionId != input.CollectionId)
             return await Preflight<CollectionItemResponse>();
 

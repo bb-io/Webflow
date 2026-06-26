@@ -19,4 +19,7 @@ public class CollectionItemWebhookRequest
     [Display("Collection ID")]
     [DataSource(typeof(CollectionDataSourceHandler))]
     public string? CollectionId { get; set; }
+
+    [Display("Exclude collection IDs"), DataSource(typeof(CollectionDataSourceHandler))]
+    public IEnumerable<string>? ExcludeCollectionIds { get; set; }
 }
