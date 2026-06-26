@@ -1,7 +1,7 @@
 using System.Net.Http.Headers;
+using System.Security.Cryptography;
 using Apps.Webflow.Constants;
 using Apps.Webflow.Conversion.CollectionItem;
-using Apps.Webflow.Extensions;
 using Apps.Webflow.Helper;
 using Apps.Webflow.Invocables;
 using Apps.Webflow.Models.Entities.Asset;
@@ -177,7 +177,11 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         try
         {
             var uploadStream = await fileManagementClient.DownloadAsync(input.File);
-            string fileHash = uploadStream.CalculateMd5();
+            var uploadBytes = await uploadStream.GetByteData();
+            
+            string fileHash;
+            using (var md5 = MD5.Create())
+                fileHash = Convert.ToHexString(md5.ComputeHash(uploadBytes)).ToLowerInvariant();
 
             var uploadAssetRequest = new RestRequest($"sites/{Client.GetSiteId(site.SiteId)}/assets", Method.Post)
                 .AddParameter("fileName", input.File.Name)
@@ -190,8 +194,9 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
             foreach (var kvp in uploadAssetResponse.UploadDetails.ToFormFields())
                 form.Add(new StringContent(kvp.Value), kvp.Key);
 
-            var fileContent = new StreamContent(uploadStream);
-            fileContent.Headers.ContentType = new MediaTypeHeaderValue(uploadAssetResponse.UploadDetails.ContentType);
+            var fileContent = new ByteArrayContent(uploadBytes);
+            if (MediaTypeHeaderValue.TryParse(uploadAssetResponse.UploadDetails.ContentType, out var mt))
+                fileContent.Headers.ContentType = mt;
             form.Add(fileContent, "file", input.File.Name);
 
             using var http = new HttpClient();
