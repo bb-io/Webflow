@@ -238,6 +238,7 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
 
         var updateBody = new Dictionary<string, object> { ["items"] = new[] { itemData } };
         var updateItemRequest = new RestRequest($"collections/{collection.CollectionId}/items", Method.Patch)
+            .AddQueryParameter("skipInvalidFiles", false)
             .AddJsonBody(updateBody);
 
         await Client.ExecuteWithErrorHandling(updateItemRequest);
