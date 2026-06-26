@@ -174,60 +174,75 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         [ActionParameter] UploadFileToCollectionItemRequest input,
         [ActionParameter] LocaleIdentifier locale)
     {
-        var uploadStream = await fileManagementClient.DownloadAsync(input.File);
-        string fileHash = uploadStream.CalculateMd5();
-
-        var uploadAssetRequest = new RestRequest($"sites/{Client.GetSiteId(site.SiteId)}/assets", Method.Post)
-            .AddParameter("fileName", input.File.Name)
-            .AddParameter("fileHash", fileHash);
-        var uploadAssetResponse = await Client.ExecuteWithErrorHandling<UploadAssetEntity>(uploadAssetRequest);
-
-        // We need to use HttpClient instead of RestSharp to keep the order of the fields
-        // The file should come last, but RestSharp automatically appends it first
-        using var form = new MultipartFormDataContent();
-        foreach (var kvp in uploadAssetResponse.UploadDetails.ToFormFields())
-            form.Add(new StringContent(kvp.Value), kvp.Key);
-
-        var fileContent = new StreamContent(uploadStream);
-        fileContent.Headers.ContentType = new MediaTypeHeaderValue(uploadAssetResponse.UploadDetails.ContentType);
-        form.Add(fileContent, "file", input.File.Name);
-
-        using var http = new HttpClient();
-        var s3Response = await http.PostAsync(uploadAssetResponse.UploadUrl, form);
-        if (!s3Response.IsSuccessStatusCode)
+        try
         {
-            var body = await s3Response.Content.ReadAsStringAsync();
-            throw new PluginApplicationException(
-                $"S3 upload error: {(int)s3Response.StatusCode} {s3Response.StatusCode}. {body}");
-        }
+            var uploadStream = await fileManagementClient.DownloadAsync(input.File);
+            string fileHash = uploadStream.CalculateMd5();
 
-        var itemData = new Dictionary<string, object>
-        {
-            ["id"] = item.CollectionItemId,
-            ["fieldData"] = new Dictionary<string, object>
+            var uploadAssetRequest = new RestRequest($"sites/{Client.GetSiteId(site.SiteId)}/assets", Method.Post)
+                .AddParameter("fileName", input.File.Name)
+                .AddParameter("fileHash", fileHash);
+            var uploadAssetResponse = await Client.ExecuteWithErrorHandling<UploadAssetEntity>(uploadAssetRequest);
+
+            // We need to use HttpClient instead of RestSharp to keep the order of the fields
+            // The file should come last, but RestSharp automatically appends it first
+            using var form = new MultipartFormDataContent();
+            foreach (var kvp in uploadAssetResponse.UploadDetails.ToFormFields())
+                form.Add(new StringContent(kvp.Value), kvp.Key);
+
+            var fileContent = new StreamContent(uploadStream);
+            fileContent.Headers.ContentType = new MediaTypeHeaderValue(uploadAssetResponse.UploadDetails.ContentType);
+            form.Add(fileContent, "file", input.File.Name);
+
+            using var http = new HttpClient();
+            var s3Response = await http.PostAsync(uploadAssetResponse.UploadUrl, form);
+            if (!s3Response.IsSuccessStatusCode)
             {
-                [input.FieldSlug] = new
-                {
-                    fileId = uploadAssetResponse.Id,
-                    url = uploadAssetResponse.HostedUrl
-                }
+                var body = await s3Response.Content.ReadAsStringAsync();
+                throw new PluginApplicationException(
+                    $"S3 upload error: {(int)s3Response.StatusCode} {s3Response.StatusCode}. {body}");
             }
-        };
 
-        if (!string.IsNullOrEmpty(locale.Locale))
-        {
-            string cmsLocaleId = await LocaleHelper.GetCmsLocaleId(locale.Locale, Client.GetSiteId(site.SiteId), Client);
-            itemData["cmsLocaleId"] = cmsLocaleId;
+            var itemData = new Dictionary<string, object>
+            {
+                ["id"] = item.CollectionItemId,
+                ["fieldData"] = new Dictionary<string, object>
+                {
+                    [input.FieldSlug] = new
+                    {
+                        fileId = uploadAssetResponse.Id,
+                        url = uploadAssetResponse.HostedUrl
+                    }
+                }
+            };
+
+            if (!string.IsNullOrEmpty(locale.Locale))
+            {
+                string cmsLocaleId =
+                    await LocaleHelper.GetCmsLocaleId(locale.Locale, Client.GetSiteId(site.SiteId), Client);
+                itemData["cmsLocaleId"] = cmsLocaleId;
+            }
+
+            var updateBody = new Dictionary<string, object>
+            {
+                ["items"] = new[] { itemData }
+            };
+
+            var updateItemRequest = new RestRequest($"collections/{collection.CollectionId}/items", Method.Patch)
+                .AddJsonBody(updateBody);
+
+            await Client.ExecuteWithErrorHandling(updateItemRequest);
         }
-
-        var updateBody = new Dictionary<string, object>
+        catch (PluginApplicationException)
         {
-            ["items"] = new[] { itemData }
-        };
-
-        var updateItemRequest = new RestRequest($"collections/{collection.CollectionId}/items", Method.Patch)
-            .AddJsonBody(updateBody);
-
-        await Client.ExecuteWithErrorHandling(updateItemRequest);
+            throw;
+        }
+        catch (Exception ex)
+        {
+            throw new PluginApplicationException(
+                $"{ex.GetType().Name}: {ex.Message}\n" +
+                $"Inner: {ex.InnerException?.Message}\n" +
+                $"{ex.StackTrace}");
+        }
     }
 }
