@@ -206,9 +206,9 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
                 $"S3 upload error: {(int)s3Response.StatusCode} {s3Response.StatusCode}. {body}");
         }
 
-        string? cmsLocaleId = null;
-        if (!string.IsNullOrEmpty(locale.Locale))
-            cmsLocaleId = await LocaleHelper.GetCmsLocaleId(locale.Locale, Client.GetSiteId(site.SiteId), Client);
+        string? cmsLocaleId = !string.IsNullOrEmpty(locale.Locale)
+            ? await LocaleHelper.GetCmsLocaleId(locale.Locale, Client.GetSiteId(site.SiteId), Client)
+            : await LocaleHelper.GetPrimaryCmsLocaleId(Client.GetSiteId(site.SiteId), Client);
 
         var getItemRequest = new RestRequest($"collections/{collection.CollectionId}/items/{item.CollectionItemId}");
         if (cmsLocaleId != null)
