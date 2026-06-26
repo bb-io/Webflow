@@ -206,31 +206,37 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
                 $"S3 upload error: {(int)s3Response.StatusCode} {s3Response.StatusCode}. {body}");
         }
 
-        var itemData = new Dictionary<string, object>
+        string? cmsLocaleId = null;
+        if (!string.IsNullOrEmpty(locale.Locale))
+            cmsLocaleId = await LocaleHelper.GetCmsLocaleId(locale.Locale, Client.GetSiteId(site.SiteId), Client);
+
+        var getItemRequest = new RestRequest($"collections/{collection.CollectionId}/items/{item.CollectionItemId}");
+        if (cmsLocaleId != null)
+            getItemRequest.AddQueryParameter("cmsLocaleId", cmsLocaleId);
+
+        var existingItem = await Client.ExecuteWithErrorHandling<CollectionItemEntity>(getItemRequest);
+
+        var fieldData = new Dictionary<string, object>
         {
-            ["id"] = item.CollectionItemId,
-            ["fieldData"] = new Dictionary<string, object>
+            ["name"] = existingItem.Name,
+            ["slug"] = existingItem.Slug,
+            [input.FieldSlug] = new
             {
-                [input.FieldSlug] = new
-                {
-                    fileId = uploadAssetResponse.Id,
-                    url = uploadAssetResponse.HostedUrl
-                }
+                fileId = uploadAssetResponse.Id,
+                url = uploadAssetResponse.HostedUrl
             }
         };
 
-        if (!string.IsNullOrEmpty(locale.Locale))
+        var itemData = new Dictionary<string, object>
         {
-            string cmsLocaleId =
-                await LocaleHelper.GetCmsLocaleId(locale.Locale, Client.GetSiteId(site.SiteId), Client);
-            itemData["cmsLocaleId"] = cmsLocaleId;
-        }
-
-        var updateBody = new Dictionary<string, object>
-        {
-            ["items"] = new[] { itemData }
+            ["id"] = item.CollectionItemId,
+            ["fieldData"] = fieldData
         };
+        
+        if (cmsLocaleId is not null)
+            itemData["cmsLocaleId"] = cmsLocaleId;
 
+        var updateBody = new Dictionary<string, object> { ["items"] = new[] { itemData } };
         var updateItemRequest = new RestRequest($"collections/{collection.CollectionId}/items", Method.Patch)
             .AddJsonBody(updateBody);
 

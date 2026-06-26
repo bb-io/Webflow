@@ -12,6 +12,8 @@ public class CollectionItemEntity : IDateFilterable
     public string? CmsLocaleId { get; set; }
     
     public string Name => FieldData?["name"]?.ToString() ?? Id;
+    
+    public string Slug => FieldData?["slug"]?.ToString() ?? string.Empty;
 
     [Display("Last updated")]
     public DateTime? LastUpdated { get; set; }
