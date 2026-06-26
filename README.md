@@ -28,7 +28,7 @@ Configure the OAuth redirect URL with: 'https://bridge.blackbird.io/api/Authoriz
 
 ![config input](image/README/Configuration-app.png)
 
-3. Click **Create app**. After creation, Webflow will generate a **Client ID** and **Client Secret**. Retain these credentials—they are required to connect Webflow to Blackbird.
+3. Click **Create app**. After creation, Webflow will generate a **Client ID** and **Client Secret**. Retain these credentialsï¿½they are required to connect Webflow to Blackbird.
 4. Go to the settings of the site you want to use.
 
 ![site settings](image/README/Site-settings.png)
@@ -48,7 +48,7 @@ Configure the OAuth redirect URL with: 'https://bridge.blackbird.io/api/Authoriz
 
 ![config input](image/README/Configuration-app.png)
 
-3. Click **Create app**. After creation, Webflow will generate a **Client ID** and **Client Secret**. Retain these credentials—they are required to connect Webflow to Blackbird.
+3. Click **Create app**. After creation, Webflow will generate a **Client ID** and **Client Secret**. Retain these credentialsï¿½they are required to connect Webflow to Blackbird.
 
 ### Site token
 
@@ -107,6 +107,7 @@ Navigate to Apps, and identify the **Webflow** app. You can use search to find i
 - **Download collection item** downloads the collection item content.
 - **Publish collection item** publishes a specific collection item. This actions can only publish an item of the default locale, because of the Webflow API limitation.
 - **Upload collection item** updates collection item content from a file.
+- **Upload file to collection item** uploads a file to a specific collection item.
 
 ### Pages
 
