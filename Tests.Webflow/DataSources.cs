@@ -45,7 +45,7 @@ public class DataSources : TestBaseWithContext
         Assert.IsNotNull(data);
     }
 
-    [TestMethod, ContextDataSource(ConnectionTypes.OAuth2, ConnectionTypes.OAuth2Multiple)]
+    [TestMethod, ContextDataSource]
     public async Task CollectionDataSourceHandler_ReturnsCollections(InvocationContext context)
     {
         // Arrange
@@ -64,7 +64,7 @@ public class DataSources : TestBaseWithContext
     public async Task CollectionItemDataSourceHandler_ReturnsCollectionItems(InvocationContext context)
     {
         // Arrange
-        var site = new SiteIdentifier { };
+        var site = new SiteIdentifier { SiteId = "68f8b336cbd1cac54f5b9d2c" };
         var collection = new CollectionIdentifier { CollectionId = "68f8b337cbd1cac54f5b9d9c" };
         var locale = new LocaleIdentifier { Locale = "sv-SE" };
         var handler = new CollectionItemDataSourceHandler(context, site, collection, locale);
@@ -115,6 +115,22 @@ public class DataSources : TestBaseWithContext
         var filter = new ContentFilter { ContentType = ContentTypes.Component };
         var dataContext = new DataSourceContext { SearchString = "" };
         var handler = new ContentDataHandler(context, filter, input, "");
+
+        // Act
+        var data = await handler.GetDataAsync(dataContext, CancellationToken.None);
+
+        // Assert
+        PrintDataHandlerResult(data);
+        Assert.IsNotNull(data);
+    }
+
+    [TestMethod, ContextDataSource]
+    public async Task CollectionFileFieldSlugDataHandler_ReturnsFileFields(InvocationContext context)
+    {
+        // Arrange
+        var collectionId = new CollectionIdentifier { CollectionId = "68f8b337cbd1cac54f5b9d9c" };
+        var handler = new CollectionFileFieldSlugDataHandler(context, collectionId);
+        var dataContext = new DataSourceContext { SearchString = "" };
 
         // Act
         var data = await handler.GetDataAsync(dataContext, CancellationToken.None);

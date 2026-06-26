@@ -1,7 +1,10 @@
+using System.Net.Http.Headers;
 using Apps.Webflow.Constants;
 using Apps.Webflow.Conversion.CollectionItem;
+using Apps.Webflow.Extensions;
 using Apps.Webflow.Helper;
 using Apps.Webflow.Invocables;
+using Apps.Webflow.Models.Entities.Asset;
 using Apps.Webflow.Models.Entities.CollectionItem;
 using Apps.Webflow.Models.Identifiers;
 using Apps.Webflow.Models.Request.Collection;
@@ -13,6 +16,7 @@ using Apps.Webflow.Models.Response.Pagination;
 using Apps.Webflow.Services;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using Blackbird.Applications.Sdk.Utils.Extensions.Http;
@@ -160,5 +164,63 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
             .WithJsonBody(payload, JsonConfig.Settings);
 
         await Client.ExecuteWithErrorHandling(request);
+    }
+
+    [Action("Upload file to collection item", Description = "Upload a file to a specific collection item")]
+    public async Task UploadFileToCollectionItem(
+        [ActionParameter] SiteIdentifier site,
+        [ActionParameter] CollectionIdentifier collection,
+        [ActionParameter] CollectionItemIdentifier item,
+        [ActionParameter] UploadFileToCollectionItemRequest input,
+        [ActionParameter] LocaleIdentifier locale)
+    {
+        var uploadStream = await fileManagementClient.DownloadAsync(input.File);
+        string fileHash = uploadStream.CalculateMd5();
+
+        var uploadAssetRequest = new RestRequest($"sites/{Client.GetSiteId(site.SiteId)}/assets", Method.Post)
+            .AddParameter("fileName", input.File.Name)
+            .AddParameter("fileHash", fileHash);
+        var uploadAssetResponse = await Client.ExecuteWithErrorHandling<UploadAssetEntity>(uploadAssetRequest);
+
+        // We need to use HttpClient instead of RestSharp to keep the order of the fields
+        // The file should come last, but RestSharp automatically appends it first
+        using var form = new MultipartFormDataContent();
+        foreach (var kvp in uploadAssetResponse.UploadDetails.ToFormFields())
+            form.Add(new StringContent(kvp.Value), kvp.Key);
+
+        var fileContent = new StreamContent(uploadStream);
+        fileContent.Headers.ContentType = new MediaTypeHeaderValue(uploadAssetResponse.UploadDetails.ContentType);
+        form.Add(fileContent, "file", input.File.Name);
+
+        using var http = new HttpClient();
+        var s3Response = await http.PostAsync(uploadAssetResponse.UploadUrl, form);
+        if (!s3Response.IsSuccessStatusCode)
+        {
+            var body = await s3Response.Content.ReadAsStringAsync();
+            throw new PluginApplicationException(
+                $"S3 upload error: {(int)s3Response.StatusCode} {s3Response.StatusCode}. {body}");
+        }
+
+        string updateItemEndpoint = $"collections/{collection.CollectionId}/items/{item.CollectionItemId}";
+        var updateItemRequest = new RestRequest(updateItemEndpoint, Method.Patch).AddJsonBody(new
+        {
+            fieldData = new Dictionary<string, object>
+            {
+                
+                [input.FieldSlug] = new
+                {
+                    fileId = uploadAssetResponse.Id,
+                    url = uploadAssetResponse.HostedUrl
+                }
+            }
+        });
+
+        if (!string.IsNullOrWhiteSpace(locale.Locale))
+        {
+            string localeId = await LocaleHelper.GetCmsLocaleId(locale.Locale, Client.GetSiteId(site.SiteId), Client);
+            updateItemRequest.AddQueryParameter("cmsLocaleId", localeId);
+        }
+        
+        await Client.ExecuteWithErrorHandling(updateItemRequest);
     }
 }
