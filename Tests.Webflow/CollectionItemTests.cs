@@ -146,10 +146,10 @@ public class CollectionItemTests : TestBaseWithContext
         var collectionItemId = new CollectionItemIdentifier { CollectionItemId = "6a3e3dcca9e8144a41a64015" };
         var input = new UploadFileToCollectionItemRequest
         {
-            File = new FileReference { Name = "test.pdf" },
+            File = new FileReference { Name = "test.pptx" },
             FieldSlug = "test-file-123"
         };
-        var locale = new LocaleIdentifier { };
+        var locale = new LocaleIdentifier { Locale = "sv-SE" };
 
         // Act
         await action.UploadFileToCollectionItem(siteId, collectionId, collectionItemId, input, locale);

@@ -201,26 +201,33 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
                 $"S3 upload error: {(int)s3Response.StatusCode} {s3Response.StatusCode}. {body}");
         }
 
-        string updateItemEndpoint = $"collections/{collection.CollectionId}/items/{item.CollectionItemId}";
-        var updateItemRequest = new RestRequest(updateItemEndpoint, Method.Patch).AddJsonBody(new
+        var itemData = new Dictionary<string, object>
         {
-            fieldData = new Dictionary<string, object>
+            ["id"] = item.CollectionItemId,
+            ["fieldData"] = new Dictionary<string, object>
             {
-                
                 [input.FieldSlug] = new
                 {
                     fileId = uploadAssetResponse.Id,
                     url = uploadAssetResponse.HostedUrl
                 }
             }
-        });
+        };
 
-        if (!string.IsNullOrWhiteSpace(locale.Locale))
+        if (!string.IsNullOrEmpty(locale.Locale))
         {
-            string localeId = await LocaleHelper.GetCmsLocaleId(locale.Locale, Client.GetSiteId(site.SiteId), Client);
-            updateItemRequest.AddQueryParameter("cmsLocaleId", localeId);
+            string cmsLocaleId = await LocaleHelper.GetCmsLocaleId(locale.Locale, Client.GetSiteId(site.SiteId), Client);
+            itemData["cmsLocaleId"] = cmsLocaleId;
         }
-        
+
+        var updateBody = new Dictionary<string, object>
+        {
+            ["items"] = new[] { itemData }
+        };
+
+        var updateItemRequest = new RestRequest($"collections/{collection.CollectionId}/items", Method.Patch)
+            .AddJsonBody(updateBody);
+
         await Client.ExecuteWithErrorHandling(updateItemRequest);
     }
 }
