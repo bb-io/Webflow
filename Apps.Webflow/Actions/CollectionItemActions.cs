@@ -174,7 +174,7 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         [ActionParameter] UploadFileToCollectionItemRequest input,
         [ActionParameter] LocaleIdentifier locale)
     {
-        var uploadStream = await fileManagementClient.DownloadAsync(input.File);
+        await using var uploadStream = await fileManagementClient.DownloadAsync(input.File);
         var uploadBytes = await uploadStream.GetByteData();
         
         string fileHash;
@@ -198,7 +198,7 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
         form.Add(fileContent, "file", input.File.Name);
 
         using var http = new HttpClient();
-        var s3Response = await http.PostAsync(uploadAssetResponse.UploadUrl, form);
+        using var s3Response = await http.PostAsync(uploadAssetResponse.UploadUrl, form);
         if (!s3Response.IsSuccessStatusCode)
         {
             var body = await s3Response.Content.ReadAsStringAsync();
