@@ -28,7 +28,8 @@ Configure the OAuth redirect URL with: 'https://bridge.blackbird.io/api/Authoriz
 
 ![config input](image/README/Configuration-app.png)
 
-3. Click **Create app**. After creation, Webflow will generate a **Client ID** and **Client Secret**. Retain these credentials�they are required to connect Webflow to Blackbird.
+3. Click **Create app**. After creation, Webflow will generate a **Client ID** and **Client Secret**. 
+Retain these credentials - they are required to connect Webflow to Blackbird.
 4. Go to the settings of the site you want to use.
 
 ![site settings](image/README/Site-settings.png)
