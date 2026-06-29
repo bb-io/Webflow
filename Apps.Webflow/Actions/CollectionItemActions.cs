@@ -1,7 +1,10 @@
+using System.Net.Http.Headers;
+using System.Security.Cryptography;
 using Apps.Webflow.Constants;
 using Apps.Webflow.Conversion.CollectionItem;
 using Apps.Webflow.Helper;
 using Apps.Webflow.Invocables;
+using Apps.Webflow.Models.Entities.Asset;
 using Apps.Webflow.Models.Entities.CollectionItem;
 using Apps.Webflow.Models.Identifiers;
 using Apps.Webflow.Models.Request.Collection;
@@ -13,6 +16,7 @@ using Apps.Webflow.Models.Response.Pagination;
 using Apps.Webflow.Services;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using Blackbird.Applications.Sdk.Utils.Extensions.Http;
@@ -160,5 +164,83 @@ public class CollectionItemActions(InvocationContext invocationContext, IFileMan
             .WithJsonBody(payload, JsonConfig.Settings);
 
         await Client.ExecuteWithErrorHandling(request);
+    }
+
+    [Action("Upload file to collection item", Description = "Upload a file to a specific collection item")]
+    public async Task UploadFileToCollectionItem(
+        [ActionParameter] SiteIdentifier site,
+        [ActionParameter] CollectionIdentifier collection,
+        [ActionParameter] CollectionItemIdentifier item,
+        [ActionParameter] UploadFileToCollectionItemRequest input,
+        [ActionParameter] LocaleIdentifier locale)
+    {
+        await using var uploadStream = await fileManagementClient.DownloadAsync(input.File);
+        var uploadBytes = await uploadStream.GetByteData();
+        
+        string fileHash;
+        using (var md5 = MD5.Create())
+            fileHash = Convert.ToHexString(md5.ComputeHash(uploadBytes)).ToLowerInvariant();
+
+        var uploadAssetRequest = new RestRequest($"sites/{Client.GetSiteId(site.SiteId)}/assets", Method.Post)
+            .AddParameter("fileName", input.File.Name)
+            .AddParameter("fileHash", fileHash);
+        var uploadAssetResponse = await Client.ExecuteWithErrorHandling<UploadAssetEntity>(uploadAssetRequest);
+
+        // We need to use HttpClient instead of RestSharp to keep the order of the fields
+        // The file should come last, but RestSharp automatically appends it first
+        using var form = new MultipartFormDataContent();
+        foreach (var kvp in uploadAssetResponse.UploadDetails.ToFormFields())
+            form.Add(new StringContent(kvp.Value), kvp.Key);
+
+        var fileContent = new ByteArrayContent(uploadBytes);
+        if (MediaTypeHeaderValue.TryParse(uploadAssetResponse.UploadDetails.ContentType, out var mt))
+            fileContent.Headers.ContentType = mt;
+        form.Add(fileContent, "file", input.File.Name);
+
+        using var http = new HttpClient();
+        using var s3Response = await http.PostAsync(uploadAssetResponse.UploadUrl, form);
+        if (!s3Response.IsSuccessStatusCode)
+        {
+            var body = await s3Response.Content.ReadAsStringAsync();
+            throw new PluginApplicationException(
+                $"S3 upload error: {(int)s3Response.StatusCode} {s3Response.StatusCode}. {body}");
+        }
+
+        string? cmsLocaleId = !string.IsNullOrEmpty(locale.Locale)
+            ? await LocaleHelper.GetCmsLocaleId(locale.Locale, Client.GetSiteId(site.SiteId), Client)
+            : await LocaleHelper.GetPrimaryCmsLocaleId(Client.GetSiteId(site.SiteId), Client);
+
+        var getItemRequest = new RestRequest($"collections/{collection.CollectionId}/items/{item.CollectionItemId}");
+        if (cmsLocaleId != null)
+            getItemRequest.AddQueryParameter("cmsLocaleId", cmsLocaleId);
+
+        var existingItem = await Client.ExecuteWithErrorHandling<CollectionItemEntity>(getItemRequest);
+
+        var fieldData = new Dictionary<string, object>
+        {
+            ["name"] = existingItem.Name,
+            ["slug"] = existingItem.Slug,
+            [input.FieldSlug] = new
+            {
+                fileId = uploadAssetResponse.Id,
+                url = uploadAssetResponse.HostedUrl
+            }
+        };
+
+        var itemData = new Dictionary<string, object>
+        {
+            ["id"] = item.CollectionItemId,
+            ["fieldData"] = fieldData
+        };
+        
+        if (cmsLocaleId is not null)
+            itemData["cmsLocaleId"] = cmsLocaleId;
+
+        var updateBody = new Dictionary<string, object> { ["items"] = new[] { itemData } };
+        var updateItemRequest = new RestRequest($"collections/{collection.CollectionId}/items", Method.Patch)
+            .AddQueryParameter("skipInvalidFiles", false)
+            .AddJsonBody(updateBody);
+
+        await Client.ExecuteWithErrorHandling(updateItemRequest);
     }
 }

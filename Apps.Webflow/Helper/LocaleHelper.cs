@@ -7,7 +7,7 @@ namespace Apps.Webflow.Helper;
 
 public static class LocaleHelper
 {
-    public async static Task<SiteLocale> GetLocale(string languageCode, string siteId, WebflowClient client)
+    public static async Task<SiteLocale> GetLocale(string languageCode, string siteId, WebflowClient client)
     {
         var request = new RestRequest($"/sites/{siteId}", Method.Get);
         var site = await client.ExecuteWithErrorHandling<SiteEntity>(request);
@@ -29,7 +29,7 @@ public static class LocaleHelper
         throw new PluginApplicationException($"Can't match language code {languageCode} to any locale in site {siteId}");
     }
 
-    public async static Task<string> GetCmsLocaleId(string languageCode, string siteId, WebflowClient client)
+    public static async Task<string> GetCmsLocaleId(string languageCode, string siteId, WebflowClient client)
     {
         var locale = await GetLocale(languageCode, siteId, client);
 
@@ -39,17 +39,15 @@ public static class LocaleHelper
         throw new PluginApplicationException($"Locale matched, but CmsLocaleId was null for {languageCode}");
     }
 
-    public async static Task<string> GetLocaleId(string languageCode, string siteId, WebflowClient client)
+    public static async Task<string?> GetPrimaryCmsLocaleId(string siteId, WebflowClient client)
     {
-        var locale = await GetLocale(languageCode, siteId, client);
-
-        if (locale.Id is not null)
-            return locale.Id;
-
-        throw new PluginApplicationException($"Locale matched, but Id was null for {languageCode}");
+        var request = new RestRequest($"/sites/{siteId}");
+        var site = await client.ExecuteWithErrorHandling<SiteEntity>(request);
+        
+        return site.Locales?.Primary?.CmsLocaleId;
     }
-
-    public async static Task<Dictionary<string, string>> GetLocaleMap(string siteId, WebflowClient client)
+    
+    public static async Task<Dictionary<string, string>> GetLocaleMap(string siteId, WebflowClient client)
     {
         var request = new RestRequest($"/sites/{siteId}", Method.Get);
         var site = await client.ExecuteWithErrorHandling<SiteEntity>(request);

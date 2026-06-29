@@ -135,4 +135,23 @@ public class CollectionItemTests : TestBaseWithContext
         // Act
         await action.PublishCollectionItem(site, collection, input, locale);
     }
+
+    [TestMethod, ContextDataSource(ConnectionTypes.SiteToken)]
+    public async Task UploadFileToCollectionItem_IsSuccess(InvocationContext context)
+    {
+        // Arrange
+        var action = new CollectionItemActions(context, FileManagementClient);
+        var siteId = new SiteIdentifier { SiteId = "68f8b336cbd1cac54f5b9d2c" };
+        var collectionId = new CollectionIdentifier { CollectionId = "68f8b337cbd1cac54f5b9d9c" };
+        var collectionItemId = new CollectionItemIdentifier { CollectionItemId = "6a3e3dcca9e8144a41a64015" };
+        var input = new UploadFileToCollectionItemRequest
+        {
+            File = new FileReference { Name = "test.pptx" },
+            FieldSlug = "test-file-123"
+        };
+        var locale = new LocaleIdentifier { Locale = "sv-SE" };
+
+        // Act
+        await action.UploadFileToCollectionItem(siteId, collectionId, collectionItemId, input, locale);
+    }
 }
