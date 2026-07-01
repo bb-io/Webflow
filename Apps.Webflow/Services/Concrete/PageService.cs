@@ -185,10 +185,10 @@ public class PageService(InvocationContext invocationContext, IFileManagementCli
             foreach (var element in node)
             {    
                 var content = HttpUtility.HtmlDecode(element.InnerHtml).Trim();
-                var propertyIdAttr = element.Attributes[ConversionConstants.PropertyId]?.Value;
-
-                if (string.IsNullOrEmpty(content))
+                if (string.IsNullOrWhiteSpace(content))
                     continue;
+                
+                var propertyIdAttr = element.Attributes[ConversionConstants.PropertyId]?.Value;
 
                 // Check if this is a placeholder
                 if (element.Attributes["data-node-placeholder"] != null)
@@ -214,7 +214,8 @@ public class PageService(InvocationContext invocationContext, IFileManagementCli
                 updateNode.PropertyOverrides = updateNode.PropertyOverrides.Append(propertyOverride);
             }
 
-            updateNodes.Add(updateNode);
+            if (updateNode.Text is not null || updateNode.Placeholder is not null || updateNode.PropertyOverrides is not null)
+                updateNodes.Add(updateNode);
         }
 
         await PatchPageDom(input.ContentId!, input.Locale!, updateNodes);

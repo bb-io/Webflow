@@ -74,22 +74,24 @@ public static class PageHtmlConverter
             }
             else if (node.Type == "component-instance")
             {
-                if (node.PropertyOverrides is not null)
+                if (node.PropertyOverrides is null)
+                    continue;
+                
+                foreach (var prop in node.PropertyOverrides)
                 {
-                    foreach (var prop in node.PropertyOverrides)
-                    {
-                        if (TranslatablePropertyTypes.Contains(prop.Type))
-                        {
-                            var textHtml = prop.Text?.Html ?? prop.Text?.Text ?? string.Empty;
+                    if (!TranslatablePropertyTypes.Contains(prop.Type)) 
+                        continue;
+                    
+                    var textHtml = prop.Text?.Html ?? prop.Text?.Text ?? string.Empty;
+                    if (string.IsNullOrWhiteSpace(textHtml))
+                        continue;
 
-                            var divNode = doc.CreateElement("div");
-                            divNode.SetAttributeValue(ConversionConstants.NodeId, node.Id);
-                            divNode.SetAttributeValue(ConversionConstants.PropertyId, prop.PropertyId);
-                            divNode.InnerHtml = textHtml;
+                    var divNode = doc.CreateElement("div");
+                    divNode.SetAttributeValue(ConversionConstants.NodeId, node.Id);
+                    divNode.SetAttributeValue(ConversionConstants.PropertyId, prop.PropertyId);
+                    divNode.InnerHtml = textHtml;
 
-                            body.AppendChild(divNode);
-                        }
-                    }
+                    body.AppendChild(divNode);
                 }
             }
         }
