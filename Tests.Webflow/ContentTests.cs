@@ -214,7 +214,7 @@ public class ContentTests : TestBaseWithContext
         var site = new SiteIdentifier { SiteId = "68f8b336cbd1cac54f5b9d2c" };
         var request = new DownloadContentRequest 
         { 
-            ContentId = "68f8b337cbd1cac54f5b9d81", 
+            ContentId = "68f8b337cbd1cac54f5b9d7f", 
             IncludeMetadata = true,
         };
         var contentFilter = new ContentFilter { ContentType = ContentTypes.Page };
@@ -293,15 +293,15 @@ public class ContentTests : TestBaseWithContext
         Assert.Contains(ex.Message, "Collection ID is required");
     }
 
-    [TestMethod, ContextDataSource(ConnectionTypes.OAuth2)]
+    [TestMethod, ContextDataSource(ConnectionTypes.SiteToken)]
     public async Task UploadContent_PageType_IsSuccess(InvocationContext context)
     {
         // Arrange
         var action = new ContentActions(context, FileManagementClient);
-        var site = new SiteIdentifier { };
+        var site = new SiteIdentifier { SiteId = "68f8b336cbd1cac54f5b9d2c" };
         var request = new UploadContentRequest
         {
-            Content = new FileReference { Name = "page.xlf" },
+            Content = new FileReference { Name = "page.html" },
             Locale = "sv-SE"
         };
 
