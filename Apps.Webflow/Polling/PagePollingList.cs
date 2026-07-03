@@ -20,17 +20,18 @@ public class PagePollingList(InvocationContext invocationContext) : WebflowInvoc
         [PollingEventParameter] SiteIdentifier site,
         [PollingEventParameter] PagePollingRequest input)
     {
+        var currentTime = DateTime.UtcNow;
         if (request.Memory is null)
         {
             return new()
             {
                 FlyBird = false,
-                Memory = new(DateTime.UtcNow, false),
+                Memory = new PageMemory { LastPollingTime = currentTime, Triggered = false },
                 Result = new SearchPagesResponse([])
             };
         }
 
-        var pagesRequest = new RestRequest($"sites/{Client.GetSiteId(site.SiteId)}/pages", Method.Get);
+        var pagesRequest = new RestRequest($"sites/{Client.GetSiteId(site.SiteId)}/pages");
         var pagesResponse = await Client.ExecuteWithErrorHandling<SearchPagesResponse>(pagesRequest);
 
         var lastPollingTime = request.Memory.LastPollingTime ?? DateTime.MinValue;
@@ -43,13 +44,14 @@ public class PagePollingList(InvocationContext invocationContext) : WebflowInvoc
         updatedPages = FilterHelper.ApplyContainsFilter(updatedPages, input.SlugContains, p => p.Slug);
         updatedPages = FilterHelper.ApplyContainsFilter(updatedPages, input.PublishedPathContains, p => p.PublishedPath);
 
-        bool triggered = updatedPages.Any();
+        var pagesList = updatedPages.ToList();
+        bool triggered = pagesList.Count != 0;
 
         return new PollingEventResponse<PageMemory, SearchPagesResponse>
         {
             FlyBird = triggered,
-            Memory = new PageMemory(DateTime.UtcNow, triggered),
-            Result = new SearchPagesResponse(updatedPages)
+            Memory = new PageMemory { LastPollingTime = currentTime, Triggered = triggered },
+            Result = new SearchPagesResponse(pagesList)
         };
     }
 }
