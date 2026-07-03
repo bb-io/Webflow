@@ -1,7 +1,7 @@
 ﻿namespace Apps.Webflow.Polling.Models;
 
-public class PageMemory(DateTime? lastPollingTime, bool triggered)
+public class PageMemory
 {
-    public DateTime? LastPollingTime { get; set; } = lastPollingTime;
-    public bool Triggered { get; set; } = triggered;
+    public DateTime? LastPollingTime { get; set; }
+    public bool Triggered { get; set; }
 }

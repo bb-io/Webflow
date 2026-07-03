@@ -22,7 +22,7 @@ public class PollingTests : TestBaseWithContext
 
         var request = new PollingEventRequest<PageMemory>
         {
-            Memory = new PageMemory(lastPollingTime, false)
+            Memory = new PageMemory { LastPollingTime = lastPollingTime, Triggered = false }
         };
 
         var site = new SiteIdentifier { };
@@ -45,7 +45,7 @@ public class PollingTests : TestBaseWithContext
 
         var request = new PollingEventRequest<PageMemory>
         {
-            Memory = new PageMemory(lastPollingTime, false)
+            Memory = new PageMemory { LastPollingTime = lastPollingTime, Triggered = false }
         };
 
         var input = new PagePollingRequest { NameDoesNotContain = "40" };
